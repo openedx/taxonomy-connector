@@ -36,7 +36,7 @@ LOCALE_PATHS = [
     root('taxonomy', 'conf', 'locale'),
 ]
 
-ROOT_URLCONF = 'taxonomy.urls'
+# ROOT_URLCONF = 'taxonomy.urls'
 
 SECRET_KEY = 'insecure-secret-key'
 

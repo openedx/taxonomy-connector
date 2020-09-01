@@ -144,9 +144,8 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
             raise TaxonomyServiceAPIError('Error while fetching course skills.') from error
 
     @staticmethod
-    def traverse_data(data):
-        # TODO need to implement this function.
-        return data
+    def traverse_data(response):
+        return response
 
 
 class EMSIJobsApiClient(JwtEMSIApiClient):
