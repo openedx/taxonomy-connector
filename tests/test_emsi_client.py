@@ -8,9 +8,13 @@ import responses
 
 from testfixtures import LogCapture
 from edx_django_utils.cache import TieredCache
+from pytest import raises
 
 from test_utils.testcase import TaxonomyTestCase
 from taxonomy.emsi_client import JwtEMSIApiClient, EMSISkillsApiClient, EMSIJobsApiClient
+from taxonomy.enums import RankingFacet
+from taxonomy.exceptions import TaxonomyServiceAPIError
+
 from test_utils.constants import CLIENT_ID, CLIENT_SECRET
 from test_utils.decorators import mock_api_response
 from test_utils.sample_responses.skills import SKILLS, SKILL_TEXT_DATA
@@ -152,7 +156,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/skills/extract',
+        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
         json=SKILLS,
     )
     def test_get_course_skills(self):
@@ -165,7 +169,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/skills/extract',
+        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
         json=SKILLS,
         status=400,
     )
@@ -173,9 +177,8 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of client when error occurs while fetching skill data.
         """
-        skills = self.client.get_course_skills(SKILL_TEXT_DATA)
-
-        assert skills == {}
+        with raises(TaxonomyServiceAPIError, match='Error while fetching course skills.'):
+            self.client.get_course_skills(SKILL_TEXT_DATA)
 
 
 class TestEMSIJobsApiClient(TaxonomyTestCase):
@@ -199,20 +202,24 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/title_name/rankings/skills_name',
+        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/rankings/{}'.format(
+            RankingFacet.TITLE_NAME.value, RankingFacet.SKILLS_NAME.value
+        ),
         json=JOBS,
     )
     def test_get_jobs(self):
         """
         Validate that the behavior of client while fetching jobs data.
         """
-        jobs = self.client.get_jobs(JOBS_FILTER)
+        jobs = self.client.get_jobs(RankingFacet.TITLE_NAME, RankingFacet.SKILLS_NAME, JOBS_FILTER)
 
         assert jobs == JOBS
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/title_name/rankings/skills_name',
+        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/rankings/{}'.format(
+            RankingFacet.TITLE_NAME.value, RankingFacet.SKILLS_NAME.value
+        ),
         json=JOBS,
         status=400,
     )
@@ -220,26 +227,31 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of client when error occurs while fetching jobs data.
         """
-        jobs = self.client.get_jobs(JOBS_FILTER)
-
-        assert jobs == {}
+        with raises(
+                TaxonomyServiceAPIError,
+                match='Error while fetching job rankings for {ranking_facet}/{nested_ranking_facet}.'.format(
+                    ranking_facet=RankingFacet.TITLE_NAME.value,
+                    nested_ranking_facet=RankingFacet.SKILLS_NAME.value
+                )
+        ):
+            self.client.get_jobs(RankingFacet.TITLE_NAME, RankingFacet.SKILLS_NAME, JOBS_FILTER)
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/title_name',
+        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/'.format(RankingFacet.TITLE_NAME.value),
         json=SALARIES,
     )
     def test_get_salaries(self):
         """
         Validate that the behavior of client while fetching jobs data.
         """
-        salaries = self.client.get_salaries(SALARIES_FILTER)
+        salaries = self.client.get_salaries(RankingFacet.TITLE_NAME, SALARIES_FILTER)
 
         assert salaries == SALARIES
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/title_name',
+        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/'.format(RankingFacet.TITLE_NAME.value),
         json=SALARIES,
         status=400,
     )
@@ -247,6 +259,11 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of client when error occurs while fetching jobs data.
         """
-        salaries = self.client.get_salaries(SALARIES_FILTER)
+        with raises(
+                TaxonomyServiceAPIError,
+                match='Error while fetching salary rankings for {ranking_facet}.'.format(
+                    ranking_facet=RankingFacet.TITLE_NAME.value,
+                )
+        ):
+            self.client.get_salaries(RankingFacet.TITLE_NAME, SALARIES_FILTER)
 
-        assert salaries == {}
