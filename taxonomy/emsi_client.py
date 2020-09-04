@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 
 from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
-from slumber.exceptions import HttpNotFoundError, SlumberBaseException
+from slumber.exceptions import SlumberBaseException
 import requests
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_django_utils.cache import get_cache_key, TieredCache
@@ -103,7 +103,8 @@ class JwtEMSIApiClient(object):
             expires_in = data['expires_in']
             TieredCache.set_all_tiers(self.cache_key, access_token, expires_in)
             return access_token
-        logger.error("[EMSI Service] Error occured while getting the access token for EMSI service")
+
+        logger.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
 
     def connect(self):
         """

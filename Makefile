@@ -53,7 +53,7 @@ pii_check: ## check for PII annotations on all Django models
 
 requirements: ## install development environment requirements
 	pip install -r requirements/pip-tools.txt
-	pip-sync requirements/dev.txt requirements/private.*
+	pip-sync requirements/dev.txt
 
 test: clean ## run tests in the current virtualenv
 	pytest
