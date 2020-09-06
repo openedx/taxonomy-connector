@@ -39,8 +39,6 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 	$(PIP_COMPILE) -o requirements/pip-tools.txt requirements/pip-tools.in
 	$(PIP_COMPILE) -o requirements/base.txt requirements/base.in
 	$(PIP_COMPILE) -o requirements/test.txt requirements/test.in
-	$(PIP_COMPILE) -o requirements/doc.txt requirements/doc.in
-	$(PIP_COMPILE) -o requirements/quality.txt requirements/quality.in
 	$(PIP_COMPILE) -o requirements/travis.txt requirements/travis.in
 	$(PIP_COMPILE) -o requirements/dev.txt requirements/dev.in
 	# Let tox control the Django version for tests
@@ -55,7 +53,7 @@ pii_check: ## check for PII annotations on all Django models
 
 requirements: ## install development environment requirements
 	pip install -r requirements/pip-tools.txt
-	pip-sync requirements/dev.txt requirements/private.*
+	pip-sync requirements/dev.txt
 
 test: clean ## run tests in the current virtualenv
 	pytest

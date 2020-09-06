@@ -1,0 +1,59 @@
+*.py[cod]
+__pycache__
+.pytest_cache
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+node_modules/
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.cache/
+.coverage
+.coverage.*
+.tox
+coverage.xml
+htmlcov/
+pii_report/
+
+# Translations
+*.mo
+
+# IDEs and text editors
+*~
+*.swp
+.idea/
+.project
+.pycharm_helpers/
+.pydevproject
+.vscode/
+
+# OS X artifacts
+*.DS_Store
+
+# Logging
+log/
+logs/
+chromedriver.log
+ghostdriver.log
+geckodriver.log
+
+# tox environment temporary artifacts
+tests/__init__.py
+
+# Virtual environments
+venv/

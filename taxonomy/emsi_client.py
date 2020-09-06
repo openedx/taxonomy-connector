@@ -1,12 +1,16 @@
 
 import logging
+
 from functools import wraps
 
 from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
-from slumber.exceptions import HttpNotFoundError, SlumberBaseException
+from slumber.exceptions import SlumberBaseException
 import requests
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_django_utils.cache import get_cache_key, TieredCache
+
+from taxonomy.exceptions import TaxonomyServiceAPIError
+
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +107,8 @@ class JwtEMSIApiClient(object):
             expires_in = data['expires_in']
             TieredCache.set_all_tiers(self.cache_key, access_token, expires_in)
             return access_token
-        logger.error("[EMSI Service] Error occured while getting the access token for EMSI service")
+
+        logger.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
 
     def connect(self):
         """
@@ -173,11 +178,11 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
             data = {
                 "text": course_text_data
             }
-            response = self.client.versions.latest.skills.extract.post(data)
+            response = self.client.versions.latest.extract.post(data)
 
             return self.traverse_data(response)
-        except (SlumberBaseException, ConnectionError, Timeout) as exc:
-            return {}
+        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            raise TaxonomyServiceAPIError('Error while fetching course skills.') from error
 
     @staticmethod
     def traverse_data(data):
@@ -195,22 +200,35 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         super(EMSIJobsApiClient, self).__init__(scope="postings:us")
 
     @JwtEMSIApiClient.refresh_token
-    def get_jobs(self, query_filter=None):
+    def get_jobs(self, ranking_facet, nested_ranking_facet, query_filter=None):
         """
         Query the EMSI API for the jobs of the pre-defined filter_query.
 
         Args:
             query_filter (dict): The dictionary of filters.
+            ranking_facet (RankingFacet): Data will be ranked by this facet.
+            nested_ranking_facet (RankingFacet): This is the nested facet to be applied after ranking data by the
+                `ranking_facet`.
 
         Returns:
             dict: A dictionary containing details of all the jobs.
         """
+        url = 'rankings/{ranking_facet}/rankings/{nested_ranking_facet}'.format(
+            ranking_facet=ranking_facet.value,
+            nested_ranking_facet=nested_ranking_facet.value,
+        )
         query_filter = query_filter if query_filter else JOBS_QUERY_FILTER
         try:
-            response = self.client.rankings.title_name.rankings.skills_name.post(query_filter)
+            endpoint = getattr(self.client, url)
+            response = endpoint().post(query_filter)
             return self.traverse_jobs_data(response)
-        except (SlumberBaseException, ConnectionError, Timeout) as exc:
-            return {}
+        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            raise TaxonomyServiceAPIError(
+                'Error while fetching job rankings for {ranking_facet}/{nested_ranking_facet}.'.format(
+                    ranking_facet=ranking_facet.value,
+                    nested_ranking_facet=nested_ranking_facet.value,
+                )
+            ) from error
 
     @staticmethod
     def traverse_jobs_data(jobs_data):
@@ -218,22 +236,28 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         return jobs_data
 
     @JwtEMSIApiClient.refresh_token
-    def get_salaries(self, query_filter=None):
+    def get_salaries(self, ranking_facet, query_filter=None):
         """
         Query the EMSI API for the salaries of the pre-defined filter_query.
 
         Args:
-            query_filter (dict): The dictionary of filters.
+            ranking_facet (RankingFacet): Data will be ranked by this facet.
 
         Returns:
             dict: A dictionary containing details of all the salaries.
         """
+        url = 'rankings/{ranking_facet}/'.format(ranking_facet=ranking_facet.value)
         query_filter = query_filter if query_filter else SALARIES_QUERY_FILTER
         try:
-            response = self.client.rankings.title_name.post(query_filter)
+            endpoint = getattr(self.client, url)
+            response = endpoint().post(query_filter)
             return self.traverse_salary_data(response)
-        except (SlumberBaseException, ConnectionError, Timeout) as exc:
-            return {}
+        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            raise TaxonomyServiceAPIError(
+                'Error while fetching salary rankings for {ranking_facet}.'.format(
+                    ranking_facet=ranking_facet.value,
+                )
+            ) from error
 
     @staticmethod
     def traverse_salary_data(data):
