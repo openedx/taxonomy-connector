@@ -3,73 +3,32 @@ import logging
 
 from functools import wraps
 
+from django.conf import settings
+
+import requests
+
 from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
 from slumber.exceptions import SlumberBaseException
-import requests
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_django_utils.cache import get_cache_key, TieredCache
 
 from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.constants import SALARIES_QUERY_FILTER, JOBS_QUERY_FILTER
 
 
 logger = logging.getLogger(__name__)
-
-
-JOBS_QUERY_FILTER = {
-    "filter": {
-        "when": {
-            "start": "2020-01",
-            "end": "2020-06",
-            "type": "active"
-        },
-        "posting_duration": {
-            "lower_bound": 0,
-            "upper_bound": 90
-        }
-    },
-    "rank": {
-        "by": "unique_postings",
-        "min_unique_postings": 1000,
-        "limit": 20
-    },
-    "nested_rank": {
-        "by": "significance",
-        "limit": 10
-    }
-}
-
-SALARIES_QUERY_FILTER = {
-    "filter": {
-        "when": {
-            "start": "2020-01",
-            "end": "2020-06",
-            "type": "active"
-        },
-        "posting_duration": {
-            "lower_bound": 0,
-            "upper_bound": 90
-        }
-    },
-    "rank": {
-        "by": "unique_postings",
-        "min_unique_postings": 1000,
-        "limit": 20,
-        "extra_metrics": [
-            "median_posting_duration",
-            "median_salary",
-            "unique_companies"
-        ]
-    }
-}
 
 
 class JwtEMSIApiClient(object):
     """
     EMSI client authenticates using a access token for the given user.
     """
-    ACCESS_TOKEN_URL = "https://auth.emsicloud.com/connect/token"
-    API_BASE_URL = "https://emsiservices.com"
+    ACCESS_TOKEN_URL = settings.EMSI_API_ACCESS_TOKEN_URL
+    API_BASE_URL = settings.EMSI_API_BASE_URL
     APPEND_SLASH = False
+
+    client_id = settings.EMSI_CLIENT_ID
+    client_secret = settings.EMSI_CLIENT_SECRET
 
     def __init__(self, scope):
         """
@@ -83,7 +42,7 @@ class JwtEMSIApiClient(object):
         """
         Return the cache key
         """
-        return get_cache_key(endpoint="EMSI", scope=self.scope)
+        return get_cache_key(endpoint='EMSI', scope=self.scope)
 
     def get_oauth_access_token(self, client_id, client_secret, grant_type='client_credentials'):
         """
@@ -121,8 +80,8 @@ class JwtEMSIApiClient(object):
 
         if access_token is None:
             access_token = self.get_oauth_access_token(
-                client_id='edx',
-                client_secret='vZHeB5Je'
+                client_id=self.client_id,
+                client_secret=self.client_secret,
             )
 
         self.client = EdxRestApiClient(
@@ -158,10 +117,10 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     """
     Object builds an API client to make calls to get the skills from course text data.
     """
-    API_BASE_URL = "https://emsiservices.com/skills"
+    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills'
 
     def __init__(self):
-        super(EMSISkillsApiClient, self).__init__(scope="emsi_open")
+        super(EMSISkillsApiClient, self).__init__(scope='emsi_open')
 
     @JwtEMSIApiClient.refresh_token
     def get_course_skills(self, course_text_data):
@@ -176,7 +135,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         """
         try:
             data = {
-                "text": course_text_data
+                'text': course_text_data
             }
             response = self.client.versions.latest.extract.post(data)
 
@@ -194,10 +153,10 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
     """
     Object builds an API client to make calls to get the Jobs.
     """
-    API_BASE_URL = "https://emsiservices.com/jpa"
+    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/jpa'
 
     def __init__(self):
-        super(EMSIJobsApiClient, self).__init__(scope="postings:us")
+        super(EMSIJobsApiClient, self).__init__(scope='postings:us')
 
     @JwtEMSIApiClient.refresh_token
     def get_jobs(self, ranking_facet, nested_ranking_facet, query_filter=None):

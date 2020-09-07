@@ -97,7 +97,7 @@ project = 'taxonomy-service'
 copyright = edx_theme.COPYRIGHT  # pylint: disable=redefined-builtin
 author = edx_theme.AUTHOR
 project_title = 'Open edX Enterprise Service Documentation'
-documentation_title = "{project_title}".format(project_title=project_title)
+documentation_title = '{project_title}'.format(project_title=project_title)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
