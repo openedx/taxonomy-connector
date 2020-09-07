@@ -67,13 +67,16 @@ def get_requirements(requirements_file):
 
 
 REQUIREMENTS, DEPENDENCY_LINKS = get_requirements(os.path.join(base_path, 'requirements', 'base.in'))
+# To get the version
+VERSION = get_version("taxonomy", "__init__.py")
+CHANGELOG = open(os.path.join(base_path, "CHANGELOG.rst")).read()
 
 setup(
     name='taxonomy-service',
-    version='0.1',
+    version=VERSION,
     packages=['taxonomy'],
     description='Taxonomy service',
-    long_description=README,
+    long_description=README + "\n\n" + CHANGELOG,
     author='edX',
     author_email='oscm@edx.org',
     url='https://github.com/edx/taxonomy-service',
