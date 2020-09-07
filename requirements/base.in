@@ -1,5 +1,5 @@
-# Core requirements for using this application
--c constraints.txt
-
-slumber
+Django
+djangorestframework
+pytz
 edx-rest-api-client
+edx-django-utils
