@@ -1,5 +1,7 @@
 Django
 djangorestframework
+django-model-utils
+django-solo
 pytz
 edx-rest-api-client
 edx-django-utils

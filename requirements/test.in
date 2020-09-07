@@ -8,3 +8,6 @@ pytest-django             # pytest extension for better Django support
 code-annotations          # provides commands used by the pii_check make target.
 responses                 # utility library for mocking out the requests library
 testfixtures              # Mock objects for unit tests and doc tests
+factory-boy
+mock
+Faker

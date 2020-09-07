@@ -1,5 +1,5 @@
 """
-Base test case for taxnomy tests.
+Base test case for taxonomy tests.
 """
 
 import unittest

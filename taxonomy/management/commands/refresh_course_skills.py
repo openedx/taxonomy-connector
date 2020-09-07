@@ -5,9 +5,13 @@ Management command for refreshing the skills associated with courses.
 import logging
 
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.translation import gettext as _
+
 from taxonomy.emsi_client import EMSISkillsApiClient
-from taxonomy.management.command_utils import get_mutually_exclusive_required_option, fetch_course_description
-from taxonomy.models import CourseSkills, Skill
+from taxonomy.models import CourseSkills, Skill, RefreshCourseSkillsConfig
+from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.api_client.discovery import get_courses, extract_course_description
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -15,9 +19,8 @@ LOGGER = logging.getLogger(__name__)
 class Command(BaseCommand):
     """
         Example usage:
-            $ ./manage.py refresh_course_skills --all-courses --commit
-            $ ./manage.py refresh_course_skills --course-id 'Course1' --course-id 'Course2' --commit
-            $ ./manage.py refresh_course_skills --from-settings
+            $ ./manage.py refresh_course_skills --course 'Course1' --course 'Course2' --commit
+            $ ./manage.py refresh_course_skills --args-from-database
         """
     help = 'Refreshes the skills associated with courses.'
 
@@ -26,83 +29,66 @@ class Command(BaseCommand):
         Add arguments to the command parser.
         """
         parser.add_argument(
-            '--course-id', '--course_id',
-            dest='course_ids',
+            '--course',
+            metavar=_('UUID'),
             action='append',
-            help=u'Refreshes skills for the list of courses.'
+            help=_('Course for mapping to skills.'),
+            default=[],
         )
         parser.add_argument(
-            '--all-courses', '--all', '--all_courses',
-            dest='all_courses',
+            '--args-from-database',
             action='store_true',
-            default=False,
-            help=u'Refreshes skills for all courses.'
-        )
-        parser.add_argument(
-            '--from-settings', '--from_settings',
-            dest='from_settings',
-            help='Refreshes skills with settings set via django admin',
-            action='store_true',
-            default=False,
+            help=_('Use arguments from the RefreshCourseSkillsConfig model instead of the command line.'),
         )
         parser.add_argument(
             '--commit',
-            dest='commit',
             action='store_true',
             default=False,
             help=u'Commits the skills to storage. '
         )
 
-    def _get_options(self, options):
-        """
-        Returns the command arguments configured via django admin.
-        """
-        commit = options['commit']
-        courses_mode = get_mutually_exclusive_required_option(options, 'course_ids', 'all_courses', 'from_settings')
-        if courses_mode == 'all_courses':
-            course_keys = [] #TODO
-        elif courses_mode == 'course_ids':
-            course_keys = options['course_ids']
-        else:
-            if self._latest_settings().all_courses:
-                course_keys = [] #TODO
-            else:
-                course_keys = parse_course_keys(self._latest_settings().course_ids.split())
-            commit = self._latest_settings().commit
-
-        return course_keys, commit
-
-    def _latest_settings(self):
-        """
-        Return the latest version of the RefreshSkillsSetting
-        """
-        return RefreshSkillsSetting.current() #TODO
+    def get_args_from_database(self):
+        """ Returns an options dictionary from the current RefreshCourseSkillsConfig model. """
+        config = RefreshCourseSkillsConfig.get_solo()
+        argv = config.arguments.split()
+        parser = self.create_parser('manage.py', 'refresh_course_skills')
+        return parser.parse_args(argv).__dict__
 
     def _update_skills_data(self, course_key, confidence, skill_data):
         """
         Persist the skills data
         """
         skill, created = Skill.objects.update_or_create(**skill_data)
-        course_skills = CourseSkills.objects.update_or_create(
+        CourseSkills.objects.update_or_create(
             course_id=course_key,
             skill=skill,
             confidence=confidence
         )
 
-    def _refresh_skills(self, course_keys, commit):
+    def _refresh_skills(self, options):
         """
         Refreshes the skills associated with the provided courses
         """
+        courses = get_courses(options)
+
+        if not courses:
+            raise CommandError(_('No courses found. Did you specify an argument?'))
+
+        failures = set()
         client = EMSISkillsApiClient()
-        for course_key in course_keys:
-            course_description = fetch_course_description(course_key) #TODO
+        for course in courses:
+            course_description = extract_course_description(course)
             if course_description:
-                course_skills = client.get_course_skills(course_description)
-                if course_skills:
-                    for x in range(0, len(course_skills['data'])):
+                try:
+                    course_skills = client.get_course_skills(course_description)
+                except TaxonomyServiceAPIError:
+                    LOGGER.error('Taxonomy Service Error for course_key:{}', course.key)
+                    failures.add(course)
+                else:
+                    for record in course_skills['data']:
                         try:
-                            confidence = float(course_skills['data'][x]['confidence'])
-                            skill = course_skills['data'][x]['skill']
+                            confidence = float(record['confidence'])
+                            skill = record['skill']
                             skill_data = {
                                 'external_id': skill['id'],
                                 'name': skill['name'],
@@ -110,14 +96,29 @@ class Command(BaseCommand):
                                 'type_id': skill['type']['id'],
                                 'type_name': skill['type']['name'],
                             }
-                            if commit:
-                                self._update_skills_data(course_key, confidence, skill_data)
+                            if options['commit']:
+                                self._update_skills_data(course.key, confidence, skill_data)
                         except KeyError:
-                            LOGGER.error('Missing keys in skills data for course_key:{}', course_key)
+                            LOGGER.error('Missing keys in skills data for course_key: {}', course.key)
+                            failures.add(course)
+                        except (ValueError, TypeError):
+                            LOGGER.error(
+                                'Invalid type for `confidence` in course skills for course_key: {}', course.key
+                            )
+                            failures.add(course)
+        if failures:
+            keys = sorted('{key} ({id})'.format(key=failure.key, id=failure.id) for failure in failures)
+            raise CommandError(
+                _('Could not refresh skills for the following courses: {course_keys}').format(
+                    course_keys=', '.join(keys)
+                )
+            )
 
     def handle(self, *args, **options):
         """
         Entry point for management command execution.
         """
-        course_keys, commit = self._get_options(options)
-        self._refresh_skills(course_keys, commit)
+        if options['args_from_database']:
+            options = self.get_args_from_database()
+
+        self._refresh_skills(options)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tests for the djagno management command `refresh_course_skills`.
+Tests for the django management command `refresh_course_skills`.
 """
 
 import mock
@@ -10,6 +10,8 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from taxonomy.models import CourseSkills, Skill
+from test_utils.sample_responses.skills import SKILLS
+from test_utils.mocks import MockCourse
 
 
 @mark.django_db
@@ -20,78 +22,37 @@ class RefreshCourseSkillsCommandTests(TestCase):
     command = 'refresh_course_skills'
 
     def setUp(self):
-        self.skills = {
-            'data': [
-                {
-                    'confidence': 1.0,
-                    'skill': {
-                        'id': 'KS7G7075XZCWK6F9F51J',
-                        'infoUrl': 'https://skills.emsidata.com/skills/KS7G7075XZCWK6F9F51J',
-                        'name': 'Drainage Systems',
-                        'tags': [
-                            {
-                                'key': 'wikipediaExtract',
-                                'value': 'Drainage system may refer to:Drainage system (geomorphology)'
-                            },
-                            {
-                                'key': 'wikipediaUrl',
-                                'value': 'https://en.wikipedia.org/wiki/Drainage_system'
-                            }
-                        ],
-                        'type': {
-                            'id': 'ST1',
-                            'name': 'Hard Skill'
-                        }
-                    }
-                },
-                {
-                    'confidence': 1.0,
-                    'skill': {
-                        'id': 'JS7G7075XZCWK6F9F51K',
-                        'infoUrl': 'https://skills.emsidata.com/skills/KS7G7075XZCWK6F9F51J',
-                        'name': 'Drainage Systems',
-                        'tags': [
-                            {
-                                'key': 'wikipediaExtract',
-                                'value': 'Drainage system may refer to:Drainage system (geomorphology)'
-                            },
-                            {
-                                'key': 'wikipediaUrl',
-                                'value': 'https://en.wikipedia.org/wiki/Drainage_system'
-                            }
-                        ],
-                        'type': {
-                            'id': 'ST1',
-                            'name': 'Hard Skill'
-                        }
-                    }
-                }
-            ]
-        }
+        self.skills = SKILLS
+        self.course_1 = MockCourse()
+        self.course_2 = MockCourse()
+        self.course_3 = MockCourse()
         super(RefreshCourseSkillsCommandTests, self).setUp()
 
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_courses')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
-    def test_course_skill_saved(self, client_mock):
+    def test_course_skill_saved(self, get_course_skills_mock, get_courses_mock):
         """
         Test that the command creates a Skill and many CourseSkills records.
         """
-        client_mock.return_value = self.skills
+        get_course_skills_mock.return_value = self.skills
+        get_courses_mock.return_value = [self.course_1, self.course_2]
         skill = Skill.objects.all()
         course_skill = CourseSkills.objects.all()
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
-        call_command(self.command, '--course-id', 'Test_Course1', '--course-id', 'Test_Course2', '--commit')
+        call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
 
-        self.assertEqual(skill.count(), 2)
-        self.assertEqual(course_skill.count(), 4)
+        self.assertEqual(skill.count(), 4)
+        self.assertEqual(course_skill.count(), 8)
 
-        call_command(self.command, '--course-id', 'Test_Course1', '--course-id', 'Test_Course2', '--commit')
+        call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
 
-        self.assertEqual(skill.count(), 2)
-        self.assertEqual(course_skill.count(), 4)
+        self.assertEqual(skill.count(), 4)
+        self.assertEqual(course_skill.count(), 8)
 
-        call_command(self.command, '--course-id', 'Test_Course3', '--course-id', 'Test_Course1', '--commit')
+        get_courses_mock.return_value = [self.course_3, self.course_1]
+        call_command(self.command, '--course', self.course_3.uuid, '--course', self.course_1.uuid, '--commit')
 
-        self.assertEqual(skill.count(), 2)
-        self.assertEqual(course_skill.count(), 6)
+        self.assertEqual(skill.count(), 4)
+        self.assertEqual(course_skill.count(), 12)

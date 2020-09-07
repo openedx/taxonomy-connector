@@ -29,7 +29,7 @@ DATABASES = {
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'taxonomy'
+    'taxonomy',
 )
 
 LOCALE_PATHS = [

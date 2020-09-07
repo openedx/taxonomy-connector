@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 from django.db import models
 from model_utils.models import TimeStampedModel
 from django.utils.translation import ugettext as _
+from solo.models import SingletonModel
 
 
-class Skill(models.Model):
+class Skill(TimeStampedModel):
     """
     Skills that can be acquired by a learner.
 
@@ -61,6 +62,10 @@ class Skill(models.Model):
         """
         return self.__str__()
 
+    class Meta:
+        ordering = ['created']
+        app_label = "taxonomy"
+
 
 class CourseSkills(TimeStampedModel):
     """
@@ -94,6 +99,7 @@ class CourseSkills(TimeStampedModel):
 
     class Meta:
         ordering = ['created']
+        app_label = "taxonomy"
 
     def __str__(self):
         """
@@ -106,3 +112,21 @@ class CourseSkills(TimeStampedModel):
         Return string representation.
         """
         return self.__str__()
+
+
+class RefreshCourseSkillsConfig(SingletonModel):
+    """
+    Configuration for the refresh_course_skills management command.
+    """
+    class Meta:
+        app_label = "taxonomy"
+        verbose_name = 'refresh_course_skills argument'
+
+    arguments = models.TextField(
+        blank=True,
+        help_text='Useful for manually running a Jenkins job. Specify like "--course=key1 --course=key2".',
+        default='',
+    )
+
+    def __str__(self):
+        return self.arguments

@@ -6,7 +6,7 @@
 #
 appdirs==1.4.4            # via -r requirements/travis.txt, virtualenv
 asgiref==3.2.10           # via -r requirements/test.txt, django
-attrs==20.1.0             # via -r requirements/test.txt, pytest
+attrs==20.2.0             # via -r requirements/test.txt, pytest
 certifi==2020.6.20        # via -r requirements/test.txt, -r requirements/travis.txt, requests
 chardet==3.0.4            # via -r requirements/test.txt, -r requirements/travis.txt, requests
 click==7.1.2              # via -r requirements/pip-tools.txt, -r requirements/test.txt, code-annotations, pip-tools
@@ -15,11 +15,16 @@ codecov==2.1.9            # via -r requirements/travis.txt
 coverage==5.2.1           # via -r requirements/test.txt, -r requirements/travis.txt, codecov, pytest-cov
 diff-cover==4.0.0         # via -r requirements/dev.in
 distlib==0.3.1            # via -r requirements/travis.txt, virtualenv
+django-model-utils==4.0.0  # via -r requirements/test.txt
+django-solo==1.1.3        # via -r requirements/test.txt
 django-waffle==2.0.0      # via -r requirements/test.txt, edx-django-utils
-django==3.1.1             # via -r requirements/test.txt, code-annotations, edx-django-utils, edx-i18n-tools
+django==3.1.1             # via -r requirements/test.txt, code-annotations, django-model-utils, djangorestframework, edx-django-utils, edx-i18n-tools
+djangorestframework==3.11.1  # via -r requirements/test.txt
 edx-django-utils==3.8.0   # via -r requirements/test.txt, edx-rest-api-client
 edx-i18n-tools==0.5.3     # via -r requirements/dev.in
 edx-rest-api-client==5.2.1  # via -r requirements/test.txt
+factory-boy==3.0.1        # via -r requirements/test.txt
+faker==4.1.2              # via -r requirements/test.txt, factory-boy
 filelock==3.0.12          # via -r requirements/travis.txt, tox, virtualenv
 idna==2.10                # via -r requirements/test.txt, -r requirements/travis.txt, requests
 inflect==4.1.0            # via jinja2-pluralize
@@ -27,6 +32,7 @@ iniconfig==1.0.1          # via -r requirements/test.txt, pytest
 jinja2-pluralize==0.3.0   # via diff-cover
 jinja2==2.11.2            # via -r requirements/test.txt, code-annotations, diff-cover, jinja2-pluralize
 markupsafe==1.1.1         # via -r requirements/test.txt, jinja2
+mock==4.0.2               # via -r requirements/test.txt
 more-itertools==8.5.0     # via -r requirements/test.txt, pytest
 newrelic==5.18.0.148      # via -r requirements/test.txt, edx-django-utils
 packaging==20.4           # via -r requirements/test.txt, -r requirements/travis.txt, pytest, tox
@@ -44,17 +50,18 @@ pyparsing==2.4.7          # via -r requirements/test.txt, -r requirements/travis
 pytest-cov==2.10.1        # via -r requirements/test.txt
 pytest-django==3.9.0      # via -r requirements/test.txt
 pytest==6.0.1             # via -r requirements/test.txt, pytest-cov, pytest-django
+python-dateutil==2.8.1    # via -r requirements/test.txt, faker
 python-slugify==4.0.1     # via -r requirements/test.txt, code-annotations
 pytz==2020.1              # via -r requirements/test.txt, django
 pyyaml==5.3.1             # via -r requirements/test.txt, code-annotations, edx-i18n-tools
 requests==2.24.0          # via -r requirements/test.txt, -r requirements/travis.txt, codecov, edx-rest-api-client, responses, slumber
 responses==0.12.0         # via -r requirements/test.txt
-six==1.15.0               # via -r requirements/pip-tools.txt, -r requirements/test.txt, -r requirements/travis.txt, edx-i18n-tools, packaging, pip-tools, responses, tox, virtualenv
+six==1.15.0               # via -r requirements/pip-tools.txt, -r requirements/test.txt, -r requirements/travis.txt, edx-i18n-tools, packaging, pip-tools, python-dateutil, responses, tox, virtualenv
 slumber==0.7.1            # via -r requirements/test.txt, edx-rest-api-client
 sqlparse==0.3.1           # via -r requirements/test.txt, django
 stevedore==3.2.1          # via -r requirements/test.txt, code-annotations, edx-django-utils
-testfixtures==6.14.1      # via -r requirements/test.txt
-text-unidecode==1.3       # via -r requirements/test.txt, python-slugify
+testfixtures==6.14.2      # via -r requirements/test.txt
+text-unidecode==1.3       # via -r requirements/test.txt, faker, python-slugify
 toml==0.10.1              # via -r requirements/test.txt, -r requirements/travis.txt, pytest, tox
 tox-battery==0.6.1        # via -r requirements/dev.in, -r requirements/travis.txt
 tox==3.20.0               # via -r requirements/travis.txt, tox-battery
