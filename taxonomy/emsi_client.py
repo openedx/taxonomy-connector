@@ -13,7 +13,7 @@ from edx_rest_api_client.client import EdxRestApiClient
 from edx_django_utils.cache import get_cache_key, TieredCache
 
 from taxonomy.exceptions import TaxonomyServiceAPIError
-from taxonomy.constants import SALARIES_QUERY_FILTER, JOBS_QUERY_FILTER
+from taxonomy.constants import JOB_POSTINGS_QUERY_FILTER, JOBS_QUERY_FILTER
 
 
 logger = logging.getLogger(__name__)
@@ -190,34 +190,32 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
 
     @staticmethod
     def traverse_jobs_data(jobs_data):
-        # TODO need to implement this function.
         return jobs_data
 
     @JwtEMSIApiClient.refresh_token
-    def get_salaries(self, ranking_facet, query_filter=None):
+    def get_job_postings(self, ranking_facet, query_filter=None):
         """
-        Query the EMSI API for the salaries of the pre-defined filter_query.
+        Query the EMSI API for the job postings of the pre-defined filter_query.
 
         Args:
             ranking_facet (RankingFacet): Data will be ranked by this facet.
 
         Returns:
-            dict: A dictionary containing details of all the salaries.
+            dict: A dictionary containing job postings data.
         """
         url = 'rankings/{ranking_facet}/'.format(ranking_facet=ranking_facet.value)
-        query_filter = query_filter if query_filter else SALARIES_QUERY_FILTER
+        query_filter = query_filter if query_filter else JOB_POSTINGS_QUERY_FILTER
         try:
             endpoint = getattr(self.client, url)
             response = endpoint().post(query_filter)
-            return self.traverse_salary_data(response)
+            return self.traverse_postings_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
             raise TaxonomyServiceAPIError(
-                'Error while fetching salary rankings for {ranking_facet}.'.format(
+                'Error while fetching job postings data ranked by {ranking_facet}.'.format(
                     ranking_facet=ranking_facet.value,
                 )
             ) from error
 
     @staticmethod
-    def traverse_salary_data(data):
-        # TODO need to implement this function.
+    def traverse_postings_data(data):
         return data
