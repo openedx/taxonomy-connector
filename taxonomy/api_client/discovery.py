@@ -15,9 +15,12 @@ def get_courses(options):
     """
     Retrieve the courses from discovery.
     """
-    return Course.everything.filter(
-        Q(uuid__in=options['course'])
-    ).distinct()
+    if Course:
+        return Course.everything.filter(
+            Q(uuid__in=options['course'])
+        ).distinct()
+    else:
+        return None
 
 
 def extract_course_description(course):

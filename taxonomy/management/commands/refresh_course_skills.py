@@ -19,7 +19,7 @@ LOGGER = logging.getLogger(__name__)
 class Command(BaseCommand):
     """
         Example usage:
-            $ ./manage.py refresh_course_skills --course 'Course1' --course 'Course2' --commit
+            $ ./manage.py refresh_course_skills --course 'Course1_uuid' --course 'Course2_uuid' --commit
             $ ./manage.py refresh_course_skills --args-from-database
         """
     help = 'Refreshes the skills associated with courses.'
