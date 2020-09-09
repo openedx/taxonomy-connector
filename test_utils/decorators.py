@@ -17,14 +17,14 @@ def mock_api_response(method, url, body='', *responses_args, **responses_kwargs)
         >>>     json={'count': 2, 'next': None, 'previous': None, 'results': [{'id': 7}, {'id': 19}]}
         >>>     additional_responses=[
         >>>         {
-        >>>            "method": responses.GET,
-        >>>            "url": 'http://example.com/api/v1/users/7/',
-        >>>            "json": {'id': 7, 'name': 'test'}
+        >>>            'method': responses.GET,
+        >>>            'url': 'http://example.com/api/v1/users/7/',
+        >>>            'json': {'id': 7, 'name': 'test'}
         >>>         },
         >>>         {
-        >>>            "method": responses.GET,
-        >>>            "url": 'http://example.com/api/v1/users/19/',
-        >>>            "json": {'id': 19, 'name': 'test 2'}
+        >>>            'method': responses.GET,
+        >>>            'url': 'http://example.com/api/v1/users/19/',
+        >>>            'json': {'id': 19, 'name': 'test 2'}
         >>>         }
         >>>     ]
         >>>  )
@@ -59,7 +59,7 @@ def mock_api_response(method, url, body='', *responses_args, **responses_kwargs)
 
 
 def mock_api_response_with_callback(
-        method, url, callback, match_querystring=False, content_type="text/plain", additional_responses=None
+        method, url, callback, match_querystring=False, content_type='text/plain', additional_responses=None
 ):
     """
     Function to get the decorator that can mock API calls made via a callback function.
@@ -79,18 +79,18 @@ def mock_api_response_with_callback(
         >>>     content_type='application/json'
         >>>     additional_responses=[
         >>>         {
-        >>>            "method": responses.GET,
-        >>>            "url": 'http://example.com/api/v1/users/7/',
-        >>>            "content_type": 'application/json',
-        >>>            "match_querystring": True,
-        >>>            "callback": callback
+        >>>            'method': responses.GET,
+        >>>            'url': 'http://example.com/api/v1/users/7/',
+        >>>            'content_type': 'application/json',
+        >>>            'match_querystring': True,
+        >>>            'callback': callback
         >>>         },
         >>>         {
-        >>>            "method": responses.GET,
-        >>>            "url": 'http://example.com/api/v1/users/7/',
-        >>>            "content_type": 'application/json',
-        >>>            "match_querystring": True,
-        >>>            "callback": callback
+        >>>            'method': responses.GET,
+        >>>            'url': 'http://example.com/api/v1/users/7/',
+        >>>            'content_type': 'application/json',
+        >>>            'match_querystring': True,
+        >>>            'callback': callback
         >>>         },
         >>>     ]
         >>>  )
