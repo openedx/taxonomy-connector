@@ -79,3 +79,48 @@ SKILLS = {
         }
     ]
 }
+
+MISSING_NAME_SKILLS = {
+    'data': [
+        {
+            'confidence': 1,
+            'skill': {
+                'id': 'KSDJCA4E89LB98JAZ7LZ',
+                'infoUrl': 'https://skills.emsidata.com/skills/KSDJCA4E89LB98JAZ7LZ',
+                'tags': [
+                    {
+                        'key': 'wikipediaUrl',
+                        'value': 'https://en.wikipedia.org/wiki/React.js'
+                    }
+                ],
+                'type': {
+                    'id': 'ST1',
+                    'name': 'Hard Skill'
+                }
+            }
+        }
+    ]
+}
+
+TYPE_ERROR_SKILLS = {
+    'data': [
+        {
+            'confidence': 'error-value',
+            'skill': {
+                'id': 'KSDJCA4E89LB98JAZ7LZ',
+                'name': 'React.js',
+                'infoUrl': 'https://skills.emsidata.com/skills/KSDJCA4E89LB98JAZ7LZ',
+                'tags': [
+                    {
+                        'key': 'wikipediaUrl',
+                        'value': 'https://en.wikipedia.org/wiki/React.js'
+                    }
+                ],
+                'type': {
+                    'id': 'ST1',
+                    'name': 'Hard Skill'
+                }
+            }
+        }
+    ]
+}
