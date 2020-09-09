@@ -29,14 +29,14 @@ DATABASES = {
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'taxonomy'
+    'taxonomy',
 )
 
 LOCALE_PATHS = [
     root('taxonomy', 'conf', 'locale'),
 ]
 
-ROOT_URLCONF = 'taxonomy.urls'
+# ROOT_URLCONF = 'taxonomy.urls'
 
 SECRET_KEY = 'insecure-secret-key'
 
