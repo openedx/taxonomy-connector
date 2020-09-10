@@ -130,3 +130,91 @@ class RefreshCourseSkillsConfig(SingletonModel):
 
     def __str__(self):
         return self.arguments
+
+
+class Job(TimeStampedModel):
+    """
+    Jobs available.
+    .. no_pii:
+    """
+
+    name = models.CharField(
+        max_length=255,
+        blank=False,
+        help_text=_(
+            "The title of job."
+        )
+    )
+
+    class Meta:
+        ordering = ('created',)
+        app_label = "taxonomy"
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<Job title={}>'.format(self.name)
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return '<Job id="{}" title="{}">'.format(self.id, self.name)
+
+
+class JobSkills(TimeStampedModel):
+    """
+    Skills for a job.
+    .. no_pii:
+    """
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=_(
+            "The name of the skill required for the job."
+        )
+    )
+
+    job = models.ForeignKey(
+        Job,
+        blank=False,
+        null=False,
+        on_delete=models.deletion.CASCADE,
+        help_text=_(
+            "The ID of the job title extracted for the skill."
+        )
+    )
+
+    significance = models.FloatField(
+        blank=False,
+        help_text=_(
+            "The significance of skill for the job."
+        )
+    )
+
+    unique_postings = models.FloatField(
+        blank=False,
+        help_text=_(
+            "The unique_postings threshold of skill for the job."
+        )
+    )
+
+    class Meta:
+        ordering = ('created',)
+        app_label = "taxonomy"
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<Skill with name: {}, significance {} and unique_postings: {}>'.format(self.name, self.significance,
+                                                                                       self.unique_postings)
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return '<Skill id="{}" name="{}" significance="{}" unique_postings="{}">'.format(
+            self.id, self.name, self.significance, self.unique_postings,
+        )

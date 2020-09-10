@@ -190,7 +190,6 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
 
     @staticmethod
     def traverse_jobs_data(jobs_data):
-        # TODO need to implement this function.
         return jobs_data
 
     @JwtEMSIApiClient.refresh_token
