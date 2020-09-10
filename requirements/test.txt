@@ -23,7 +23,7 @@ idna==2.10                # via -r requirements/base.txt, requests
 iniconfig==1.0.1          # via pytest
 jinja2==2.11.2            # via code-annotations
 markupsafe==1.1.1         # via jinja2
-mock==4.0.2               # via -r requirements/test.in
+mock==3.0.5               # via -r requirements/test.in
 more-itertools==8.5.0     # via pytest
 newrelic==5.18.0.148      # via -r requirements/base.txt, edx-django-utils
 packaging==20.4           # via pytest
