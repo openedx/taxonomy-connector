@@ -3,7 +3,7 @@
 Sample responses for salary data from EMSI service. These will be used in tests.
 """
 
-SALARIES_FILTER = {
+JOB_POSTINGS_FILTER = {
     'filter': {
         'when': {
             'start': '2016-01',
@@ -42,7 +42,7 @@ SALARIES_FILTER = {
     }
 }
 
-SALARIES = {
+JOB_POSTINGS = {
     'data': {
         'totals': {
             'median_posting_duration': 21,
@@ -50,22 +50,50 @@ SALARIES = {
             'duplicate_postings': 5551
         },
         'ranking': {
-            'facet': 'company',
+            'facet': 'title_name',
+            'rank_by': 'unique_postings',
+            'limit': 10,
+            'buckets': [
+                {
+                    'median_salary': 87424.78,
+                    'median_posting_duration': 25,
+                    'name': 'Senior Software Engineer',
+                    'unique_postings': 1043,
+                    'unique_companies': 229
+                },
+                {
+                    'median_salary': '34000.00',
+                    'median_posting_duration': '15',
+                    'name': 'Software Engineer',
+                    'unique_postings': '603',
+                    'unique_companies': '500'
+                },
+                {
+                    'median_salary': '$45000.34',
+                    'median_posting_duration': 28,
+                    'name': 'Insurance Sales Agent',
+                    'unique_postings': 1400,
+                    'unique_companies': 960
+                },
+
+            ]
+        }
+    }
+}
+
+MISSING_MEDIAN_SALARY_JOB_POSTING = {
+    'data': {
+        'ranking': {
+            'facet': 'title_name',
             'rank_by': 'unique_postings',
             'limit': 10,
             'buckets': [
                 {
                     'median_posting_duration': 25,
-                    'name': 'Apple Inc.',
+                    'name': 'Senior Software Engineer',
                     'unique_postings': 1043,
-                    'duplicate_postings': 2049
+                    'unique_companies': 229
                 },
-                {
-                    'median_posting_duration': 15,
-                    'name': 'Facebook',
-                    'unique_postings': 603,
-                    'duplicate_postings': 3502
-                }
             ]
         }
     }
