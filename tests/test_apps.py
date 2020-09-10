@@ -9,12 +9,12 @@ from test_utils.testcase import TaxonomyTestCase
 
 class TestTaxonomyConfigConfig(TaxonomyTestCase):
     """
-    Test taxonomy app config.
+    Validate taxonomy app configuration.
     """
 
     def setUp(self):
         """
-        Set up test environment
+        Set up test environment.
         """
         super(TestTaxonomyConfigConfig, self).setUp()
         self.app_config = taxonomy.apps.TaxonomyConfig(
@@ -22,4 +22,7 @@ class TestTaxonomyConfigConfig(TaxonomyTestCase):
         )
 
     def test_name(self):
+        """
+        Validate app config for taxonomy is setup correctly.
+        """
         assert self.app_config.name == 'taxonomy'

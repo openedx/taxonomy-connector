@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Sample responses for skills data from EMSI service. These will be used in tests.
+"""
+
 SKILL_TEXT_DATA = 'Great candidates also have\n\n Experience with a particular JS MV* framework ' \
             '(we happen to use React)\n Experience working with databases\n Experience with AWS' \
             '\n Familiarity with microservice architecture\n Familiarity with modern CSS practices, ' \

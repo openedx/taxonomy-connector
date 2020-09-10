@@ -4,49 +4,48 @@
 #
 #    make upgrade
 #
-asgiref==3.2.10           # via -r requirements/base.txt, django
 attrs==20.2.0             # via pytest
-certifi==2020.6.20        # via -r requirements/base.txt, requests
-chardet==3.0.4            # via -r requirements/base.txt, requests
+certifi==2020.6.20        # via requests
+chardet==3.0.4            # via requests
 click==7.1.2              # via code-annotations
-code-annotations==0.6.0   # via -r requirements/test.in
+code-annotations==0.7.0   # via -r requirements/test.in
 coverage==5.2.1           # via pytest-cov
-django-model-utils==4.0.0  # via -r requirements/base.txt
-django-solo==1.1.3        # via -r requirements/base.txt
-django-waffle==2.0.0      # via -r requirements/base.txt, edx-django-utils
-djangorestframework==3.11.1  # via -r requirements/base.txt
-edx-django-utils==3.8.0   # via -r requirements/base.txt, edx-rest-api-client
-edx-rest-api-client==5.2.1  # via -r requirements/base.txt
+django-model-utils==4.0.0  # via -r requirements/base.in
+django-solo==1.1.3        # via -r requirements/base.in
+django-waffle==2.0.0      # via edx-django-utils
+djangorestframework==3.11.1  # via -r requirements/base.in
+edx-django-utils==3.8.0   # via -r requirements/base.in, edx-rest-api-client
+edx-rest-api-client==5.2.1  # via -r requirements/base.in
 factory-boy==3.0.1        # via -r requirements/test.in
 faker==4.1.2              # via -r requirements/test.in, factory-boy
-idna==2.10                # via -r requirements/base.txt, requests
+idna==2.10                # via requests
 iniconfig==1.0.1          # via pytest
 jinja2==2.11.2            # via code-annotations
 markupsafe==1.1.1         # via jinja2
-mock==4.0.2               # via -r requirements/test.in
+mock==3.0.5               # via -c requirements/constraints.txt, -r requirements/test.in
 more-itertools==8.5.0     # via pytest
-newrelic==5.18.0.148      # via -r requirements/base.txt, edx-django-utils
+newrelic==5.18.0.148      # via edx-django-utils
 packaging==20.4           # via pytest
-pbr==5.5.0                # via -r requirements/base.txt, stevedore
+pbr==5.5.0                # via stevedore
 pluggy==0.13.1            # via pytest
-psutil==5.7.2             # via -r requirements/base.txt, edx-django-utils
+psutil==5.7.2             # via edx-django-utils
 py==1.9.0                 # via pytest
-pyjwt==1.7.1              # via -r requirements/base.txt, edx-rest-api-client
+pyjwt==1.7.1              # via edx-rest-api-client
 pyparsing==2.4.7          # via packaging
 pytest-cov==2.10.1        # via -r requirements/test.in
 pytest-django==3.9.0      # via -r requirements/test.in
 pytest==6.0.1             # via pytest-cov, pytest-django
 python-dateutil==2.8.1    # via faker
 python-slugify==4.0.1     # via code-annotations
-pytz==2020.1              # via -r requirements/base.txt, django
+pytz==2020.1              # via -r requirements/base.in, django
 pyyaml==5.3.1             # via code-annotations
-requests==2.24.0          # via -r requirements/base.txt, edx-rest-api-client, responses, slumber
+requests==2.24.0          # via edx-rest-api-client, responses, slumber
 responses==0.12.0         # via -r requirements/test.in
-six==1.15.0               # via packaging, python-dateutil, responses
-slumber==0.7.1            # via -r requirements/base.txt, edx-rest-api-client
-sqlparse==0.3.1           # via -r requirements/base.txt, django
-stevedore==3.2.1          # via -r requirements/base.txt, code-annotations, edx-django-utils
+six==1.15.0               # via mock, packaging, python-dateutil, responses, stevedore
+slumber==0.7.1            # via edx-rest-api-client
+sqlparse==0.3.1           # via django
+stevedore==1.32.0         # via -c requirements/constraints.txt, code-annotations, edx-django-utils
 testfixtures==6.14.2      # via -r requirements/test.in
 text-unidecode==1.3       # via faker, python-slugify
 toml==0.10.1              # via pytest
-urllib3==1.25.10          # via -r requirements/base.txt, requests, responses
+urllib3==1.25.10          # via requests, responses

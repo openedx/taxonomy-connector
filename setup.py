@@ -1,11 +1,19 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=C0111,C0103
+"""
+Setup configurations for taxonomy application.
+"""
+
 import os
 import re
+
 from setuptools import setup
 
 VCS_PREFIXES = ('git+', 'hg+', 'bzr+', 'svn+', '-e git+')
 base_path = os.path.dirname(__file__)
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
+
 
 def get_version(*file_paths):
     """
@@ -17,12 +25,12 @@ def get_version(*file_paths):
                               version_file, re.M)
     if version_match:
         return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+    raise RuntimeError('Unable to find version string.')
 
 
 def get_requirements(requirements_file):
     """
-    Get the contents of a file listing the requirements
+    Get the contents of a file listing the requirements.
     """
     lines = open(requirements_file).readlines()
     dependencies = []
@@ -34,7 +42,7 @@ def get_requirements(requirements_file):
             # Skip pure comment lines
             continue
 
-        package, __, __ = package.partition(' #')
+        package, *_ = package.partition(' #')
         package = package.strip()
 
         if any(package.startswith(prefix) for prefix in VCS_PREFIXES):
@@ -57,7 +65,7 @@ def get_requirements(requirements_file):
                 )
         else:
             # Ignore any trailing comment
-            package, __, __ = package.partition('#')
+            package, *_ = package.partition('#')
             # Remove any whitespace and assume non-empty results are dependencies
             package = package.strip()
 
@@ -68,8 +76,8 @@ def get_requirements(requirements_file):
 
 REQUIREMENTS, DEPENDENCY_LINKS = get_requirements(os.path.join(base_path, 'requirements', 'base.in'))
 # To get the version
-VERSION = get_version("taxonomy", "__init__.py")
-CHANGELOG = open(os.path.join(base_path, "CHANGELOG.rst")).read()
+VERSION = get_version('taxonomy', '__init__.py')
+CHANGELOG = open(os.path.join(base_path, 'CHANGELOG.rst')).read()
 
 setup(
     name='taxonomy-service',

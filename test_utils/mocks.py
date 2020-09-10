@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 """
 Mocks for taxonomy tests.
 """
 from uuid import uuid4
 
-from mock import MagicMock
 from faker import Faker
+from mock import MagicMock
 
 FAKER = Faker()
 DEFAULT = object()
@@ -14,6 +16,7 @@ class MockCourse(MagicMock):
     """
     Mock object for course.
     """
+    # pylint: disable=keyword-arg-before-vararg
     def __init__(
             self, uuid=DEFAULT, key=DEFAULT, title=DEFAULT, short_description=DEFAULT, full_description=DEFAULT,
             *args, **kwargs

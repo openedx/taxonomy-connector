@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Decorators helpful for testing.
 """
@@ -6,6 +7,7 @@ from functools import wraps
 import responses
 
 
+# pylint: disable=keyword-arg-before-vararg
 def mock_api_response(method, url, body='', *responses_args, **responses_kwargs):
     """
     Function to get the decorator that can mock API calls made via requests module.

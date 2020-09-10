@@ -1,7 +1,12 @@
 source_path: ./
 report_path: pii_report
 safelist_path: .annotation_safe_list.yml
-coverage_target: 100.0
+# Local models are all fully annotated, but non-local models are not annotated
+# because this repo does not contain an IDA/Django project (which, according to
+# our own PII annotating policy, doesn't require non-local annotations).  88.9%
+# coverage represents all local models, and is the current theoretical maximum
+# coverage.
+coverage_target: 88
 annotations:
     ".. no_pii:":
     "pii_group":

@@ -1,28 +1,29 @@
-
+# -*- coding: utf-8 -*-
+"""
+Clients for communicating with the EMSI Service.
+"""
 import logging
-
 from functools import wraps
+
+import requests
+from edx_django_utils.cache import TieredCache, get_cache_key
+from edx_rest_api_client.client import EdxRestApiClient
+from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
+from slumber.exceptions import SlumberBaseException
 
 from django.conf import settings
 
-import requests
-
-from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
-from slumber.exceptions import SlumberBaseException
-from edx_rest_api_client.client import EdxRestApiClient
-from edx_django_utils.cache import get_cache_key, TieredCache
-
+from taxonomy.constants import JOBS_QUERY_FILTER, SALARIES_QUERY_FILTER
 from taxonomy.exceptions import TaxonomyServiceAPIError
-from taxonomy.constants import SALARIES_QUERY_FILTER, JOBS_QUERY_FILTER
+
+LOGGER = logging.getLogger(__name__)
 
 
-logger = logging.getLogger(__name__)
-
-
-class JwtEMSIApiClient(object):
+class JwtEMSIApiClient:
     """
     EMSI client authenticates using a access token for the given user.
     """
+
     ACCESS_TOKEN_URL = settings.EMSI_API_ACCESS_TOKEN_URL
     API_BASE_URL = settings.EMSI_API_BASE_URL
     APPEND_SLASH = False
@@ -40,7 +41,7 @@ class JwtEMSIApiClient(object):
     @property
     def cache_key(self):
         """
-        Return the cache key
+        Return the cache key.
         """
         return get_cache_key(endpoint='EMSI', scope=self.scope)
 
@@ -67,7 +68,8 @@ class JwtEMSIApiClient(object):
             TieredCache.set_all_tiers(self.cache_key, access_token, expires_in)
             return access_token
 
-        logger.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
+        LOGGER.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
+        return None
 
     def connect(self):
         """
@@ -117,9 +119,13 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     """
     Object builds an API client to make calls to get the skills from course text data.
     """
+
     API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills'
 
     def __init__(self):
+        """
+        Initialize base class with `emsi_open` scope.
+        """
         super(EMSISkillsApiClient, self).__init__(scope='emsi_open')
 
     @JwtEMSIApiClient.refresh_token
@@ -145,6 +151,9 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
 
     @staticmethod
     def traverse_data(response):
+        """
+        Transform data to a more useful format.
+        """
         return response
 
 
@@ -152,9 +161,13 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
     """
     Object builds an API client to make calls to get the Jobs.
     """
+
     API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/jpa'
 
     def __init__(self):
+        """
+        Initialize base class with "postings:us" scope.
+        """
         super(EMSIJobsApiClient, self).__init__(scope='postings:us')
 
     @JwtEMSIApiClient.refresh_token
@@ -190,6 +203,9 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
 
     @staticmethod
     def traverse_jobs_data(jobs_data):
+        """
+        Transform data to a more useful format.
+        """
         return jobs_data
 
     @JwtEMSIApiClient.refresh_token
@@ -218,5 +234,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
 
     @staticmethod
     def traverse_salary_data(data):
-        # TODO need to implement this function.
+        """
+        Transform data to a more useful format.
+        """
         return data

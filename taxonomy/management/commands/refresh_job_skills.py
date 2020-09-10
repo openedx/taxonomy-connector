@@ -6,10 +6,11 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import gettext as _
+
 from taxonomy.emsi_client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
-from taxonomy.models import Job, JobSkills
 from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.models import Job, JobSkills
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ class Command(BaseCommand):
         """
         Persist the jobs data
         """
-        job, created = Job.objects.update_or_create(name=job_skill_bucket['name'])
+        job, __ = Job.objects.update_or_create(name=job_skill_bucket['name'])
         jobs_bucket = job_skill_bucket['ranking']['buckets']
         for skill_data in jobs_bucket:
             JobSkills.objects.update_or_create(job=job,

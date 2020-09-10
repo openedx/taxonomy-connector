@@ -4,22 +4,21 @@ Tests for the `taxonomy-service` emsi client.
 """
 
 import logging
-import responses
 
-from testfixtures import LogCapture
+import responses
 from edx_django_utils.cache import TieredCache
 from pytest import raises
+from testfixtures import LogCapture
 
-from test_utils.testcase import TaxonomyTestCase
-from taxonomy.emsi_client import JwtEMSIApiClient, EMSISkillsApiClient, EMSIJobsApiClient
+from taxonomy.emsi_client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSIApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyServiceAPIError
-
 from test_utils.constants import CLIENT_ID, CLIENT_SECRET
 from test_utils.decorators import mock_api_response
-from test_utils.sample_responses.skills import SKILLS, SKILL_TEXT_DATA
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
 from test_utils.sample_responses.salaries import SALARIES, SALARIES_FILTER
+from test_utils.sample_responses.skills import SKILL_TEXT_DATA, SKILLS
+from test_utils.testcase import TaxonomyTestCase
 
 
 class TestJwtEMSIApiClient(TaxonomyTestCase):
@@ -266,4 +265,3 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
                 )
         ):
             self.client.get_salaries(RankingFacet.TITLE_NAME, SALARIES_FILTER)
-

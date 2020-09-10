@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Enums used by EMSI Clients.
 
@@ -7,6 +8,12 @@ from enum import Enum
 
 
 class RankingFacet(Enum):
+    """
+    Enums for categorizing the ranking of information.
+
+    e.g. if you want get skills rankings you would use `SKILLS` enum.
+    """
+
     CERTIFICATIONS = 'certifications'
     CERTIFICATIONS_NAME = 'certifications_name'
     CITY = 'city'

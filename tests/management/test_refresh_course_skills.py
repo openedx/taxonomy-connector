@@ -4,22 +4,20 @@ Tests for the django management command `refresh_course_skills`.
 """
 
 import logging
+
 import mock
 from pytest import mark
-
 from testfixtures import LogCapture
 
-from django.test import TestCase
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.test import TestCase
 from django.utils.translation import gettext as _
 
-
-from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
-
-from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS, TYPE_ERROR_SKILLS
-from test_utils.mocks import MockCourse
 from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
+from test_utils.mocks import MockCourse
+from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS, TYPE_ERROR_SKILLS
 
 
 @mark.django_db
@@ -95,7 +93,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Taxonomy Service Error for course_key:{}')
+            self.assertEqual(message, 'Taxonomy Service Error for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -107,7 +105,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         Test that the command works via args from database config.
         """
         config = RefreshCourseSkillsConfig.get_solo()
-        config.arguments = ' --course ' + str(self.course_1.uuid) + ' --course ' + str(self.course_2.uuid) + ' --commit '
+        config.arguments = ' --course {} --course {} --commit '.format(self.course_1.uuid, self.course_2.uuid)
         config.save()
         get_course_skills_mock.return_value = self.skills
         get_courses_mock.return_value = [self.course_1, self.course_2]
@@ -141,7 +139,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Missing keys in skills data for course_key: {}')
+            self.assertEqual(message, 'Missing keys in skills data for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -166,7 +164,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Invalid type for `confidence` in course skills for course_key: {}')
+            self.assertEqual(message, 'Invalid type for `confidence` in course skills for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
