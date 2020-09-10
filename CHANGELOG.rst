@@ -15,7 +15,12 @@ Unreleased
 --------------------
 
 
-[0.1.0] - 2016-10-13
+[0.1.1] - 2020-09-09
+--------------------
+
+* Enable Travis integration
+
+[0.1.0] - 2020-08-27
 --------------------
 
 * Added Basic skeleton and clients to call EMSI endpoint.
