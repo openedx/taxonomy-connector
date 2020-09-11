@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Sample responses for jobs data from EMSI service. These will be used in tests.
+"""
+
 JOBS_FILTER = {
     'filter': {
         'when': {

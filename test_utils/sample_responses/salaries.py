@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+Sample responses for salary data from EMSI service. These will be used in tests.
+"""
+
 SALARIES_FILTER = {
     'filter': {
         'when': {

@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
+
 """
 Base test case for taxonomy tests.
 """
 
 import unittest
+
 import responses
+
 from taxonomy.emsi_client import JwtEMSIApiClient
 
 

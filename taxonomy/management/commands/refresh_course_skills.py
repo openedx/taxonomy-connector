@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Management command for refreshing the skills associated with courses.
 """
@@ -7,11 +8,10 @@ import logging
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 
+from taxonomy.api_client.discovery import extract_course_description, get_courses
 from taxonomy.emsi_client import EMSISkillsApiClient
-from taxonomy.models import CourseSkills, Skill, RefreshCourseSkillsConfig
 from taxonomy.exceptions import TaxonomyServiceAPIError
-from taxonomy.api_client.discovery import get_courses, extract_course_description
-
+from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
 
 LOGGER = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class Command(BaseCommand):
         """
         Persist the skills data
         """
-        skill, created = Skill.objects.update_or_create(**skill_data)
+        skill, __ = Skill.objects.update_or_create(**skill_data)
         CourseSkills.objects.update_or_create(
             course_id=course_key,
             skill=skill,
@@ -82,30 +82,11 @@ class Command(BaseCommand):
                 try:
                     course_skills = client.get_course_skills(course_description)
                 except TaxonomyServiceAPIError:
-                    LOGGER.error('Taxonomy Service Error for course_key:{}', course.key)
+                    LOGGER.error('Taxonomy Service Error for course_key: %s', course.key)
                     failures.add(course)
                 else:
-                    for record in course_skills['data']:
-                        try:
-                            confidence = float(record['confidence'])
-                            skill = record['skill']
-                            skill_data = {
-                                'external_id': skill['id'],
-                                'name': skill['name'],
-                                'info_url': skill['infoUrl'],
-                                'type_id': skill['type']['id'],
-                                'type_name': skill['type']['name'],
-                            }
-                            if options['commit']:
-                                self._update_skills_data(course.key, confidence, skill_data)
-                        except KeyError:
-                            LOGGER.error('Missing keys in skills data for course_key: {}', course.key)
-                            failures.add(course)
-                        except (ValueError, TypeError):
-                            LOGGER.error(
-                                'Invalid type for `confidence` in course skills for course_key: {}', course.key
-                            )
-                            failures.add(course)
+                    failed_records = self._process_skills_data(course, course_skills, options['commit'])
+                    failures = failures.union(failed_records)
         if failures:
             keys = sorted('{key} ({id})'.format(key=failure.key, id=failure.id) for failure in failures)
             raise CommandError(
@@ -113,6 +94,41 @@ class Command(BaseCommand):
                     course_keys=', '.join(keys)
                 )
             )
+
+    def _process_skills_data(self, course, course_skills, should_commit_to_db):
+        """
+        Process skills data returned by the EMSI service and update databased.
+
+        Arguments:
+            course (Course): Course object whose skills are being processed.
+            course_skills (dict): Course skills data returned by the EMSI API.
+            should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
+        """
+        failures = set()
+
+        for record in course_skills['data']:
+            try:
+                confidence = float(record['confidence'])
+                skill = record['skill']
+                skill_data = {
+                    'external_id': skill['id'],
+                    'name': skill['name'],
+                    'info_url': skill['infoUrl'],
+                    'type_id': skill['type']['id'],
+                    'type_name': skill['type']['name'],
+                }
+                if should_commit_to_db:
+                    self._update_skills_data(course.key, confidence, skill_data)
+            except KeyError:
+                LOGGER.error('Missing keys in skills data for course_key: %s', course.key)
+                failures.add(course)
+            except (ValueError, TypeError):
+                LOGGER.error(
+                    'Invalid type for `confidence` in course skills for course_key: %s', course.key
+                )
+                failures.add(course)
+
+        return failures
 
     def handle(self, *args, **options):
         """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Exceptions that will be used by the taxonomy service to indicate different errors.
 """

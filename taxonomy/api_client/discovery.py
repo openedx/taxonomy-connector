@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Utilities to communicate with the discovery service.
 
@@ -19,8 +20,8 @@ def get_courses(options):
         return Course.everything.filter(
             Q(uuid__in=options['course'])
         ).distinct()
-    else:
-        return None
+
+    return None
 
 
 def extract_course_description(course):

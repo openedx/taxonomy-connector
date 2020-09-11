@@ -4,18 +4,17 @@ Tests for the django management command `refresh_job_skills`.
 """
 
 import logging
-import mock
-from pytest import mark, raises
 
+import mock
+from pytest import mark
 from testfixtures import LogCapture
 
-from django.core.management import call_command, CommandError
+from django.core.management import CommandError, call_command
 from django.test import TestCase
 from django.utils.translation import gettext as _
 
-from taxonomy.models import Job, JobSkills
 from taxonomy.exceptions import TaxonomyServiceAPIError
-
+from taxonomy.models import Job, JobSkills
 from test_utils.sample_responses.jobs import JOBS
 
 
