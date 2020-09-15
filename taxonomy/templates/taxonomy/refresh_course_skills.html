@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Taxonomy{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">'Taxonomy Administration'</h1>
+{% endblock %}
+
+{% block nav-global %}
+    <style type="text/css">
+        .v-text-field {
+            width: 300px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        <form class="form" method="post" action=".">
+            {% csrf_token %}
+            <div>
+                <span> {{ form.course_uuid.label }}</span>
+                {{ form.course_uuid }}
+            </div>
+            {% block submit_buttons_bottom %}
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Update Course Skills' as tmsg %}{{ tmsg | force_escape }}"
+                           class="default" name="_save"/>
+                </div>
+                {% for field, error in form.errors.items %}
+                    {{ error  }}
+                {% endfor %}
+
+            {% endblock %}
+        </form>
+    </div>
+
+{% endblock %}
+
