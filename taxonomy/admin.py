@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from taxonomy.models import CourseSkills, Job, JobSkills, Skill
+from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
 
 
 @admin.register(Skill)
@@ -47,3 +47,13 @@ class JobSkillsAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'name', 'job', 'significance', 'unique_postings', 'created', 'modified')
     search_fields = ('name', 'significance',)
+
+
+@admin.register(JobPostings)
+class JobPostingsAdmin(admin.ModelAdmin):
+    """
+    Administrative view for Job Postings.
+    """
+
+    list_display = ('median_salary', 'median_posting_duration', 'unique_postings', 'unique_companies',)
+    search_fields = ('job__name',)

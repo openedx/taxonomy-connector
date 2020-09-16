@@ -26,7 +26,7 @@ JOBS_QUERY_FILTER = {
     }
 }
 
-SALARIES_QUERY_FILTER = {
+JOB_POSTINGS_QUERY_FILTER = {
     'filter': {
         'when': {
             'start': '2020-01',

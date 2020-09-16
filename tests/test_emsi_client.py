@@ -15,8 +15,8 @@ from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyServiceAPIError
 from test_utils.constants import CLIENT_ID, CLIENT_SECRET
 from test_utils.decorators import mock_api_response
+from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
-from test_utils.sample_responses.salaries import SALARIES, SALARIES_FILTER
 from test_utils.sample_responses.skills import SKILL_TEXT_DATA, SKILLS
 from test_utils.testcase import TaxonomyTestCase
 
@@ -182,7 +182,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
 class TestEMSIJobsApiClient(TaxonomyTestCase):
     """
-    Validate that jobs and salary related data is fetched from correct endpoint with proper authentication.
+    Validate that jobs and job postings related data is fetched from correct endpoint with proper authentication.
     """
     def setUp(self):
         """
@@ -238,30 +238,30 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
     @mock_api_response(
         method=responses.POST,
         url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/'.format(RankingFacet.TITLE_NAME.value),
-        json=SALARIES,
+        json=JOB_POSTINGS,
     )
-    def test_get_salaries(self):
+    def test_get_job_postings_data(self):
         """
-        Validate that the behavior of client while fetching jobs data.
+        Validate that the behavior of client while fetching job postings data.
         """
-        salaries = self.client.get_salaries(RankingFacet.TITLE_NAME, SALARIES_FILTER)
+        job_postings = self.client.get_job_postings(RankingFacet.TITLE_NAME, JOB_POSTINGS_FILTER)
 
-        assert salaries == SALARIES
+        assert job_postings == JOB_POSTINGS
 
     @mock_api_response(
         method=responses.POST,
         url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/'.format(RankingFacet.TITLE_NAME.value),
-        json=SALARIES,
+        json=JOB_POSTINGS,
         status=400,
     )
-    def test_get_salaries_error(self):
+    def test_get_job_postings_data_error(self):
         """
-        Validate that the behavior of client when error occurs while fetching jobs data.
+        Validate that the behavior of client when error occurs while fetching job postings data.
         """
         with raises(
                 TaxonomyServiceAPIError,
-                match='Error while fetching salary rankings for {ranking_facet}.'.format(
+                match='Error while fetching job postings data ranked by {ranking_facet}.'.format(
                     ranking_facet=RankingFacet.TITLE_NAME.value,
                 )
         ):
-            self.client.get_salaries(RankingFacet.TITLE_NAME, SALARIES_FILTER)
+            self.client.get_job_postings(RankingFacet.TITLE_NAME, JOB_POSTINGS_FILTER)

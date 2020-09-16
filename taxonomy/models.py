@@ -260,3 +260,75 @@ class JobSkills(TimeStampedModel):
         return '<Skill id="{0}" name="{1}" job="{2!r}">'.format(
             self.id, self.name, self.job,
         )
+
+
+class JobPostings(TimeStampedModel):
+    """
+    Job postings for a job.
+
+    .. no_pii:
+    """
+
+    job = models.ForeignKey(
+        Job,
+        blank=False,
+        null=False,
+        on_delete=models.deletion.CASCADE,
+        help_text=_(
+            'The ID of the job to filter job postings by.'
+        )
+    )
+
+    median_salary = models.FloatField(
+        blank=False,
+        help_text=_(
+            'The median annual salary advertised on job postings for the job.'
+        )
+    )
+
+    median_posting_duration = models.IntegerField(
+        blank=False,
+        help_text=_(
+            'The median duration of closed job postings. Duration is measured in days.'
+        )
+    )
+
+    unique_postings = models.IntegerField(
+        blank=False,
+        help_text=_(
+            'The number of unique monthly active job postings.'
+        )
+    )
+
+    unique_companies = models.IntegerField(
+        blank=False,
+        help_text=_(
+            'The number of unique companies represented in your filtered set of postings.'
+        )
+    )
+
+    class Meta:
+        """
+        Metadata for the JobPostings model.
+        """
+
+        ordering = ('created',)
+        app_label = 'taxonomy'
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<Job postings for job: {}, have a median_salary: {}, median_posting_duration: {}, unique_postings: {}' \
+               ', unique hiring companies: {} >'.format(
+                   self.job.name, self.median_salary, self.median_posting_duration, self.unique_postings,
+                   self.unique_companies)
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return '<JobPosting id="{0}" job="{1!r}" median_salary="{2!r}" median_posting_duration="{3!r}" ' \
+            'unique_postings="{4!r} unique_companies={5!r}">'.format(
+                self.id, self.job, self.median_salary, self.median_posting_duration, self.unique_postings,
+                self.unique_companies)
