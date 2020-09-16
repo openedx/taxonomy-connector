@@ -8,10 +8,10 @@ import logging
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 
-from taxonomy.api_client.discovery import extract_course_description, get_courses
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyServiceAPIError
 from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
+from taxonomy.providers.utils import get_course_metadata_provider
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,6 +23,13 @@ class Command(BaseCommand):
             $ ./manage.py refresh_course_skills --args-from-database
         """
     help = 'Refreshes the skills associated with courses.'
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize an instance of course metadata provider to be used by the management command.
+        """
+        super(Command, self).__init__(*args, **kwargs)
+        self.course_metadata_provider = get_course_metadata_provider()
 
     def add_arguments(self, parser):
         """
@@ -69,7 +76,7 @@ class Command(BaseCommand):
         """
         Refreshes the skills associated with the provided courses
         """
-        courses = get_courses(options)
+        courses = self.course_metadata_provider.get_courses(course_ids=options['course'])
 
         if not courses:
             raise CommandError(_('No courses found. Did you specify an argument?'))
@@ -77,18 +84,19 @@ class Command(BaseCommand):
         failures = set()
         client = EMSISkillsApiClient()
         for course in courses:
-            course_description = extract_course_description(course)
+            course_description = course['full_description']
+
             if course_description:
                 try:
                     course_skills = client.get_course_skills(course_description)
                 except TaxonomyServiceAPIError:
-                    LOGGER.error('Taxonomy Service Error for course_key: %s', course.key)
-                    failures.add(course)
+                    LOGGER.error('Taxonomy Service Error for course_key: %s', course['key'])
+                    failures.add((course['uuid'], course['key']))
                 else:
                     failed_records = self._process_skills_data(course, course_skills, options['commit'])
-                    failures = failures.union(failed_records)
+                    failures.update(failed_records)
         if failures:
-            keys = sorted('{key} ({id})'.format(key=failure.key, id=failure.id) for failure in failures)
+            keys = sorted('{key} ({uuid})'.format(key=course_key, uuid=uuid) for uuid, course_key in failures)
             raise CommandError(
                 _('Could not refresh skills for the following courses: {course_keys}').format(
                     course_keys=', '.join(keys)
@@ -100,7 +108,7 @@ class Command(BaseCommand):
         Process skills data returned by the EMSI service and update databased.
 
         Arguments:
-            course (Course): Course object whose skills are being processed.
+            course (dict): Dictionary containing course data whose skills are being processed.
             course_skills (dict): Course skills data returned by the EMSI API.
             should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
         """
@@ -118,15 +126,15 @@ class Command(BaseCommand):
                     'type_name': skill['type']['name'],
                 }
                 if should_commit_to_db:
-                    self._update_skills_data(course.key, confidence, skill_data)
+                    self._update_skills_data(course['key'], confidence, skill_data)
             except KeyError:
-                LOGGER.error('Missing keys in skills data for course_key: %s', course.key)
-                failures.add(course)
+                LOGGER.error('Missing keys in skills data for course_key: %s', course['key'])
+                failures.add((course['uuid'], course['key']))
             except (ValueError, TypeError):
                 LOGGER.error(
-                    'Invalid type for `confidence` in course skills for course_key: %s', course.key
+                    'Invalid type for `confidence` in course skills for course_key: %s', course['key']
                 )
-                failures.add(course)
+                failures.add((course['uuid'], course['key']))
 
         return failures
 
