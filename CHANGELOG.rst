@@ -15,6 +15,11 @@ Unreleased
 --------------------
 
 
+[1.0.0] - 2020-09-09
+--------------------
+
+* Added Providers and Validators for integrations and upgraded to the first stable release.
+
 [0.1.1] - 2020-09-09
 --------------------
 

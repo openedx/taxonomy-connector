@@ -3,6 +3,6 @@
 Your project description goes here.
 """
 
-__version__ = '0.1.1'
+__version__ = '1.0.0'
 
 default_app_config = 'taxonomy.apps.TaxonomyConfig'  # pylint: disable=invalid-name
