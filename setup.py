@@ -82,7 +82,11 @@ CHANGELOG = open(os.path.join(base_path, 'CHANGELOG.rst')).read()
 setup(
     name='taxonomy-service',
     version=VERSION,
-    packages=['taxonomy'],
+    packages=[
+        'taxonomy',
+        'taxonomy.providers',
+        'taxonomy.validators',
+    ],
     description='Taxonomy service',
     long_description=README + "\n\n" + CHANGELOG,
     author='edX',
