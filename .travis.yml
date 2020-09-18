@@ -1,47 +1,31 @@
-# Config file for automatic testing at travis-ci.org
-# To connect a new edX repository to Travis, see
-# https://openedx.atlassian.net/wiki/spaces/EdxOps/pages/157464369/How+to+connect+a+repository+to+Travis+CI
-#
-# Be sure to change the Travis settings in the web UI to enable both
-# "Build pushed branches" and "Build pushed pull requests".
-
 language: python
-
 python:
-  - 3.5
-  - 3.8
-
+- 3.5
+- 3.8
 env:
-  - TOXENV=django22
-  - TOXENV=quality
-  - TOXENV=pii-annotations
-
+- TOXENV=django22
+- TOXENV=quality
+- TOXENV=pii-annotations
 matrix:
   include:
-    - python: 3.8
-      env: TOXENV=django30
-
+  - python: 3.8
+    env: TOXENV=django30
 cache:
-  - pip
-
+- pip
 before_install:
-  - pip install --upgrade pip
-
+- pip install --upgrade pip
 install:
-  - pip install -r requirements/travis.txt
-
+- pip install -r requirements/travis.txt
 script:
-  - tox
-
+- tox
 after_success:
-  - codecov
-
-# Set token via "travis encrypt --add deploy.password"; for details, see
-# https://docs.travis-ci.com/user/deployment/pypi
+- codecov
 deploy:
   provider: pypi
-  user: "__token__"
+  user: __token__
   distributions: sdist bdist_wheel
   on:
     tags: true
-    condition: '$TOXENV = quality'
+    condition: "$TOXENV = quality"
+  password:
+    secure: GIjNydh7Z6dls42/0vBNqiiU5fdSuFAm6PiDYW8gm+j3HKLLrSZYLFpdrR8tRxn5ThaD1WQCT+E8i/M6ksKHlv4CKT4f7YGonJFkTpd6fNGXkFSUOmSb7BGdunJPaFsOg5bxHTRTV1OQ/m64L3nNsEkozmZB4B1/fCZJ6n55pR8Dv2q8gaOGjhfjTU6moevaw2H1oQFln4q1mh8XiYq6fNhSe8pe/BzQEsSOdZHQjYWuaSeaB2hrm5hAqyolUhMx+4zuv3GFULctLO17ZY4f7zFMcJavn1qx2E9vYpe0sNgPJuIgg05bDf+P0ee8JwEwaJLZySdX5Su2dOhm6JTUa7+4gmV2+8LxInomZyGX2oVsC4w37Z4oPdVEeEzvAG4XZUsWuyyENNZLa4rnewfeqr1TXxXYmlbnitqrLPAcceblntheZN91zIFZfL721YiarGcK8UPL8xPwhdnPu8WhriaJVr1da4TxfhGxA0UwtCVlqH55Xi5lQCNSpeHJwPsqz0Qu9xE8jDHreYUX3ttWLFUOnB5Bd/oZEzXzzE6iMzOFrG/1tytNSECcBFAJX8YwbE6QP8sdnItJ8zTkZvbVVYKHJ1MeH7ZgZSyMbAMeISlVXJR0eDNokw6A+2TYVNTNJsXHlg3WjU0ST3+ggpw5on/G1X8bMGTkgQbXBNGuJqQ=
