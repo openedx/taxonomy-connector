@@ -84,9 +84,8 @@ setup(
     version=VERSION,
     packages=[
         'taxonomy',
-        'taxonomy.providers',
-        'taxonomy.validators',
     ],
+    include_package_data=True,
     description='Taxonomy service',
     long_description=README + "\n\n" + CHANGELOG,
     author='edX',

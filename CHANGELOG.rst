@@ -15,6 +15,11 @@ Unreleased
 --------------------
 
 
+[1.0.1] - 2020-09-21
+--------------------
+
+* Added package data, so that migrations and python packages are included in the final build.
+
 [1.0.0] - 2020-09-09
 --------------------
 
