@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-ORM Models for taxonomy application.
+ORM Models for the taxonomy application.
 """
 from __future__ import unicode_literals
 

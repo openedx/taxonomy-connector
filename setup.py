@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=C0111,C0103
 """
-Setup configurations for taxonomy application.
+Setup configurations for the taxonomy connector application.
 """
 
 import os
@@ -80,17 +80,17 @@ VERSION = get_version('taxonomy', '__init__.py')
 CHANGELOG = open(os.path.join(base_path, 'CHANGELOG.rst')).read()
 
 setup(
-    name='taxonomy-service',
+    name='taxonomy-connector',
     version=VERSION,
     packages=[
         'taxonomy',
     ],
     include_package_data=True,
-    description='Taxonomy service',
+    description='Taxonomy connector',
     long_description=README + "\n\n" + CHANGELOG,
     author='edX',
     author_email='oscm@edx.org',
-    url='https://github.com/edx/taxonomy-service',
+    url='https://github.com/edx/taxonomy-connector',
     license='MIT',
     install_requires=REQUIREMENTS
 )

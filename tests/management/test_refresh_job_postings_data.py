@@ -13,7 +13,7 @@ from django.core.management import CommandError, call_command
 from django.test import TestCase
 from django.utils.translation import gettext as _
 
-from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobPostings
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, MISSING_MEDIAN_SALARY_JOB_POSTING
 
@@ -63,13 +63,13 @@ class RefreshJobPostingsCommandTests(TestCase):
         """
         Test that the command does not create any records when the API throws an exception.
         """
-        get_job_postings_mock.side_effect = TaxonomyServiceAPIError()
+        get_job_postings_mock.side_effect = TaxonomyAPIError()
         jobs = Job.objects.all()
         job_postings = JobPostings.objects.all()
         self.assertEqual(jobs.count(), 0)
         self.assertEqual(job_postings.count(), 0)
 
-        err_string = _('Taxonomy Service Error for refreshing the job postings data for Ranking Facet TITLE_NAME')
+        err_string = _('Taxonomy API Error for refreshing the job postings data for Ranking Facet TITLE_NAME')
         with LogCapture(level=logging.INFO) as log_capture:
             with self.assertRaisesRegex(CommandError, err_string):
                 call_command(self.command, 'TITLE_NAME')
@@ -78,7 +78,7 @@ class RefreshJobPostingsCommandTests(TestCase):
             message = log_capture.records[0].msg
             self.assertEqual(
                 message,
-                'Taxonomy Service Error for refreshing the job postings data for Ranking Facet TITLE_NAME'
+                'Taxonomy API Error for refreshing the job postings data for Ranking Facet TITLE_NAME'
             )
 
         self.assertEqual(jobs.count(), 0)

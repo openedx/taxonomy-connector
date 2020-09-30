@@ -14,7 +14,7 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils.translation import gettext as _
 
-from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
@@ -83,7 +83,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         """
         Test that the command does not create any records when the API throws an exception.
         """
-        get_course_skills_mock.side_effect = TaxonomyServiceAPIError()
+        get_course_skills_mock.side_effect = TaxonomyAPIError()
         skill = Skill.objects.all()
         course_skill = CourseSkills.objects.all()
         self.assertEqual(skill.count(), 0)
@@ -96,7 +96,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Taxonomy Service Error for course_key: %s')
+            self.assertEqual(message, 'Taxonomy API Error for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)

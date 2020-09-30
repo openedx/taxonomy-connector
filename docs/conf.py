@@ -95,7 +95,7 @@ source_suffix = '.rst'
 top_level_doc = 'index'
 
 # General information about the project.
-project = 'taxonomy-service'
+project = 'taxonomy-connector'
 copyright = edx_theme.COPYRIGHT  # pylint: disable=redefined-builtin
 author = edx_theme.AUTHOR
 project_title = 'Open edX Enterprise Service Documentation'
@@ -182,7 +182,7 @@ html_theme_path = [edx_theme.get_html_theme_path()]
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-# html_title = 'taxonomy-service v0.1.0'
+# html_title = 'taxonomy-connector v1.1.0'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #

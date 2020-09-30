@@ -1,5 +1,5 @@
 """
-Taxonomy Service URL Configuration.
+Taxonomy Connector URL Configuration.
 """
 
 from django.urls import re_path

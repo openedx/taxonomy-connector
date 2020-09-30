@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Constants used by the taxonomy service.
+Constants used by the taxonomy connector.
 """
 
 JOBS_QUERY_FILTER = {

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tests for the `taxonomy-service` app.
+Tests for the `taxonomy-connector` app.
 """
 
 import taxonomy
