@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 
 from taxonomy.emsi_client import EMSISkillsApiClient
-from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
 from taxonomy.providers.utils import get_course_metadata_provider
 
@@ -89,8 +89,8 @@ class Command(BaseCommand):
             if course_description:
                 try:
                     course_skills = client.get_course_skills(course_description)
-                except TaxonomyServiceAPIError:
-                    LOGGER.error('Taxonomy Service Error for course_key: %s', course['key'])
+                except TaxonomyAPIError:
+                    LOGGER.error('Taxonomy API Error for course_key: %s', course['key'])
                     failures.add((course['uuid'], course['key']))
                 else:
                     failed_records = self._process_skills_data(course, course_skills, options['commit'])

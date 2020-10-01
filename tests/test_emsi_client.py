@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tests for the `taxonomy-service` emsi client.
+Tests for the `taxonomy-connector` emsi client.
 """
 
 import logging
@@ -12,7 +12,7 @@ from testfixtures import LogCapture
 
 from taxonomy.emsi_client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSIApiClient
 from taxonomy.enums import RankingFacet
-from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 from test_utils.constants import CLIENT_ID, CLIENT_SECRET
 from test_utils.decorators import mock_api_response
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
@@ -176,7 +176,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of client when error occurs while fetching skill data.
         """
-        with raises(TaxonomyServiceAPIError, match='Error while fetching course skills.'):
+        with raises(TaxonomyAPIError, match='Error while fetching course skills.'):
             self.client.get_course_skills(SKILL_TEXT_DATA)
 
 
@@ -227,7 +227,7 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         Validate that the behavior of client when error occurs while fetching jobs data.
         """
         with raises(
-                TaxonomyServiceAPIError,
+                TaxonomyAPIError,
                 match='Error while fetching job rankings for {ranking_facet}/{nested_ranking_facet}.'.format(
                     ranking_facet=RankingFacet.TITLE_NAME.value,
                     nested_ranking_facet=RankingFacet.SKILLS_NAME.value
@@ -259,7 +259,7 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         Validate that the behavior of client when error occurs while fetching job postings data.
         """
         with raises(
-                TaxonomyServiceAPIError,
+                TaxonomyAPIError,
                 match='Error while fetching job postings data ranked by {ranking_facet}.'.format(
                     ranking_facet=RankingFacet.TITLE_NAME.value,
                 )

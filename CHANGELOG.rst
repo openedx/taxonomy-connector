@@ -15,6 +15,11 @@ Unreleased
 --------------------
 
 
+[1.1.0] - 2020-09-30
+--------------------
+
+* Renamed main package name from taxonomy-service to taxonomy-connector.
+
 [1.0.1] - 2020-09-21
 --------------------
 

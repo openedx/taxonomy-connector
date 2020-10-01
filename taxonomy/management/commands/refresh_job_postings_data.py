@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from taxonomy.emsi_client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
-from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobPostings
 
 LOGGER = logging.getLogger(__name__)
@@ -48,8 +48,8 @@ class Command(BaseCommand):
         client = EMSIJobsApiClient()
         try:
             job_postings_data = client.get_job_postings(RankingFacet[ranking_facet])
-        except TaxonomyServiceAPIError:
-            message = 'Taxonomy Service Error for refreshing the job postings data for ' \
+        except TaxonomyAPIError:
+            message = 'Taxonomy API Error for refreshing the job postings data for ' \
                       'Ranking Facet {}'.format(ranking_facet)
             LOGGER.error(message)
             raise CommandError(message)

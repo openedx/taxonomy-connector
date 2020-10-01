@@ -14,7 +14,7 @@ from slumber.exceptions import SlumberBaseException
 from django.conf import settings
 
 from taxonomy.constants import JOB_POSTINGS_QUERY_FILTER, JOBS_QUERY_FILTER
-from taxonomy.exceptions import TaxonomyServiceAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
 
             return self.traverse_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
-            raise TaxonomyServiceAPIError('Error while fetching course skills.') from error
+            raise TaxonomyAPIError('Error while fetching course skills.') from error
 
     @staticmethod
     def traverse_data(response):
@@ -194,7 +194,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             response = endpoint().post(query_filter)
             return self.traverse_jobs_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
-            raise TaxonomyServiceAPIError(
+            raise TaxonomyAPIError(
                 'Error while fetching job rankings for {ranking_facet}/{nested_ranking_facet}.'.format(
                     ranking_facet=ranking_facet.value,
                     nested_ranking_facet=nested_ranking_facet.value,
@@ -226,7 +226,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             response = endpoint().post(query_filter)
             return self.traverse_job_postings_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
-            raise TaxonomyServiceAPIError(
+            raise TaxonomyAPIError(
                 'Error while fetching job postings data ranked by {ranking_facet}.'.format(
                     ranking_facet=ranking_facet.value,
                 )
