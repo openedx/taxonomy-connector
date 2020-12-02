@@ -17,10 +17,13 @@ LOGGER = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     """
-            Example usage:
-            Create or refresh the existing data associated with jobs and job postings on the basis
-            of ranking_facet.
-            $ ./manage.py refresh_job_postings_data 'TITLE_NAME'
+    Command to refresh the job postings data associated with a job.
+
+    Example usage:
+        $ # Create or refresh the existing data associated with jobs and job postings on the basis
+        $ # of ranking_facet. In the following example, 'TITLE_NAME' could be any job title
+        $ # e.g. 'Senior Software Engineer'
+        $ ./manage.py refresh_job_postings_data 'TITLE_NAME'
     """
     help = 'Refreshes the job postings data associated with a job.'
 
@@ -36,7 +39,11 @@ class Command(BaseCommand):
 
     def _update_job_postings_data(self, job_name, job_posting_bucket):
         """
-        Persist the jobs postings data
+        Persist the jobs postings data in the database.
+
+        Arguments:
+            job_name (str): Name of the job to save.
+            job_posting_bucket (dict): A dictionary containing field values for JobPosting model.
         """
         job, __ = Job.objects.update_or_create(name=job_name)
         JobPostings.objects.update_or_create(job=job, **job_posting_bucket)
@@ -44,6 +51,9 @@ class Command(BaseCommand):
     def _refresh_job_postings(self, ranking_facet):
         """
         Refreshes the job postings data associated with the jobs.
+
+        Arguments:
+            ranking_facet (RankingFacet): Data will be ranked by this facet.
         """
         client = EMSIJobsApiClient()
         try:
@@ -74,8 +84,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """
         Entry point for management command execution.
-        Args:
-            ranking_facet (RankingFacet): Data will be ranked by this facet.
         """
         ranking_facet = options['ranking_facet']
         self._refresh_job_postings(ranking_facet)

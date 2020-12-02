@@ -79,7 +79,7 @@ class Skill(TimeStampedModel):
 
 class CourseSkills(TimeStampedModel):
     """
-    Skills extraction from course text.
+    Skills that will be learnt by taking the course.
 
     .. no_pii:
     """
@@ -264,7 +264,7 @@ class JobSkills(TimeStampedModel):
 
 class JobPostings(TimeStampedModel):
     """
-    Job postings for a job.
+    Postings for a job.
 
     .. no_pii:
     """

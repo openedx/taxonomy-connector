@@ -18,10 +18,13 @@ LOGGER = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     """
-        Example usage:
-            $ ./manage.py refresh_course_skills --course 'Course1_uuid' --course 'Course2_uuid' --commit
-            $ ./manage.py refresh_course_skills --args-from-database
-        """
+    Command to referesh skills associated with the courses.
+
+    Example usage:
+        $ ./manage.py refresh_course_skills --course 'Course1_uuid' --course 'Course2_uuid' --commit
+        $ # args-from-database means command line arguments will be picked from the database.
+        $ ./manage.py refresh_course_skills --args-from-database
+    """
     help = 'Refreshes the skills associated with courses.'
 
     def __init__(self, *args, **kwargs):
@@ -55,7 +58,9 @@ class Command(BaseCommand):
         )
 
     def get_args_from_database(self):
-        """ Returns an options dictionary from the current RefreshCourseSkillsConfig model. """
+        """
+        Return an options dictionary from the current RefreshCourseSkillsConfig model.
+        """
         config = RefreshCourseSkillsConfig.get_solo()
         argv = config.arguments.split()
         parser = self.create_parser('manage.py', 'refresh_course_skills')
@@ -63,7 +68,7 @@ class Command(BaseCommand):
 
     def _update_skills_data(self, course_key, confidence, skill_data):
         """
-        Persist the skills data
+        Persist the skills data in the database.
         """
         skill, __ = Skill.objects.update_or_create(**skill_data)
         CourseSkills.objects.update_or_create(
@@ -74,7 +79,7 @@ class Command(BaseCommand):
 
     def _refresh_skills(self, options):
         """
-        Refreshes the skills associated with the provided courses
+        Refresh the skills associated with the provided courses.
         """
         courses = self.course_metadata_provider.get_courses(course_ids=options['course'])
 
