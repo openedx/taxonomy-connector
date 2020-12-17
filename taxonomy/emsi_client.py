@@ -219,7 +219,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         Returns:
             dict: A dictionary containing job postings data.
         """
-        url = 'rankings/{ranking_facet}/'.format(ranking_facet=ranking_facet.value)
+        url = 'rankings/{ranking_facet}'.format(ranking_facet=ranking_facet.value)
         query_filter = query_filter if query_filter else JOB_POSTINGS_QUERY_FILTER
         try:
             endpoint = getattr(self.client, url)
