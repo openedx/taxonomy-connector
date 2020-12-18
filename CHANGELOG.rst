@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.1.5] - 2020-12-18
+--------------------
+
+* Fixed travis issue related to PyPI upload.
+
 [1.1.4] - 2020-12-17
 --------------------
 
