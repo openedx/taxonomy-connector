@@ -237,7 +237,7 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/'.format(RankingFacet.TITLE_NAME.value),
+        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}'.format(RankingFacet.TITLE_NAME.value),
         json=JOB_POSTINGS,
     )
     def test_get_job_postings_data(self):
@@ -250,7 +250,7 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}/'.format(RankingFacet.TITLE_NAME.value),
+        url=EMSIJobsApiClient.API_BASE_URL + '/rankings/{}'.format(RankingFacet.TITLE_NAME.value),
         json=JOB_POSTINGS,
         status=400,
     )

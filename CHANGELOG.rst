@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.1.4] - 2020-12-17
+--------------------
+
+* Fixed the bug where EMSI API was returning 404 for job posting data.
+
 [1.1.3] - 2020-11-05
 --------------------
 
