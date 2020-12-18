@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Admin views for taxonomy application.
+Admin views for the taxonomy service.
+
+Only the models that have administration requirements are exposed via the django admin portal.
 """
 from __future__ import unicode_literals
 

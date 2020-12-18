@@ -20,7 +20,9 @@ class RefreshCourseSkills(TemplateView):
     template_name = "taxonomy/refresh_course_skills.html"
 
     def get_context_data(self, **kwargs):
-        """Return the context data needed to render the view."""
+        """
+        Return the context data needed to render the view.
+        """
         if self.request.user.is_authenticated and self.request.user.is_staff:
             context = super(RefreshCourseSkills, self).get_context_data(**kwargs)
             context.update({
@@ -31,7 +33,7 @@ class RefreshCourseSkills(TemplateView):
 
     def post(self, request):
         """
-        Process the form.
+        Process the post request by creating an instance of course skills after cleaning and validating post data.
         """
         form = RefreshCourseSkillsForm(request.POST)
         if form.is_valid():

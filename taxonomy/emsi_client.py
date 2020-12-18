@@ -2,6 +2,7 @@
 """
 Clients for communicating with the EMSI Service.
 """
+
 import logging
 from functools import wraps
 
@@ -33,7 +34,12 @@ class JwtEMSIApiClient:
 
     def __init__(self, scope):
         """
-        Connect to the REST API.
+        Initialize the instance with arguments provided or default values otherwise.
+
+        Arguments:
+            scope (str): The value of the scope depends on the EMSI API endpoints we want to
+                access and its values are dependant on EMSI API specifications. Example values
+                are `emsi_open` and `postings:us`.
         """
         self.client = None
         self.scope = scope
@@ -41,13 +47,18 @@ class JwtEMSIApiClient:
     @property
     def cache_key(self):
         """
-        Return the cache key.
+        Return the cache key, caching is done based on the endpoint name and the scope property.
         """
         return get_cache_key(endpoint='EMSI', scope=self.scope)
 
     def get_oauth_access_token(self, client_id, client_secret, grant_type='client_credentials'):
         """
-        Return the access token if its cache otherwise hit the endpoint to get the new access token.
+        Return the access token if it is cached otherwise hit the endpoint and get a new access token.
+
+        Arguments:
+            client_id (str): Client id provided by the EMSI API Service.
+            client_secret (str): Client secret provided by the EMSI API Service.
+            grant_type (str): Grant type, usually `client_credentials`
         """
         data = {
             'grant_type': grant_type,
@@ -92,7 +103,7 @@ class JwtEMSIApiClient:
             oauth_access_token=access_token,
         )
 
-    def token_expired(self):
+    def is_token_expired(self):
         """
         Return True if the access token has expired, False if not.
         """
@@ -109,7 +120,7 @@ class JwtEMSIApiClient:
             """
             Before calling the wrapped function, we check if the access token is expired, and if so, re-connect.
             """
-            if self.token_expired():
+            if self.is_token_expired():
                 self.connect()
             return func(self, *args, **kwargs)
         return inner
@@ -133,8 +144,8 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         """
         Query the EMSI API for the skills of the given course text data.
 
-        Args:
-            course_text_data (str): The string value of the course text data.
+        Arguments:
+            course_text_data (str): Course data as text, this is usually the course description.
 
         Returns:
             dict: A dictionary containing details of all the skills.
@@ -175,11 +186,11 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         """
         Query the EMSI API for the jobs of the pre-defined filter_query.
 
-        Args:
-            query_filter (dict): The dictionary of filters.
+        Arguments:
             ranking_facet (RankingFacet): Data will be ranked by this facet.
             nested_ranking_facet (RankingFacet): This is the nested facet to be applied after ranking data by the
                 `ranking_facet`.
+            query_filter (dict): Filters to be sent in the POST data.
 
         Returns:
             dict: A dictionary containing details of all the jobs.
@@ -213,8 +224,9 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         """
         Query the EMSI API for the job postings data of the pre-defined filter_query.
 
-        Args:
+        Arguments:
             ranking_facet (RankingFacet): Data will be ranked by this facet.
+            query_filter (dict): Filters to be sent in the POST data.
 
         Returns:
             dict: A dictionary containing job postings data.
