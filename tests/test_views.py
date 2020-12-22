@@ -23,7 +23,7 @@ class RefreshCourseSkillsTest(TestCase):
 
     def setUp(self):
         # Every test needs access to the request factory.
-        super(RefreshCourseSkillsTest, self).setUp()
+        super().setUp()
         self.request = RequestFactory().post('/')
         self.user = User.objects.create_user(
             username="edx",
@@ -96,8 +96,8 @@ class RefreshCourseSkillsTest(TestCase):
         view.post(request)
         self.assertEqual(mock_render.call_args, None)
 
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_update_course_skill(self, get_course_skills_mock, get_course_provider_mock):
         """
         Test that the course skills are updated on passing valid course uuid.
@@ -128,7 +128,7 @@ class RefreshCourseSkillsTest(TestCase):
             self.assertEqual(msg, message.message)
             self.assertEqual(msg_tag, message.tags)
 
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
     def test_update_course_skill_failed(self, get_course_provider_mock):
         """
         Test that the course skills updation failed and exception is raised.
@@ -159,8 +159,8 @@ class RefreshCourseSkillsTest(TestCase):
             self.assertIn(msg, message.message.args)
             self.assertEqual(msg_tag, message.tags)
 
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_update_course_skill_failed_unknown_uuid(self, get_course_skills_mock, get_course_provider_mock):
         """
         Test that the course skills updation failed on passing
@@ -185,7 +185,7 @@ class RefreshCourseSkillsTest(TestCase):
         view.setup(request)
 
         view._update_course_skills("uuid")  # pylint: disable=protected-access
-        msg = 'No courses found. Did you specify an argument?'
+        msg = "No course metadata was found for following courses. ['uuid']"
         msg_tag = 'error'
         storage = messages.get_messages(request)
         for message in storage:

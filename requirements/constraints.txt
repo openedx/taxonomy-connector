@@ -11,16 +11,9 @@
 # Stay on an LTS release
 django<2.3
 
-# mock has dropped support for python 3.5 after 3.0.5
-mock==3.0.5
-
-# inflect has dropped support for python 3.5 after 3.0.2
-inflect==3.0.2
-
-# stevedore 2.0.0 requires python >= 3.6
-stevedore<2.0.0
-
 path==13.1.0
 
-# zip has dropped support for python 3.5 after 1.0.0
-zipp==1.0.0
+celery<5.0
+
+# pinning because latest version of pylint is causing lot of failures
+edx-lint<=1.5.2
