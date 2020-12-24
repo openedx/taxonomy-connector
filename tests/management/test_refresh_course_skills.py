@@ -6,12 +6,12 @@ Tests for the django management command `refresh_course_skills`.
 import logging
 
 import mock
+import responses
 from pytest import mark
 from testfixtures import LogCapture
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
 from django.utils.translation import gettext as _
 
 from taxonomy.exceptions import TaxonomyAPIError
@@ -19,24 +19,27 @@ from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
 from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS, TYPE_ERROR_SKILLS
+from test_utils.testcase import TaxonomyTestCase
 
 
 @mark.django_db
-class RefreshCourseSkillsCommandTests(TestCase):
+class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
     """
     Test command `refresh_course_skills`.
     """
     command = 'refresh_course_skills'
 
     def setUp(self):
+        super(RefreshCourseSkillsCommandTests, self).setUp()
         self.skills = SKILLS
         self.missing_skills = MISSING_NAME_SKILLS
         self.type_error_skills = TYPE_ERROR_SKILLS
         self.course_1 = MockCourse()
         self.course_2 = MockCourse()
         self.course_3 = MockCourse()
-        super(RefreshCourseSkillsCommandTests, self).setUp()
+        self.mock_access_token()
 
+    @responses.activate
     def test_missing_arguments(self):
         """
         Test missing arguments.
@@ -45,6 +48,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         with self.assertRaisesRegex(CommandError, err_string):
             call_command(self.command)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_saved(self, get_course_skills_mock, get_course_provider_mock):
@@ -78,6 +82,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         self.assertEqual(skill.count(), 4)
         self.assertEqual(course_skill.count(), 12)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_not_saved_upon_exception(self, get_course_skills_mock):
         """
@@ -101,6 +106,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
     def test_args_from_database_config(self, get_course_skills_mock, get_course_provider_mock):
@@ -124,6 +130,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         self.assertEqual(skill.count(), 4)
         self.assertEqual(course_skill.count(), 8)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_not_saved_for_key_error(self, get_course_skills_mock, get_course_provider_mock):
@@ -151,6 +158,7 @@ class RefreshCourseSkillsCommandTests(TestCase):
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_not_saved_for_type_error(self, get_course_skills_mock, get_course_provider_mock):
