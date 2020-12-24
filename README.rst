@@ -1,5 +1,5 @@
 Taxonomy
---------
+========
 
 .. image:: https://img.shields.io/pypi/v/taxonomy-connector.svg
     :target: https://pypi.org/project/taxonomy-connector/
@@ -21,7 +21,7 @@ relevant reviewers and track review process.
 
 
 Getting Started
--------------------------
+---------------
 
 To install ``taxonomy-connector``, for example, in Course Discovery, follow these steps:
 
@@ -39,8 +39,9 @@ Also, to make taxonomy work, the host platform must add an implementation of dat
 
 
 Developer Notes
-~~~~~~~~~~~~~~~~~
-- To run unit tests, create a virtualenv, install the requirements with `make requirements` and then run `make test`
+~~~~~~~~~~~~~~~
+
+- To run unit tests, create a virtualenv, install the requirements with ``make requirements`` and then run ``make test``
 - To update the requirements, run ``make upgrade``
 - To run quality checks, run ``make quality``
 
