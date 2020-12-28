@@ -6,20 +6,21 @@ Tests for the django management command `refresh_job_postings_data`.
 import logging
 
 import mock
+import responses
 from pytest import mark
 from testfixtures import LogCapture
 
 from django.core.management import CommandError, call_command
-from django.test import TestCase
 from django.utils.translation import gettext as _
 
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobPostings
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, MISSING_MEDIAN_SALARY_JOB_POSTING
+from test_utils.testcase import TaxonomyTestCase
 
 
 @mark.django_db
-class RefreshJobPostingsCommandTests(TestCase):
+class RefreshJobPostingsCommandTests(TaxonomyTestCase):
     """
     Test command `refresh_job_postings_data`.
     """
@@ -32,8 +33,10 @@ class RefreshJobPostingsCommandTests(TestCase):
         """
         self.job_postings_data = JOB_POSTINGS
         self.missing_median_salary = MISSING_MEDIAN_SALARY_JOB_POSTING
+        self.mock_access_token()
         super(RefreshJobPostingsCommandTests, self).setUp()
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_job_postings')
     def test_job_postings_saved(self, get_job_postings_mock):
         """
@@ -50,6 +53,7 @@ class RefreshJobPostingsCommandTests(TestCase):
         self.assertEqual(jobs.count(), 3)
         self.assertEqual(job_postings.count(), 3)
 
+    @responses.activate
     def test_missing_argument(self):
         """
         Test that an error message is shown if the command argument is missing.
@@ -58,6 +62,7 @@ class RefreshJobPostingsCommandTests(TestCase):
         with self.assertRaisesRegex(CommandError, err_string):
             call_command(self.command)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_job_postings')
     def test_job_postings_not_saved_upon_exception(self, get_job_postings_mock):
         """
@@ -84,6 +89,7 @@ class RefreshJobPostingsCommandTests(TestCase):
         self.assertEqual(jobs.count(), 0)
         self.assertEqual(job_postings.count(), 0)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_job_postings')
     def test_job_postings_not_saved_on_key_error(self, get_job_postings_mock):
         """

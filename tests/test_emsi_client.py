@@ -48,9 +48,9 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
     )
     def test_get_oauth_access_token(self):
         """
-        Validate that `get_oauth_access_token` correctly handles request to fetch access token.
+        Validate that `fetch_oauth_access_token` correctly handles request to fetch access token.
         """
-        token = self.client.get_oauth_access_token(CLIENT_ID, CLIENT_SECRET)
+        token = self.client.fetch_oauth_access_token(CLIENT_ID, CLIENT_SECRET)
         assert token == 'test-token'
 
         # Validate that token is also set in the cache
@@ -65,10 +65,10 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
     )
     def test_get_oauth_access_token_error(self):
         """
-        Validate that `get_oauth_access_token` correctly handles errors while fetching access token.
+        Validate that `fetch_oauth_access_token` correctly handles errors while fetching access token.
         """
         with LogCapture(level=logging.INFO) as log_capture:
-            token = self.client.get_oauth_access_token(CLIENT_ID, CLIENT_SECRET)
+            token = self.client.fetch_oauth_access_token(CLIENT_ID, CLIENT_SECRET)
             assert token is None
 
             # Validate that token is not set in the cache either
@@ -158,6 +158,25 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
         json=SKILLS,
     )
+    def test_client_error(self):
+        """
+        Validate that initializing EMSISkillsApiClient does not raise error.
+        """
+        # Initialize once and call the API
+        client = EMSISkillsApiClient()
+        skills = client.get_course_skills(SKILL_TEXT_DATA)
+        assert skills == SKILLS
+
+        # Initialize the client again to simulate error condition.
+        client = EMSISkillsApiClient()
+        skills = client.get_course_skills(SKILL_TEXT_DATA)
+        assert skills == SKILLS
+
+    @mock_api_response(
+        method=responses.POST,
+        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
+        json=SKILLS,
+    )
     def test_get_course_skills(self):
         """
         Validate that the behavior of client while fetching course skills.
@@ -189,8 +208,8 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         Instantiate an instance of EMSISkillsApiClient for use inside tests.
         """
         super(TestEMSIJobsApiClient, self).setUp()
-        self.client = EMSIJobsApiClient()
         self.mock_access_token()
+        self.client = EMSIJobsApiClient()
 
     def tearDown(self):
         """

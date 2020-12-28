@@ -14,8 +14,14 @@ Change Log
 Unreleased
 --------------------
 
+[1.2.0] - 2020-12-24
+--------------------
+
+* Fixed TypeError that pops up sometimes while communicating with the EMSI API.
+
 [1.1.6] - 2020-12-24
 --------------------
+
 * Updated the README description.
 
 [1.1.5] - 2020-12-18

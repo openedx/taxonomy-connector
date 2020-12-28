@@ -41,8 +41,13 @@ class JwtEMSIApiClient:
                 access and its values are dependant on EMSI API specifications. Example values
                 are `emsi_open` and `postings:us`.
         """
-        self.client = None
         self.scope = scope
+
+        self.client = EdxRestApiClient(
+            self.API_BASE_URL,
+            append_slash=self.APPEND_SLASH,
+            oauth_access_token=self.access_token,
+        )
 
     @property
     def cache_key(self):
@@ -51,9 +56,9 @@ class JwtEMSIApiClient:
         """
         return get_cache_key(endpoint='EMSI', scope=self.scope)
 
-    def get_oauth_access_token(self, client_id, client_secret, grant_type='client_credentials'):
+    def fetch_oauth_access_token(self, client_id, client_secret, grant_type='client_credentials'):
         """
-        Return the access token if it is cached otherwise hit the endpoint and get a new access token.
+        Fetch a new access token from EMSI API. This method will also cache the new access token fetched from the API.
 
         Arguments:
             client_id (str): Client id provided by the EMSI API Service.
@@ -82,25 +87,37 @@ class JwtEMSIApiClient:
         LOGGER.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
         return None
 
+    @property
+    def access_token(self):
+        """
+        Get and return the access token for EMSI API access.
+
+        The property method will try these steps in order to get the access token.
+            1. Find and return the access token from the cache
+            2. If cache is empty, then fetch and return a new access token using EMSI API.
+
+        Returns:
+            (str|None): Access token or `None` if access could not be found from the cache and the API did not return
+                a successful response.
+        """
+        cached_response = TieredCache.get_cached_response(self.cache_key)
+        if cached_response.is_found:
+            return cached_response.value
+
+        access_token = self.fetch_oauth_access_token(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+        )
+        return access_token
+
     def connect(self):
         """
         Connect to the REST API, authenticating with a JWT for the current user.
         """
-        access_token = None
-        cached_response = TieredCache.get_cached_response(self.cache_key)
-        if cached_response.is_found:
-            access_token = cached_response.value
-
-        if access_token is None:
-            access_token = self.get_oauth_access_token(
-                client_id=self.client_id,
-                client_secret=self.client_secret,
-            )
-
         self.client = EdxRestApiClient(
             self.API_BASE_URL,
             append_slash=self.APPEND_SLASH,
-            oauth_access_token=access_token,
+            oauth_access_token=self.access_token,
         )
 
     def is_token_expired(self):

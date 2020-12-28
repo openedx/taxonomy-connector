@@ -6,20 +6,21 @@ Tests for the django management command `refresh_job_skills`.
 import logging
 
 import mock
+import responses
 from pytest import mark
 from testfixtures import LogCapture
 
 from django.core.management import CommandError, call_command
-from django.test import TestCase
 from django.utils.translation import gettext as _
 
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobSkills
 from test_utils.sample_responses.jobs import JOBS
+from test_utils.testcase import TaxonomyTestCase
 
 
 @mark.django_db
-class RefreshJobSkillsCommandTests(TestCase):
+class RefreshJobSkillsCommandTests(TaxonomyTestCase):
     """
     Test command `refresh_job_skills`.
     """
@@ -27,8 +28,10 @@ class RefreshJobSkillsCommandTests(TestCase):
 
     def setUp(self):
         self.jobs = JOBS
+        self.mock_access_token()
         super(RefreshJobSkillsCommandTests, self).setUp()
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_jobs')
     def test_job_skills_saved(self, get_job_skills_mock):
         """
@@ -45,6 +48,7 @@ class RefreshJobSkillsCommandTests(TestCase):
         self.assertEqual(jobs.count(), 2)
         self.assertEqual(job_skills.count(), 4)
 
+    @responses.activate
     def test_missing_arguments(self):
         """
         Test missing arguments.
@@ -53,6 +57,7 @@ class RefreshJobSkillsCommandTests(TestCase):
         with self.assertRaisesRegex(CommandError, err_string):
             call_command(self.command)
 
+    @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_jobs')
     def test_job_skills_not_saved_upon_exception(self, get_job_skills_mock):
         """
