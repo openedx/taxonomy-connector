@@ -5,7 +5,6 @@ Django views for taxonomy application.
 from django.contrib import messages
 from django.core import management
 from django.core.exceptions import PermissionDenied
-from django.core.management.base import CommandError
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
@@ -24,7 +23,7 @@ class RefreshCourseSkills(TemplateView):
         Return the context data needed to render the view.
         """
         if self.request.user.is_authenticated and self.request.user.is_staff:
-            context = super(RefreshCourseSkills, self).get_context_data(**kwargs)
+            context = super().get_context_data(**kwargs)
             context.update({
                 'form': RefreshCourseSkillsForm(),
             })
@@ -49,7 +48,5 @@ class RefreshCourseSkills(TemplateView):
             management.call_command('refresh_course_skills', '--course', course_uuid, '--commit')
             message = ('Skills data for course_key: {} is updated.'.format(course_uuid))
             messages.add_message(self.request, messages.SUCCESS, message)
-        except CommandError as error:
-            messages.add_message(self.request, messages.ERROR, error)
         except Exception as error:  # pylint: disable=broad-except
             messages.add_message(self.request, messages.ERROR, error)

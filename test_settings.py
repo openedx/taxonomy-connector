@@ -8,6 +8,8 @@ Django applications, so these settings will not be used.
 
 from os.path import abspath, dirname, join
 
+from celery import Celery
+
 
 def root(*args):
     """
@@ -55,3 +57,15 @@ EMSI_CLIENT_ID = ''
 EMSI_CLIENT_SECRET = ''
 
 TAXONOMY_COURSE_METADATA_PROVIDER = 'test_utils.providers.DiscoveryCourseMetadataProvider'
+
+### CELERY
+
+app = Celery('taxonomy')  # pylint: disable=invalid-name
+app.config_from_object('django.conf:settings', namespace="CELERY")
+
+CELERY_TASK_ALWAYS_EAGER = True
+
+# In memory broker for tests
+CELERY_BROKER_URL = 'memory://localhost/'
+
+### END CELERY
