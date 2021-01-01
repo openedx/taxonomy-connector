@@ -13,3 +13,9 @@ class TaxonomyConfig(AppConfig):
     """
 
     name = 'taxonomy'
+
+    def ready(self):
+        """
+        Connect handlers to signals.
+        """
+        from .signals import handlers  # pylint: disable=unused-import,import-outside-toplevel
