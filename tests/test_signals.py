@@ -1,5 +1,5 @@
 """
-Tests for celery tasks.
+Tests for taxonomy signals.
 """
 import unittest
 
@@ -7,7 +7,7 @@ import mock
 from pytest import mark
 
 from taxonomy.models import CourseSkills, Skill
-from taxonomy.tasks import update_course_skills
+from taxonomy.signals.signals import UPDATE_COURSE_SKILLS
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
 from test_utils.sample_responses.skills import SKILLS
@@ -16,7 +16,7 @@ from test_utils.sample_responses.skills import SKILLS
 @mark.django_db
 class TaxonomyTasksTests(unittest.TestCase):
     """
-    Tests for taxonomy celery tasks.
+    Test class for taxonomy signals.
     """
 
     def setUp(self):
@@ -28,7 +28,7 @@ class TaxonomyTasksTests(unittest.TestCase):
     @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_course_skills')
     def test_update_course_skills_task(self, get_course_skills_mock, get_course_provider_mock):
         """
-        Verify that `update_course_skills` task work as expected.
+        Verify that `UPDATE_COURSE_SKILLS` signal work as expected.
         """
         get_course_skills_mock.return_value = self.skills
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course])
@@ -39,7 +39,7 @@ class TaxonomyTasksTests(unittest.TestCase):
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
-        update_course_skills.delay([self.course.uuid])
+        UPDATE_COURSE_SKILLS.send(sender=None, course_uuid=self.course.uuid)
 
         self.assertEqual(skill.count(), 4)
         self.assertEqual(course_skill.count(), 4)
