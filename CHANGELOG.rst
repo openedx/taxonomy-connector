@@ -14,6 +14,13 @@ Change Log
 Unreleased
 --------------------
 
+[1.2.1] - 2021-01-07
+--------------------
+
+* Added course update signal and handler to trigger the celery task
+* Added celery task to update course skills
+* Refactored `refresh_course_skills` management command
+
 [1.2.0] - 2020-12-24
 --------------------
 
