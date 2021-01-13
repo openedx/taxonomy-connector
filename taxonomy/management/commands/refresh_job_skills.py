@@ -5,12 +5,11 @@ Management command for refreshing the skills associated with courses.
 import logging
 
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import gettext as _
 
 from taxonomy.emsi_client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import Job, JobSkills
+from taxonomy.models import Job, JobSkills, Skill
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,29 +19,10 @@ class Command(BaseCommand):
     Command to refresh the jobs associated with skills.
 
     Example usage:
-        $ # Create or refresh the existing data associated with jobs and job skills on the basis
-        $ # of ranking_facet and nested_ranking_facet arguments.
-        $ # In the following example, 'CERTIFICATIONS' and 'CERTIFICATIONS_NAME' are ranking facet describing
-        $ # what data will be included in the API response.
-        $ ./manage.py refresh_job_skills 'CERTIFICATIONS' 'CERTIFICATIONS_NAME'
+        $ # Create or refresh the existing data associated with jobs and job skills.
+        $ ./manage.py refresh_job_skills
         """
     help = 'Refreshes the jobs associated with skills.'
-
-    def add_arguments(self, parser):
-        """
-        Add arguments to the command parser.
-        """
-        parser.add_argument(
-            'ranking_facet',
-            action='store',
-            help=_('Ranking Facet'),
-        )
-
-        parser.add_argument(
-            'nested_ranking_facet',
-            action='store',
-            help=_('Nested Ranking Facet'),
-        )
 
     def _update_jobs_data(self, job_skill_bucket):
         """
@@ -51,12 +31,15 @@ class Command(BaseCommand):
         job, __ = Job.objects.update_or_create(name=job_skill_bucket['name'])
         jobs_bucket = job_skill_bucket['ranking']['buckets']
         for skill_data in jobs_bucket:
-            JobSkills.objects.update_or_create(job=job,
-                                               name=skill_data['name'],
-                                               defaults={
-                                                   'significance': skill_data['significance'],
-                                                   'unique_postings': skill_data['unique_postings'],
-                                               })
+            skill, __ = Skill.objects.get_or_create(external_id=skill_data['name'])
+            JobSkills.objects.update_or_create(
+                job=job,
+                skill=skill,
+                defaults={
+                    'significance': skill_data['significance'],
+                    'unique_postings': skill_data['unique_postings'],
+                },
+            )
 
     def _refresh_jobs(self, ranking_facet, nested_ranking_facet):
         """
@@ -70,8 +53,8 @@ class Command(BaseCommand):
         client = EMSIJobsApiClient()
         try:
             jobs = client.get_jobs(
-                RankingFacet[ranking_facet],
-                RankingFacet[nested_ranking_facet],
+                ranking_facet,
+                nested_ranking_facet,
             )
         except TaxonomyAPIError:
             message = 'Taxonomy API Error for refreshing the jobs for ' \
@@ -93,8 +76,4 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        ranking_facet, nested_ranking_facet = options['ranking_facet'], options['nested_ranking_facet']
-        if not ranking_facet and nested_ranking_facet:
-            raise CommandError(_('Error: the following arguments are required: ranking_facet, nested_ranking_facet'))
-
-        self._refresh_jobs(ranking_facet, nested_ranking_facet)
+        self._refresh_jobs(RankingFacet.TITLE_NAME, RankingFacet.SKILLS)

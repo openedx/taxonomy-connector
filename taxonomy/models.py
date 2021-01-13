@@ -205,11 +205,11 @@ class JobSkills(TimeStampedModel):
     .. no_pii:
     """
 
-    name = models.CharField(
-        max_length=255,
-        blank=True,
+    skill = models.ForeignKey(
+        Skill,
+        on_delete=models.deletion.CASCADE,
         help_text=_(
-            'The name of the skill required for the job.'
+            'The skill required for the job.'
         )
     )
 

@@ -45,14 +45,14 @@ JOBS = {
                         'limit': 2,
                         'buckets': [
                             {
-                                'name': 'Nunchuks',
-                                'significance': 9.3498822,
-                                'unique_postings': 25
+                                'name': 'KS1208078SN0KY08W3QT',
+                                'significance': 31.394078320130294,
+                                'unique_postings': 25953
                             },
                             {
-                                'name': 'Swift (Programming Language)',
-                                'significance': 8.390285,
-                                'unique_postings': 1337
+                                'name': 'KS1274Y5Z0PFK7XN155K',
+                                'significance': 21.08851543427918,
+                                'unique_postings': 34705
                             }
                         ]
                     }
@@ -68,13 +68,13 @@ JOBS = {
                         'limit': 2,
                         'buckets': [
                             {
-                                'name': 'Social Media Marketing',
-                                'significance': 4.292374,
+                                'name': 'KS1283V6XDFZSK6YP0HF',
+                                'significance': 58.91321355889151,
                                 'unique_postings': 150
                             },
                             {
-                                'name': 'Bowhunting',
-                                'significance': 2.3938203,
+                                'name': 'ESEB1D4619E6E83A061D',
+                                'significance': 14.426926671377828,
                                 'unique_postings': 42
                             }
                         ]
