@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.3.0] - 2021-01-13
+--------------------
+
+* Added JobSkills.skill column and removed JobSkills.name column.
+
 [1.2.1] - 2021-01-07
 --------------------
 

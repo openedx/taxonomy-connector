@@ -47,7 +47,7 @@ class JobSkillsAdmin(admin.ModelAdmin):
     Administrative view for Job Skills.
     """
 
-    list_display = ('id', 'name', 'job', 'significance', 'unique_postings', 'created', 'modified')
+    list_display = ('id', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
     search_fields = ('name', 'significance',)
 
 

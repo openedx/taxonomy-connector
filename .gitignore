@@ -33,6 +33,9 @@ pii_report/
 # Translations
 *.mo
 
+# Database
+*.db
+
 # IDEs and text editors
 *~
 *.swp

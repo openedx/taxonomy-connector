@@ -13,6 +13,7 @@ from testfixtures import LogCapture
 from django.core.management import CommandError, call_command
 from django.utils.translation import gettext as _
 
+from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobSkills
 from test_utils.sample_responses.jobs import JOBS
@@ -43,19 +44,10 @@ class RefreshJobSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(jobs.count(), 0)
         self.assertEqual(job_skills.count(), 0)
 
-        call_command(self.command, 'CERTIFICATIONS', 'CERTIFICATIONS_NAME')
+        call_command(self.command)
 
         self.assertEqual(jobs.count(), 2)
         self.assertEqual(job_skills.count(), 4)
-
-    @responses.activate
-    def test_missing_arguments(self):
-        """
-        Test missing arguments.
-        """
-        err_string = _('Error: the following arguments are required: ranking_facet, nested_ranking_facet')
-        with self.assertRaisesRegex(CommandError, err_string):
-            call_command(self.command)
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_jobs')
@@ -70,15 +62,14 @@ class RefreshJobSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(job_skills.count(), 0)
 
         err_string = _('Taxonomy API Error for refreshing the jobs for Ranking Facet'
-                       ' CERTIFICATIONS and Nested Ranking Facet CERTIFICATIONS_NAME')
+                       ' {} and Nested Ranking Facet {}').format(RankingFacet.TITLE_NAME, RankingFacet.SKILLS)
         with LogCapture(level=logging.INFO) as log_capture:
             with self.assertRaisesRegex(CommandError, err_string):
-                call_command(self.command, 'CERTIFICATIONS', 'CERTIFICATIONS_NAME')
+                call_command(self.command)
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 1)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Taxonomy API Error for refreshing the jobs for'
-                                      ' Ranking Facet CERTIFICATIONS and Nested Ranking Facet CERTIFICATIONS_NAME')
+            self.assertEqual(message, err_string)
 
         self.assertEqual(jobs.count(), 0)
         self.assertEqual(job_skills.count(), 0)
