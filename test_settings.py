@@ -68,4 +68,6 @@ CELERY_TASK_ALWAYS_EAGER = True
 # In memory broker for tests
 CELERY_BROKER_URL = 'memory://localhost/'
 
+CELERY_DEFAULT_QUEUE = 'taxonomy.default'
+
 ### END CELERY
