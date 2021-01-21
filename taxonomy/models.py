@@ -112,6 +112,7 @@ class CourseSkills(TimeStampedModel):
         Meta configuration for CourseSkills model.
         """
 
+        verbose_name_plural = 'CourseSkills'
         ordering = ('created', )
         app_label = 'taxonomy'
 
@@ -242,6 +243,7 @@ class JobSkills(TimeStampedModel):
         Metadata for the JobSkills model.
         """
 
+        verbose_name_plural = 'JobSkills'
         ordering = ('created',)
         app_label = 'taxonomy'
 
@@ -312,6 +314,7 @@ class JobPostings(TimeStampedModel):
         Metadata for the JobPostings model.
         """
 
+        verbose_name_plural = 'JobPostings'
         ordering = ('created',)
         app_label = 'taxonomy'
 
