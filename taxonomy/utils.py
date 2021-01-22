@@ -5,7 +5,7 @@ import logging
 
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import CourseMetadataNotFoundError, CourseSkillsRefreshError, TaxonomyAPIError
-from taxonomy.models import CourseSkills, Skill
+from taxonomy.models import BlacklistedCourseSkill, CourseSkills, Skill
 from taxonomy.providers.utils import get_course_metadata_provider
 
 LOGGER = logging.getLogger(__name__)
@@ -16,11 +16,13 @@ def update_skills_data(course_key, confidence, skill_data):
     Persist the skills data in the database.
     """
     skill, __ = Skill.objects.update_or_create(**skill_data)
-    CourseSkills.objects.update_or_create(
-        course_id=course_key,
-        skill=skill,
-        confidence=confidence
-    )
+
+    if not is_course_skill_black_listed(course_key, skill.id):
+        CourseSkills.objects.update_or_create(
+            course_id=course_key,
+            skill=skill,
+            confidence=confidence
+        )
 
 
 def process_skills_data(course, course_skills, should_commit_to_db):
@@ -92,3 +94,38 @@ def refresh_course_skills(options):
                 course_keys=', '.join(keys)
             )
         )
+
+
+def black_list_course_skill(course_key, skill_id):
+    """
+    Blacklist a course skill.
+
+    Arguments:
+        course_key (CourseKey): CourseKey object pointing to the course whose skill need to be black-listed.
+        skill_id (int): Primary key identifier of the skill that need to be blacklisted.
+
+    Returns:
+        (BlacklistedCourseSkill): Newly created instance of the BlacklistedCourseSkill.
+    """
+    black_listed_course_skill, __ = BlacklistedCourseSkill.objects.get_or_create(
+        course_id=course_key,
+        skill_id=skill_id,
+    )
+    return black_listed_course_skill
+
+
+def is_course_skill_black_listed(course_key, skill_id):
+    """
+    Return the black listed status of a course skill.
+
+    Arguments:
+        course_key (CourseKey): CourseKey object pointing to the course whose skill need to be checked.
+        skill_id (int): Primary key identifier of the skill that need to be checked.
+
+    Returns:
+        (bool): True if course-skill (identified by the arguments) is black-listed, False otherwise.
+    """
+    return BlacklistedCourseSkill.objects.filter(
+        course_id=course_key,
+        skill_id=skill_id
+    ).exists()
