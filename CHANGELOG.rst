@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.3.1] - 2021-01-22
+--------------------
+
+* Added the ability to black list course skills.
+
 [1.3.0] - 2021-01-13
 --------------------
 
