@@ -4,7 +4,11 @@ Initialization code for taxonomy application.
 """
 from __future__ import unicode_literals
 
+import logging
+
 from django.apps import AppConfig
+
+LOGGER = logging.getLogger(__name__)
 
 
 class TaxonomyConfig(AppConfig):
@@ -18,4 +22,5 @@ class TaxonomyConfig(AppConfig):
         """
         Connect handlers to signals.
         """
+        LOGGER.info('[TAXONOMY] App config is ready')
         from .signals import handlers  # pylint: disable=unused-import,import-outside-toplevel
