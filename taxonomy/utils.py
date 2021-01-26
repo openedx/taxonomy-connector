@@ -50,11 +50,11 @@ def process_skills_data(course, course_skills, should_commit_to_db):
             if should_commit_to_db:
                 update_skills_data(course['key'], confidence, skill_data)
         except KeyError:
-            LOGGER.error('Missing keys in skills data for course_key: %s', course['key'])
+            LOGGER.error('[TAXONOMY] Missing keys in skills data for course_key: %s', course['key'])
             failures.add((course['uuid'], course['key']))
         except (ValueError, TypeError):
             LOGGER.error(
-                'Invalid type for `confidence` in course skills for course_key: %s', course['key']
+                '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s', course['key']
             )
             failures.add((course['uuid'], course['key']))
 
@@ -81,7 +81,7 @@ def refresh_course_skills(options):
             try:
                 course_skills = client.get_course_skills(course_description)
             except TaxonomyAPIError:
-                LOGGER.error('Taxonomy API Error for course_key: %s', course['key'])
+                LOGGER.error('[TAXONOMY] API Error for course_key: %s', course['key'])
                 failures.add((course['uuid'], course['key']))
             else:
                 failed_records = process_skills_data(course, course_skills, options['commit'])

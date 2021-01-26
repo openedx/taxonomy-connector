@@ -117,7 +117,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Taxonomy API Error for course_key: %s')
+            self.assertEqual(message, '[TAXONOMY] API Error for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -169,7 +169,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Missing keys in skills data for course_key: %s')
+            self.assertEqual(message, '[TAXONOMY] Missing keys in skills data for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -197,7 +197,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
             # Validate a descriptive and readable log message.
             self.assertEqual(len(log_capture.records), 2)
             message = log_capture.records[0].msg
-            self.assertEqual(message, 'Invalid type for `confidence` in course skills for course_key: %s')
+            self.assertEqual(message, '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s')
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)

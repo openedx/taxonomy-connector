@@ -22,5 +22,4 @@ class TaxonomyConfig(AppConfig):
         """
         Connect handlers to signals.
         """
-        LOGGER.info('[TAXONOMY] App config is ready')
         from .signals import handlers  # pylint: disable=unused-import,import-outside-toplevel
