@@ -175,6 +175,10 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
 
             return self.traverse_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
+            LOGGER.exception(
+                '[TAXONOMY] Exception raised while fetching skills data from EMSI. PostData: [%s]',
+                data
+            )
             raise TaxonomyAPIError('Error while fetching course skills.') from error
 
     @staticmethod
@@ -222,6 +226,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             response = endpoint().post(query_filter)
             return self.traverse_jobs_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
+            LOGGER.exception('[TAXONOMY] Exception raised while fetching jobs data from EMSI')
             raise TaxonomyAPIError(
                 'Error while fetching job rankings for {ranking_facet}/{nested_ranking_facet}.'.format(
                     ranking_facet=ranking_facet.value,
@@ -255,6 +260,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             response = endpoint().post(query_filter)
             return self.traverse_job_postings_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
+            LOGGER.exception('[TAXONOMY] Exception raised while fetching job posting data from EMSI')
             raise TaxonomyAPIError(
                 'Error while fetching job postings data ranked by {ranking_facet}.'.format(
                     ranking_facet=ranking_facet.value,
