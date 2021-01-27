@@ -5,7 +5,7 @@ Model Factories for the taxonomy tests.
 import factory
 from faker import Factory as FakerFactory
 
-from taxonomy.models import BlacklistedCourseSkill, Skill
+from taxonomy.models import CourseSkills, Skill
 
 FAKER = FakerFactory.create()
 
@@ -32,18 +32,20 @@ class SkillFactory(factory.django.DjangoModelFactory):
 
 
 # pylint: disable=no-member
-class BlacklistedCourseSkillFactory(factory.django.DjangoModelFactory):
+class CourseSkillsFactory(factory.django.DjangoModelFactory):
     """
-    Factory class for BlacklistedCourseSkill model.
+    Factory class for CourseSkills model.
     """
 
     class Meta:
         """
-        Meta for ``BlacklistedCourseSkillFactory``.
+        Meta for ``CourseSkillsFactory``.
         """
 
-        model = BlacklistedCourseSkill
+        model = CourseSkills
         django_get_or_create = ('course_id', 'skill')
 
     course_id = factory.LazyAttribute(lambda x: FAKER.slug())
     skill = factory.SubFactory(SkillFactory)
+    confidence = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=1))
+    is_blacklisted = False

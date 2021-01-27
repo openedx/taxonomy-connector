@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.3.5] - 2021-01-27
+--------------------
+
+* Added some utility functions for adding/removing course skills to/from blacklist.
+
 [1.3.4] - 2021-01-27
 --------------------
 

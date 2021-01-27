@@ -106,6 +106,10 @@ class CourseSkills(TimeStampedModel):
             'The extraction confidence threshold used for the skills extraction.'
         )
     )
+    is_blacklisted = models.BooleanField(
+        help_text=_('Blacklist this course skill, useful to handle false positives.'),
+        default=False,
+    )
 
     class Meta:
         """
@@ -126,48 +130,6 @@ class CourseSkills(TimeStampedModel):
         Create a unique string representation of the object.
         """
         return '<Skill id="{0}" skill="{1!r}">'.format(self.id, self.skill)
-
-
-class BlacklistedCourseSkill(TimeStampedModel):
-    """
-    Course skills that are black listed to avoid false positives.
-
-    .. no_pii:
-    """
-
-    course_id = models.CharField(
-        max_length=255,
-        help_text=_(
-            'The course key belonging the course whose skill needs to be black-listed.'
-        )
-    )
-    skill = models.ForeignKey(
-        Skill,
-        on_delete=models.deletion.CASCADE,
-        help_text=_(
-            'The skill extracted for the course that needs to be black-listed.'
-        )
-    )
-
-    class Meta:
-        """
-        Meta configuration for CourseSkills model.
-        """
-
-        ordering = ('created', )
-        app_label = 'taxonomy'
-
-    def __str__(self):
-        """
-        Create a human-readable string representation of the object.
-        """
-        return '<BlacklistedCourseSkill skill="{}" course_id="{}">'.format(self.skill.name, self.course_id)
-
-    def __repr__(self):
-        """
-        Create a unique string representation of the object.
-        """
-        return '<BlacklistedCourseSkill id="{0}" skill="{1!r}">'.format(self.id, self.skill)
 
 
 class RefreshCourseSkillsConfig(SingletonModel):
