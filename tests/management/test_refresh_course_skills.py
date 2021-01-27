@@ -115,9 +115,17 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
             with self.assertRaisesRegex(CourseSkillsRefreshError, err_string):
                 call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 2)
-            message = log_capture.records[0].msg
-            self.assertEqual(message, '[TAXONOMY] API Error for course_key: %s')
+            self.assertEqual(len(log_capture.records), 4)
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(
+                messages,
+                [
+                    '[TAXONOMY] Refresh Course Skills. Options: [%s]',
+                    '[TAXONOMY] Courses Information. Data: [%s]',
+                    '[TAXONOMY] API Error for course_key: %s',
+                    '[TAXONOMY] API Error for course_key: %s'
+                ]
+            )
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -167,9 +175,19 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
             with self.assertRaisesRegex(CourseSkillsRefreshError, err_string):
                 call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 2)
-            message = log_capture.records[0].msg
-            self.assertEqual(message, '[TAXONOMY] Missing keys in skills data for course_key: %s')
+            self.assertEqual(len(log_capture.records), 6)
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(
+                messages,
+                [
+                    '[TAXONOMY] Refresh Course Skills. Options: [%s]',
+                    '[TAXONOMY] Courses Information. Data: [%s]',
+                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
+                    '[TAXONOMY] Missing keys in skills data for course_key: %s',
+                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
+                    '[TAXONOMY] Missing keys in skills data for course_key: %s'
+                ]
+            )
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -195,9 +213,18 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
             with self.assertRaisesRegex(CourseSkillsRefreshError, err_string):
                 call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 2)
-            message = log_capture.records[0].msg
-            self.assertEqual(message, '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s')
+            self.assertEqual(len(log_capture.records), 6)
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(
+                messages,
+                [
+                    '[TAXONOMY] Refresh Course Skills. Options: [%s]',
+                    '[TAXONOMY] Courses Information. Data: [%s]',
+                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
+                    '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s',
+                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
+                    '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s']
+            )
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
