@@ -65,12 +65,16 @@ def refresh_course_skills(options):
     """
     Refresh the skills associated with the provided courses.
     """
+    LOGGER.info('[TAXONOMY] Refresh Course Skills. Options: [%s]', options)
+
     courses = get_course_metadata_provider().get_courses(course_ids=options['course'])
 
     if not courses:
         raise CourseMetadataNotFoundError(
             'No course metadata was found for following courses. {}'.format(options['course'])
         )
+
+    LOGGER.info('[TAXONOMY] Courses Information. Data: [%s]', courses)
 
     failures = set()
     client = EMSISkillsApiClient()
@@ -80,6 +84,7 @@ def refresh_course_skills(options):
         if course_description:
             try:
                 course_skills = client.get_course_skills(course_description)
+                LOGGER.info('[TAXONOMY] Skills data recived from EMSI. Skills: [%s]', course_skills)
             except TaxonomyAPIError:
                 LOGGER.error('[TAXONOMY] API Error for course_key: %s', course['key'])
                 failures.add((course['uuid'], course['key']))
