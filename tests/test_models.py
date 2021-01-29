@@ -8,7 +8,7 @@ from pytest import mark
 from django.test import TestCase
 
 from taxonomy.models import Job, JobPostings
-from test_utils.factories import BlacklistedCourseSkillFactory
+from test_utils import factories
 
 
 @mark.django_db
@@ -52,28 +52,18 @@ class TestJobPostings(TestCase):
 
 
 @mark.django_db
-class TestBlacklistedCourseSkill(TestCase):
+class TestSkill(TestCase):
     """
-    Tests for the `BlacklistedCourseSkill` model.
+    Tests for the ``Skill`` model.
     """
-
-    def setUp(self):
-        super(TestBlacklistedCourseSkill, self).setUp()
-        self.black_listed_course_skill = BlacklistedCourseSkillFactory()
 
     def test_string_representation(self):
         """
-        Test the string representation of the BlacklistedCourseSkill model.
+        Test the string representation of the Skill model.
         """
-        expected_str = '<BlacklistedCourseSkill skill="{}" course_id="{}">'.format(
-            self.black_listed_course_skill.skill.name,
-            self.black_listed_course_skill.course_id,
-        )
+        skill = factories.SkillFactory()
+        expected_str = '<Skill name="{}" external_id="{}">'.format(skill.name, skill.external_id)
+        expected_repr = '<Skill id="{}" name="{}">'.format(skill.id, skill.name)
 
-        expected_repr = '<BlacklistedCourseSkill id="{0}" skill="{1!r}">'.format(
-            self.black_listed_course_skill.id,
-            self.black_listed_course_skill.skill,
-        )
-
-        assert expected_str == self.black_listed_course_skill.__str__()
-        assert expected_repr == self.black_listed_course_skill.__repr__()
+        assert expected_str == skill.__str__()
+        assert expected_repr == skill.__repr__()
