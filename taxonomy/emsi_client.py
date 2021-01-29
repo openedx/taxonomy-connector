@@ -5,9 +5,9 @@ Clients for communicating with the EMSI Service.
 
 import logging
 from functools import wraps
+from time import time
 
 import requests
-from edx_django_utils.cache import TieredCache, get_cache_key
 from edx_rest_api_client.client import EdxRestApiClient
 from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
 from slumber.exceptions import SlumberBaseException
@@ -42,33 +42,25 @@ class JwtEMSIApiClient:
                 are `emsi_open` and `postings:us`.
         """
         self.scope = scope
+        self.expires_at = 0
 
         self.client = EdxRestApiClient(
             self.API_BASE_URL,
             append_slash=self.APPEND_SLASH,
-            oauth_access_token=self.access_token,
+            oauth_access_token=self.oauth_access_token(),
         )
 
-    @property
-    def cache_key(self):
+    def oauth_access_token(self, grant_type='client_credentials'):
         """
-        Return the cache key, caching is done based on the endpoint name and the scope property.
-        """
-        return get_cache_key(endpoint='EMSI', scope=self.scope)
-
-    def fetch_oauth_access_token(self, client_id, client_secret, grant_type='client_credentials'):
-        """
-        Fetch a new access token from EMSI API. This method will also cache the new access token fetched from the API.
+        Fetch a new access token from EMSI API.
 
         Arguments:
-            client_id (str): Client id provided by the EMSI API Service.
-            client_secret (str): Client secret provided by the EMSI API Service.
             grant_type (str): Grant type, usually `client_credentials`
         """
         data = {
             'grant_type': grant_type,
-            'client_id': client_id,
-            'client_secret': client_secret
+            'client_id': self.client_id,
+            'client_secret': self.client_secret
         }
 
         response = requests.post(
@@ -81,34 +73,11 @@ class JwtEMSIApiClient:
             data = response.json()
             access_token = data['access_token']
             expires_in = data['expires_in']
-            TieredCache.set_all_tiers(self.cache_key, access_token, expires_in)
+            self.expires_at = int(time()) + expires_in
             return access_token
 
         LOGGER.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
         return None
-
-    @property
-    def access_token(self):
-        """
-        Get and return the access token for EMSI API access.
-
-        The property method will try these steps in order to get the access token.
-            1. Find and return the access token from the cache
-            2. If cache is empty, then fetch and return a new access token using EMSI API.
-
-        Returns:
-            (str|None): Access token or `None` if access could not be found from the cache and the API did not return
-                a successful response.
-        """
-        cached_response = TieredCache.get_cached_response(self.cache_key)
-        if cached_response.is_found:
-            return cached_response.value
-
-        access_token = self.fetch_oauth_access_token(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-        )
-        return access_token
 
     def connect(self):
         """
@@ -117,15 +86,14 @@ class JwtEMSIApiClient:
         self.client = EdxRestApiClient(
             self.API_BASE_URL,
             append_slash=self.APPEND_SLASH,
-            oauth_access_token=self.access_token,
+            oauth_access_token=self.oauth_access_token(),
         )
 
     def is_token_expired(self):
         """
         Return True if the access token has expired, False if not.
         """
-        cached_response = TieredCache.get_cached_response(self.cache_key)
-        return not cached_response.is_found
+        return int(time()) > self.expires_at
 
     @staticmethod
     def refresh_token(func):

@@ -4,16 +4,15 @@ Tests for the `taxonomy-connector` emsi client.
 """
 
 import logging
+from time import time
 
 import responses
-from edx_django_utils.cache import TieredCache
 from pytest import raises
 from testfixtures import LogCapture
 
 from taxonomy.emsi_client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSIApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
-from test_utils.constants import CLIENT_ID, CLIENT_SECRET
 from test_utils.decorators import mock_api_response
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
@@ -34,13 +33,6 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
 
         self.client = JwtEMSIApiClient(scope='EMSI')
 
-    def tearDown(self):
-        """
-        Clear out the cache.
-        """
-        super(TestJwtEMSIApiClient, self).tearDown()
-        TieredCache.dangerous_clear_all_tiers()
-
     @mock_api_response(
         method=responses.POST,
         url=JwtEMSIApiClient.ACCESS_TOKEN_URL,
@@ -48,14 +40,11 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
     )
     def test_get_oauth_access_token(self):
         """
-        Validate that `fetch_oauth_access_token` correctly handles request to fetch access token.
+        Validate that `oauth_access_token` correctly handles request to fetch access token.
         """
-        token = self.client.fetch_oauth_access_token(CLIENT_ID, CLIENT_SECRET)
+        token = self.client.oauth_access_token()
         assert token == 'test-token'
-
-        # Validate that token is also set in the cache
-        cached_token = TieredCache.get_cached_response(self.client.cache_key)
-        assert cached_token.value == 'test-token'
+        assert self.client.expires_at > 0
 
     @mock_api_response(
         method=responses.POST,
@@ -68,12 +57,8 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
         Validate that `fetch_oauth_access_token` correctly handles errors while fetching access token.
         """
         with LogCapture(level=logging.INFO) as log_capture:
-            token = self.client.fetch_oauth_access_token(CLIENT_ID, CLIENT_SECRET)
+            token = self.client.oauth_access_token()
             assert token is None
-
-            # Validate that token is not set in the cache either
-            cached_token = TieredCache.get_cached_response(self.client.cache_key)
-            assert not cached_token.is_found
 
             # Validate a descriptive and readable log message.
             assert len(log_capture.records) == 1
@@ -87,21 +72,11 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
     )
     def test_connect(self):
         """
-        Validate that a new token is only fetched if one is not found in the cache.
+        Validate that `connect` works.
         """
-        # Add a sample token value in the cache
-        TieredCache.set_all_tiers(self.client.cache_key, 'test-token', 60)
-
         self.client.connect()
 
-        # Make sure API call was not sent out.
-        assert len(responses.calls) == 0
-
-        # Remove cached entry and make sure token is then fetched via API call.
-        TieredCache.dangerous_clear_all_tiers()
-        self.client.connect()
-
-        # Make sure API call was sent out this time.
+        # Make sure API call was sent out.
         assert len(responses.calls) == 1
         assert responses.calls[0].request.url == JwtEMSIApiClient.ACCESS_TOKEN_URL
 
@@ -114,8 +89,8 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of refresh_token decorator.
         """
-        # Add a sample token value in the cache
-        TieredCache.set_all_tiers(self.client.cache_key, 'test-token', 60)
+        # set an expiry value
+        self.client.expires_at = int(time()) + 60
 
         # Apply the decorator
         func = self.client.refresh_token(lambda client, *args, **kwargs: None)
@@ -124,8 +99,8 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
         # Make sure API call was not sent out.
         assert len(responses.calls) == 0
 
-        # Remove cached entry to simulate token expiry.
-        TieredCache.dangerous_clear_all_tiers()
+        # expire the token
+        self.client.expires_at = 0
         # Apply the decorator
         func(self.client)
 
@@ -145,13 +120,6 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         super(TestEMSISkillsApiClient, self).setUp()
         self.client = EMSISkillsApiClient()
         self.mock_access_token()
-
-    def tearDown(self):
-        """
-        Clear out the cache.
-        """
-        super(TestEMSISkillsApiClient, self).tearDown()
-        TieredCache.dangerous_clear_all_tiers()
 
     @mock_api_response(
         method=responses.POST,
@@ -210,13 +178,6 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         super(TestEMSIJobsApiClient, self).setUp()
         self.mock_access_token()
         self.client = EMSIJobsApiClient()
-
-    def tearDown(self):
-        """
-        Clear out the cache.
-        """
-        super(TestEMSIJobsApiClient, self).tearDown()
-        TieredCache.dangerous_clear_all_tiers()
 
     @mock_api_response(
         method=responses.POST,
