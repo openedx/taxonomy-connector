@@ -53,8 +53,8 @@ EMSI_API_ACCESS_TOKEN_URL = 'http://example.com/connect/token'
 
 # Original URL: https://emsiservices.com
 EMSI_API_BASE_URL = 'http://example.com'
-EMSI_CLIENT_ID = ''
-EMSI_CLIENT_SECRET = ''
+EMSI_CLIENT_ID = 'test-client'
+EMSI_CLIENT_SECRET = 'test-secret'
 
 TAXONOMY_COURSE_METADATA_PROVIDER = 'test_utils.providers.DiscoveryCourseMetadataProvider'
 
