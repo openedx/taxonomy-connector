@@ -14,7 +14,6 @@ from slumber.exceptions import SlumberBaseException
 
 from django.conf import settings
 
-from taxonomy.constants import JOB_POSTINGS_QUERY_FILTER, JOBS_QUERY_FILTER
 from taxonomy.exceptions import TaxonomyAPIError
 
 LOGGER = logging.getLogger(__name__)
@@ -171,7 +170,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         super(EMSIJobsApiClient, self).__init__(scope='postings:us')
 
     @JwtEMSIApiClient.refresh_token
-    def get_jobs(self, ranking_facet, nested_ranking_facet, query_filter=None):
+    def get_jobs(self, ranking_facet, nested_ranking_facet, query_filter):
         """
         Query the EMSI API for the jobs of the pre-defined filter_query.
 
@@ -188,7 +187,6 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             ranking_facet=ranking_facet.value,
             nested_ranking_facet=nested_ranking_facet.value,
         )
-        query_filter = query_filter if query_filter else JOBS_QUERY_FILTER
         try:
             endpoint = getattr(self.client, url)
             response = endpoint().post(query_filter)
@@ -210,7 +208,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         return jobs_data
 
     @JwtEMSIApiClient.refresh_token
-    def get_job_postings(self, ranking_facet, query_filter=None):
+    def get_job_postings(self, ranking_facet, query_filter):
         """
         Query the EMSI API for the job postings data of the pre-defined filter_query.
 
@@ -222,7 +220,6 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             dict: A dictionary containing job postings data.
         """
         url = 'rankings/{ranking_facet}'.format(ranking_facet=ranking_facet.value)
-        query_filter = query_filter if query_filter else JOB_POSTINGS_QUERY_FILTER
         try:
             endpoint = getattr(self.client, url)
             response = endpoint().post(query_filter)

@@ -5,7 +5,7 @@ Model Factories for the taxonomy tests.
 import factory
 from faker import Factory as FakerFactory
 
-from taxonomy.models import CourseSkills, Skill
+from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
 
 FAKER = FakerFactory.create()
 
@@ -49,3 +49,47 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
     skill = factory.SubFactory(SkillFactory)
     confidence = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=1))
     is_blacklisted = False
+
+
+class JobFactory(factory.django.DjangoModelFactory):
+    """
+        Factory class for Job model.
+    """
+
+    class Meta:
+
+        model = Job
+
+    external_id = factory.LazyAttribute(lambda x: FAKER.slug())
+    name = factory.LazyAttribute(lambda x: FAKER.job())
+
+
+class JobSkillFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for JobSkills model.
+    """
+
+    class Meta:
+        model = JobSkills
+        django_get_or_create = ('job', 'skill')
+
+    skill = factory.SubFactory(SkillFactory)
+    job = factory.SubFactory(JobFactory)
+    significance = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=100))
+    unique_postings = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=100000000))
+
+
+class JobPostingsFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class fofr JobPostings
+    """
+
+    class Meta:
+        model = JobPostings
+        django_get_or_create = ('job',)
+
+    job = factory.SubFactory(JobFactory)
+    median_salary = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=100))
+    median_posting_duration = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+    unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+    unique_companies = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))

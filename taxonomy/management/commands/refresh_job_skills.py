@@ -6,10 +6,12 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 
+from taxonomy.constants import get_job_query_filter
 from taxonomy.emsi_client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobSkills, Skill
+from taxonomy.utils import chunked_queryset
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,10 +30,16 @@ class Command(BaseCommand):
         """
         Persist the jobs data in the database.
         """
-        job, __ = Job.objects.update_or_create(name=job_skill_bucket['name'])
+        job_id = job_skill_bucket['name']
+        job, _ = Job.objects.get_or_create(external_id=job_id)
         jobs_bucket = job_skill_bucket['ranking']['buckets']
         for skill_data in jobs_bucket:
-            skill, __ = Skill.objects.get_or_create(external_id=skill_data['name'])
+            skill_id = skill_data['name']
+            try:
+                skill = Skill.objects.get(external_id=skill_id)
+            except Skill.DoesNotExist:
+                LOGGER.warning('Skill %s not found', skill_id)
+                continue
             JobSkills.objects.update_or_create(
                 job=job,
                 skill=skill,
@@ -52,28 +60,29 @@ class Command(BaseCommand):
         """
         client = EMSIJobsApiClient()
         try:
-            jobs = client.get_jobs(
-                ranking_facet,
-                nested_ranking_facet,
-            )
-        except TaxonomyAPIError:
-            message = 'Taxonomy API Error for refreshing the jobs for ' \
-                      'Ranking Facet {} and Nested Ranking Facet {}'.format(ranking_facet, nested_ranking_facet)
+            skills = Skill.objects.all()
+            for chunked_skills in chunked_queryset(skills):
+                skill_external_ids = list(chunked_skills.values_list('external_id', flat=True))
+                jobs = client.get_jobs(
+                    ranking_facet=ranking_facet,
+                    nested_ranking_facet=nested_ranking_facet,
+                    query_filter=get_job_query_filter(skill_external_ids)
+                )
+                buckets = jobs['data']['ranking']['buckets']
+                for bucket in buckets:
+                    self._update_jobs_data(bucket)
+        except TaxonomyAPIError as error:
+            message = 'Taxonomy API Error for refreshing the jobs for Ranking Facet {} and Nested Ranking Facet {}, ' \
+                      'Error: {}'.format(ranking_facet, nested_ranking_facet, error)
             LOGGER.error(message)
             raise CommandError(message)
-        else:
-            buckets = jobs['data']['ranking']['buckets']
-            for bucket in buckets:
-                try:
-                    self._update_jobs_data(bucket)
-                except KeyError:
-                    message = 'Bucket jobs exception for Ranking Facet {},' \
-                              'Nested Ranking Facet {}.'.format(ranking_facet, nested_ranking_facet)
-                    LOGGER.error(message)
-                    raise CommandError(message)
+        except KeyError as error:
+            message = f'Missing keys in update job skills data. Error: {error}'
+            LOGGER.error(message)
+            raise CommandError(message)
 
     def handle(self, *args, **options):
         """
         Entry point for management command execution.
         """
-        self._refresh_jobs(RankingFacet.TITLE_NAME, RankingFacet.SKILLS)
+        self._refresh_jobs(RankingFacet.TITLE, RankingFacet.SKILLS)

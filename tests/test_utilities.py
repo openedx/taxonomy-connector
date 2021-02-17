@@ -1,15 +1,19 @@
 """
 Validate that utility functions are working properly.
 """
+from ddt import data, ddt, unpack
 from pytest import fixture, mark
 
 from taxonomy import models, utils
+from taxonomy.models import Job
+from taxonomy.utils import chunked_queryset
 from test_utils import factories
 from test_utils.constants import COURSE_KEY
 from test_utils.testcase import TaxonomyTestCase
 
 
 @mark.django_db
+@ddt
 class TestUtils(TaxonomyTestCase):
     """
     Validate utility functions.
@@ -161,3 +165,24 @@ class TestUtils(TaxonomyTestCase):
             )
             skill_ids = [course_skill.skill.id for course_skill in blacklisted_course_skills]
             assert len(skill_ids) == 10
+
+    @unpack
+    @data(
+        (30, 10, [10, 10, 10]),
+        (31, 10, [10, 10, 10, 1]),
+        (10, 10, [10]),
+        (7, 10, [7]),
+        (0, 10, [0]),
+    )
+    def test_chunked_queryset(self, query_size, chunk_size, expected_batches):
+        Job.objects.all().delete()
+
+        # create objects size of query_size
+        for _ in range(query_size):
+            factories.JobFactory()
+
+        queryset = Job.objects.all()
+
+        # import pdb; pdb.set_trace()
+        for (batch_num, chunked_query) in enumerate(chunked_queryset(queryset, chunk_size)):
+            assert chunked_query.count() == expected_batches[batch_num]

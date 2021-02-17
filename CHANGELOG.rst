@@ -14,6 +14,15 @@ Change Log
 Unreleased
 --------------------
 
+[1.4.0] - 2021-02-17
+--------------------
+
+* Updated refresh_job_skill command to get jobs related only to skills that are in our system
+* Updated refresh_job_postings command to get job_posting only related to job we already have in our system.
+* Added constrains on the Job, Skill, JobPostings, CourseSkill and JobSkill table.
+* Added migration to remove all previous taxonomy data.
+* Added utility to chuck the queryset provided.
+
 [1.3.6] - 2021-01-29
 --------------------
 

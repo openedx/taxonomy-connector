@@ -11,3 +11,4 @@ testfixtures              # Mock objects for unit tests and doc tests
 factory-boy
 mock
 Faker
+ddt

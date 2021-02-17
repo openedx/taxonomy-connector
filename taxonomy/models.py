@@ -23,6 +23,7 @@ class Skill(TimeStampedModel):
         max_length=255,
         blank=False,
         null=False,
+        unique=True,
         help_text=_(
             'The external identifier for the skill received from API.'
         )
@@ -118,6 +119,7 @@ class CourseSkills(TimeStampedModel):
 
         ordering = ('created', )
         app_label = 'taxonomy'
+        unique_together = ('course_id', 'skill')
 
     def __str__(self):
         """
@@ -173,6 +175,13 @@ class Job(TimeStampedModel):
     .. no_pii:
     """
 
+    external_id = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text=_(
+            'The external identifier for the job received from API.'
+        )
+    )
     name = models.CharField(
         max_length=255,
         blank=False,
@@ -248,6 +257,7 @@ class JobSkills(TimeStampedModel):
 
         ordering = ('created',)
         app_label = 'taxonomy'
+        unique_together = ('job', 'skill')
 
     def __str__(self):
         """
@@ -277,6 +287,7 @@ class JobPostings(TimeStampedModel):
         Job,
         blank=False,
         null=False,
+        unique=True,
         on_delete=models.deletion.CASCADE,
         help_text=_(
             'The ID of the job to filter job postings by.'
