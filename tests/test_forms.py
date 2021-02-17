@@ -6,7 +6,9 @@ from taxonomy.forms import RefreshCourseSkillsForm
 
 
 class RefreshCourseSkillsFormTest(TestCase):
-    """Tests for RefreshCourseSkillsForm."""
+    """
+    Tests for RefreshCourseSkillsForm.
+    """
 
     def test_with_valid_course_uuid(self):
         """

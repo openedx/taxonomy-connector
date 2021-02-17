@@ -30,13 +30,13 @@ JOBS = {
             'duplicate_postings': 5551
         },
         'ranking': {
-            'facet': 'company',
+            'facet': 'title',
             'rank_by': 'unique_postings',
             'limit': 2,
             'buckets': [
                 {
                     'median_posting_duration': 22,
-                    'name': 'Apple Inc.',
+                    'name': '15.0120',
                     'unique_postings': 1043,
                     'duplicate_postings': 2049,
                     'ranking': {
@@ -59,7 +59,7 @@ JOBS = {
                 },
                 {
                     'median_posting_duration': 21,
-                    'name': 'Facebook',
+                    'name': '12.1',
                     'unique_postings': 603,
                     'duplicate_postings': 3502,
                     'ranking': {
@@ -77,6 +77,41 @@ JOBS = {
                                 'significance': 14.426926671377828,
                                 'unique_postings': 42
                             }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}
+
+MISSING_SIGNIFICANCE_KEY_JOBS = {
+    'data': {
+        'totals': {
+            'median_posting_duration': 36,
+            'unique_postings': 1646,
+            'duplicate_postings': 5551
+        },
+        'ranking': {
+            'facet': 'title',
+            'rank_by': 'unique_postings',
+            'limit': 1,
+            'buckets': [
+                {
+                    'median_posting_duration': 22,
+                    'name': '15.0120',
+                    'unique_postings': 1043,
+                    'duplicate_postings': 2049,
+                    'ranking': {
+                        'facet': 'skills',
+                        'rank_by': 'significance',
+                        'limit': 1,
+                        'buckets': [
+                            {
+                                'name': 'KS1208078SN0KY08W3QT',
+                                'unique_postings': 25953
+                            },
+
                         ]
                     }
                 }
