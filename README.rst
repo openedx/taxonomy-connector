@@ -44,6 +44,7 @@ Developer Notes
 - To run unit tests, create a virtualenv, install the requirements with ``make requirements`` and then run ``make test``
 - To update the requirements, run ``make upgrade``
 - To run quality checks, run ``make quality``
+- Please do not import models directly in course discovery. e:g if you want to import CourseSkills in Discovery, use the utility get_whitelisted_course_skills instead of directly importing it.
 
 
 Reporting Security Issues
