@@ -5,7 +5,7 @@ from ddt import data, ddt, unpack
 from pytest import fixture, mark
 
 from taxonomy import models, utils
-from taxonomy.models import Job
+from taxonomy.models import Job, Skill
 from taxonomy.utils import chunked_queryset
 from test_utils import factories
 from test_utils.constants import COURSE_KEY
@@ -78,29 +78,40 @@ class TestUtils(TaxonomyTestCase):
         Validate that update_skills_data works as expected.
         """
         black_listed_course_skill = factories.CourseSkillsFactory(course_id=COURSE_KEY, is_blacklisted=True)
-
+        skills_count = Skill.objects.count()
         utils.update_skills_data(
             course_key=COURSE_KEY,
+            skill_external_id=black_listed_course_skill.skill.external_id,
             confidence=black_listed_course_skill.confidence,
             skill_data={
-                'external_id': black_listed_course_skill.skill.external_id,
                 'name': black_listed_course_skill.skill.name,
                 'info_url': black_listed_course_skill.skill.info_url,
                 'type_id': black_listed_course_skill.skill.type_id,
                 'type_name': black_listed_course_skill.skill.type_name,
+                'description': black_listed_course_skill.skill.description
             }
         )
+
+        updated_name = 'new_name'
+        updated_info_url = 'new_url'
+        updated_type_id = '1'
+        updated_type_name = 'new_type'
+        updated_description = 'new description'
         utils.update_skills_data(
             course_key=COURSE_KEY,
+            skill_external_id=self.skill.external_id,
             confidence=0.9,
             skill_data={
-                'external_id': self.skill.external_id,
-                'name': self.skill.name,
-                'info_url': self.skill.info_url,
-                'type_id': self.skill.type_id,
-                'type_name': self.skill.type_name,
+                'name': updated_name,
+                'info_url': updated_info_url,
+                'type_id': updated_type_id,
+                'type_name': updated_type_name,
+                'description': updated_description
             }
         )
+
+        # make sure no new `Skill` object created.
+        assert Skill.objects.count() == skills_count
 
         # Make sure `CourseSkills` is no removed from the blacklist.
         assert utils.is_course_skill_blacklisted(COURSE_KEY, black_listed_course_skill.skill.id) is True
@@ -117,6 +128,14 @@ class TestUtils(TaxonomyTestCase):
             skill=self.skill,
             is_blacklisted=False,
         ).exists()
+
+        # Make sure the `Skill` object updated
+        self.skill.refresh_from_db()
+        assert self.skill.name == updated_name
+        assert self.skill.info_url == updated_info_url
+        assert self.skill.type_id == updated_type_id
+        assert self.skill.type_name == updated_type_name
+        assert self.skill.description == updated_description
 
     def test_get_course_skills(self):
         """

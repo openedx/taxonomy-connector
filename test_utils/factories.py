@@ -29,6 +29,7 @@ class SkillFactory(factory.django.DjangoModelFactory):
     info_url = factory.LazyAttribute(lambda x: FAKER.uri())
     type_id = factory.LazyAttribute(lambda x: FAKER.slug())
     type_name = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=20))
+    description = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
 
 
 # pylint: disable=no-member

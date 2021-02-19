@@ -11,11 +11,11 @@ from taxonomy.providers.utils import get_course_metadata_provider
 LOGGER = logging.getLogger(__name__)
 
 
-def update_skills_data(course_key, confidence, skill_data):
+def update_skills_data(course_key, skill_external_id, confidence, skill_data):
     """
     Persist the skills data in the database.
     """
-    skill, __ = Skill.objects.update_or_create(**skill_data)
+    skill, __ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
 
     if not is_course_skill_blacklisted(course_key, skill.id):
         CourseSkills.objects.update_or_create(
@@ -42,15 +42,16 @@ def process_skills_data(course, course_skills, should_commit_to_db):
         try:
             confidence = float(record['confidence'])
             skill = record['skill']
+            skill_external_id = skill['id']
             skill_data = {
-                'external_id': skill['id'],
                 'name': skill['name'],
                 'info_url': skill['infoUrl'],
                 'type_id': skill['type']['id'],
                 'type_name': skill['type']['name'],
+                'description': skill['description']
             }
             if should_commit_to_db:
-                update_skills_data(course['key'], confidence, skill_data)
+                update_skills_data(course['key'], skill_external_id, confidence, skill_data)
         except KeyError:
             LOGGER.error('[TAXONOMY] Missing keys in skills data for course_key: %s', course['key'])
             failures.add((course['uuid'], course['key']))

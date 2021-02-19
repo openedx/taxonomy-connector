@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.4.1] - 2021-02-19
+--------------------
+
+*  added description field in Skill model and update the refresh_course_skill command to save skill description.
+
 [1.4.0] - 2021-02-17
 --------------------
 

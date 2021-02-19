@@ -153,6 +153,15 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         """
         Transform data to a more useful format.
         """
+        for skill_details in response['data']:
+            # append skill description in skill data extracted from "wikipediaExtract" tag
+            try:
+                desc = next(tag['value'] for tag in skill_details['skill']['tags'] if tag['key'] == 'wikipediaExtract')
+            except StopIteration:
+                LOGGER.warning('[TAXONOMY] "wikipediaExtract" key not found in skill: %s', skill_details['skill']['id'])
+                desc = ''
+            skill_details['skill']['description'] = desc
+
         return response
 
 

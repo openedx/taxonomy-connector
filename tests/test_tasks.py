@@ -10,7 +10,7 @@ from taxonomy.models import CourseSkills, Skill
 from taxonomy.tasks import update_course_skills
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
-from test_utils.sample_responses.skills import SKILLS
+from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE
 
 
 @mark.django_db
@@ -20,7 +20,7 @@ class TaxonomyTasksTests(unittest.TestCase):
     """
 
     def setUp(self):
-        self.skills = SKILLS
+        self.skills_emsi_client_response = SKILLS_EMSI_CLIENT_RESPONSE
         self.course = MockCourse()
         super().setUp()
 
@@ -30,7 +30,7 @@ class TaxonomyTasksTests(unittest.TestCase):
         """
         Verify that `update_course_skills` task work as expected.
         """
-        get_course_skills_mock.return_value = self.skills
+        get_course_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course])
 
         # verify that no `Skill` and `CourseSkills` records exist before executing the task

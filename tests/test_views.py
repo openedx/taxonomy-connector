@@ -13,7 +13,7 @@ from django.test import RequestFactory, TestCase
 from taxonomy.views import RefreshCourseSkills
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
-from test_utils.sample_responses.skills import SKILLS
+from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE
 
 
 class RefreshCourseSkillsTest(TestCase):
@@ -113,7 +113,7 @@ class RefreshCourseSkillsTest(TestCase):
         middleware.process_request(request)
         request.session.save()
 
-        get_course_skills_mock.return_value = SKILLS
+        get_course_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         course = MockCourse()
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([course])
         request.user = self.user
@@ -179,7 +179,7 @@ class RefreshCourseSkillsTest(TestCase):
         request.session.save()
 
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([])
-        get_course_skills_mock.return_value = SKILLS
+        get_course_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         request.user = self.user
         view = RefreshCourseSkills()
         view.setup(request)
