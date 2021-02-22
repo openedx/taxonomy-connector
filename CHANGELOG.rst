@@ -18,6 +18,7 @@ Unreleased
 --------------------
 
 *  added description field in Skill model and update the refresh_course_skill command to save skill description.
+*  Pinning EMSI skills API version to 7.35
 
 [1.4.0] - 2021-02-17
 --------------------

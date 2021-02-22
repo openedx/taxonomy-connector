@@ -123,7 +123,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
         json=SKILLS_EMSI_RESPONSE,
     )
     def test_client_error(self):
@@ -142,7 +142,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
         json=SKILLS_EMSI_RESPONSE,
     )
     def test_get_course_skills(self):
@@ -155,7 +155,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
         json=SKILLS_EMSI_RESPONSE,
         status=400,
     )

@@ -115,7 +115,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     Object builds an API client to make calls to get the skills from course text data.
     """
 
-    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills'
+    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills/versions/7.35'
 
     def __init__(self):
         """
@@ -134,12 +134,11 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         Returns:
             dict: A dictionary containing details of all the skills.
         """
+        data = {
+            'text': course_text_data
+        }
         try:
-            data = {
-                'text': course_text_data
-            }
-            response = self.client.versions.latest.extract.post(data)
-
+            response = self.client.extract.post(data)
             return self.traverse_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
             LOGGER.exception(
