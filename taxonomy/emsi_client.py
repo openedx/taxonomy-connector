@@ -115,7 +115,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     Object builds an API client to make calls to get the skills from course text data.
     """
 
-    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills'
+    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills/versions/7.35'
 
     def __init__(self):
         """
@@ -134,12 +134,11 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         Returns:
             dict: A dictionary containing details of all the skills.
         """
+        data = {
+            'text': course_text_data
+        }
         try:
-            data = {
-                'text': course_text_data
-            }
-            response = self.client.versions.latest.extract.post(data)
-
+            response = self.client.extract.post(data)
             return self.traverse_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
             LOGGER.exception(
@@ -153,6 +152,15 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         """
         Transform data to a more useful format.
         """
+        for skill_details in response['data']:
+            # append skill description in skill data extracted from "wikipediaExtract" tag
+            try:
+                desc = next(tag['value'] for tag in skill_details['skill']['tags'] if tag['key'] == 'wikipediaExtract')
+            except StopIteration:
+                LOGGER.warning('[TAXONOMY] "wikipediaExtract" key not found in skill: %s', skill_details['skill']['id'])
+                desc = ''
+            skill_details['skill']['description'] = desc
+
         return response
 
 

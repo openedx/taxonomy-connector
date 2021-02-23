@@ -35,6 +35,11 @@ class Skill(TimeStampedModel):
             'The name of the skill.'
         )
     )
+    description = models.TextField(
+        blank=True,
+        help_text='A short description for the skill received from API.',
+        default='',
+    )
     info_url = models.URLField(
         verbose_name=_('Skill Information URL'),
         blank=True,

@@ -16,7 +16,7 @@ from taxonomy.exceptions import TaxonomyAPIError
 from test_utils.decorators import mock_api_response
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
-from test_utils.sample_responses.skills import SKILL_TEXT_DATA, SKILLS
+from test_utils.sample_responses.skills import SKILL_TEXT_DATA, SKILLS_EMSI_CLIENT_RESPONSE, SKILLS_EMSI_RESPONSE
 from test_utils.testcase import TaxonomyTestCase
 
 
@@ -123,8 +123,8 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
-        json=SKILLS,
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
+        json=SKILLS_EMSI_RESPONSE,
     )
     def test_client_error(self):
         """
@@ -133,17 +133,17 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         # Initialize once and call the API
         client = EMSISkillsApiClient()
         skills = client.get_course_skills(SKILL_TEXT_DATA)
-        assert skills == SKILLS
+        assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 
         # Initialize the client again to simulate error condition.
         client = EMSISkillsApiClient()
         skills = client.get_course_skills(SKILL_TEXT_DATA)
-        assert skills == SKILLS
+        assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
-        json=SKILLS,
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
+        json=SKILLS_EMSI_RESPONSE,
     )
     def test_get_course_skills(self):
         """
@@ -151,12 +151,12 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         skills = self.client.get_course_skills(SKILL_TEXT_DATA)
 
-        assert skills == SKILLS
+        assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 
     @mock_api_response(
         method=responses.POST,
-        url=EMSISkillsApiClient.API_BASE_URL + '/versions/latest/extract',
-        json=SKILLS,
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
+        json=SKILLS_EMSI_RESPONSE,
         status=400,
     )
     def test_get_course_skills_error(self):

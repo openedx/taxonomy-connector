@@ -19,7 +19,7 @@ from taxonomy.exceptions import CourseMetadataNotFoundError, CourseSkillsRefresh
 from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
-from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS, TYPE_ERROR_SKILLS
+from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS_EMSI_CLIENT_RESPONSE, TYPE_ERROR_SKILLS
 from test_utils.testcase import TaxonomyTestCase
 
 
@@ -32,7 +32,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
     def setUp(self):
         super().setUp()
-        self.skills = SKILLS
+        self.skills_emsi_client_response = SKILLS_EMSI_CLIENT_RESPONSE
         self.missing_skills = MISSING_NAME_SKILLS
         self.type_error_skills = TYPE_ERROR_SKILLS
         self.course_1 = MockCourse()
@@ -71,7 +71,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         """
         Test that the command creates a Skill and many CourseSkills records.
         """
-        get_course_skills_mock.return_value = self.skills
+        get_course_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2]
         )
@@ -140,7 +140,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         config = RefreshCourseSkillsConfig.get_solo()
         config.arguments = ' --course {} --course {} --commit '.format(self.course_1.uuid, self.course_2.uuid)
         config.save()
-        get_course_skills_mock.return_value = self.skills
+        get_course_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2],
         )
@@ -152,6 +152,14 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         call_command(self.command, '--args-from-database')
 
         self.assertEqual(skill.count(), 4)
+        for skill_details in self.skills_emsi_client_response['data']:
+            assert Skill.objects.filter(
+                name=skill_details['skill']['name'],
+                description=skill_details['skill']['description'],
+                type_id=skill_details['skill']['type']['id'],
+                type_name=skill_details['skill']['type']['name'],
+                info_url=skill_details['skill']['infoUrl'],
+            ).exists()
         self.assertEqual(course_skill.count(), 8)
 
     @responses.activate
