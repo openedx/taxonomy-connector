@@ -8,6 +8,16 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 
+def get_lookup_query_filter(external_ids):
+    """
+    Build query filter for the lookup endpoint.
+    """
+    lookup_query_filter = {
+        'ids': external_ids
+    }
+    return lookup_query_filter
+
+
 def get_job_query_filter(skills=None):
     """
     Build job query filter to be used in fetching jobs data from the EMSI Service.

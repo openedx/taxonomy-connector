@@ -14,6 +14,7 @@ from taxonomy.emsi_client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSI
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from test_utils.decorators import mock_api_response
+from test_utils.sample_responses.job_lookup import JOB_LOOKUP, JOB_LOOKUP_FILTER
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
 from test_utils.sample_responses.skills import SKILL_TEXT_DATA, SKILLS_EMSI_CLIENT_RESPONSE, SKILLS_EMSI_RESPONSE
@@ -245,3 +246,32 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
                 )
         ):
             self.client.get_job_postings(RankingFacet.TITLE_NAME, JOB_POSTINGS_FILTER)
+
+    @mock_api_response(
+        method=responses.POST,
+        url=EMSIJobsApiClient.API_BASE_URL + '/taxonomies/{}/lookup'.format(RankingFacet.TITLE.value),
+        json=JOB_LOOKUP,
+    )
+    def test_get_details(self):
+        """
+        Validate the behavior of client while fetching job lookup data.
+        """
+        jobs_details = self.client.get_details(RankingFacet.TITLE, JOB_LOOKUP_FILTER)
+
+        assert jobs_details == JOB_LOOKUP
+
+    @mock_api_response(
+        method=responses.POST,
+        url=EMSIJobsApiClient.API_BASE_URL + '/taxonomies/{}/lookup'.format(RankingFacet.TITLE.value),
+        json=JOB_LOOKUP,
+        status=400,
+    )
+    def test_get_details_error(self):
+        """
+        Validate the behavior of client when error occurs while fetching job lookup data.
+        """
+        with raises(
+                TaxonomyAPIError,
+                match='Error while fetching lookup for {ranking_facet}'.format(ranking_facet=RankingFacet.TITLE.value)
+        ):
+            self.client.get_details(RankingFacet.TITLE, JOB_LOOKUP_FILTER)
