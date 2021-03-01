@@ -271,9 +271,7 @@ class TestEMSIJobsApiClient(TaxonomyTestCase):
         Validate the behavior of client when error occurs while fetching job lookup data.
         """
         with raises(
-            TaxonomyAPIError,
-            match='Error while fetching lookup for {ranking_facet}'.format(
-                ranking_facet=RankingFacet.TITLE.value,
-            )
+                TaxonomyAPIError,
+                match='Error while fetching lookup for {ranking_facet}'.format(ranking_facet=RankingFacet.TITLE.value)
         ):
             self.client.get_details(RankingFacet.TITLE, JOB_LOOKUP_FILTER)

@@ -80,13 +80,13 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
         jobs_without_name = Job.objects.filter(name='')
         self.assertEqual(jobs_without_name.count(), 2)
 
-        err_string = "Taxonomy API Error for updating the jobs for Ranking Facet RankingFacet.TITLE Error: API ERROR"
+        err_string = "Taxonomy API Error for updating the jobs for Ranking Facet RankingFacet.TITLE Error: API ERROR."
         with LogCapture(level=logging.INFO) as log_capture:
             with self.assertRaisesRegex(CommandError, err_string):
                 call_command(self.command)
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 1)
-            message = log_capture.records[0].msg
+            self.assertEqual(len(log_capture.records), 2)
+            message = log_capture.records[-1].msg
             self.assertEqual(message, err_string)
 
         self.assertEqual(jobs_without_name.count(), 2)
@@ -101,13 +101,13 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
         jobs_without_name = Job.objects.filter(name='')
         self.assertEqual(jobs_without_name.count(), 2)
 
-        err_string = "Missing keys in update Job names. Error: 'singular_name'"
+        err_string = "Missing keys in update Job names. Error: 'singular_name'."
         with LogCapture(level=logging.INFO) as log_capture:
             with self.assertRaisesRegex(CommandError, err_string):
                 call_command(self.command)
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 1)
-            message = log_capture.records[0].msg
+            self.assertEqual(len(log_capture.records), 2)
+            message = log_capture.records[-1].msg
             self.assertEqual(message, err_string)
 
         self.assertEqual(jobs_without_name.count(), 2)

@@ -59,7 +59,7 @@ class Command(BaseCommand):
             LOGGER.error(message)
             raise CommandError(message)
         except KeyError as error:
-            message = f'Missing keys in update Job names. Error: {error}'
+            message = f'Missing keys in update Job names. Error: {error}.'
             LOGGER.error(message)
             raise CommandError(message)
 
