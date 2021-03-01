@@ -183,11 +183,11 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         Query the EMSI API for the loopup of the pre-defined filter_query.
 
         Arguments:
-            ranking_facet (RankingFacet): Data will be fetch for this facet.
+            ranking_facet (RankingFacet): Data will be fetched for this facet.
             query_filter (dict): Filters to be sent in the POST data.
 
         Returns:
-            dict: A dictionary containing details of all the details.
+            dict: A dictionary containing all the details for given facet.
 
         """
         url = 'taxonomies/{facet}/lookup'.format(

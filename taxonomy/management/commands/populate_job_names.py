@@ -18,19 +18,20 @@ LOGGER = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     """
-    command for populating missing job names
+    Command for populating missing job names.
 
-    While creating Job object we only populate its id. We need to get all the Job in the system that do no have names.
+    In refresh_job_skills command we are creating Jobs using external id only (without providing their names). This
+    command will filter all the Jobs that do not have names in it and populate.
 
     Example usage:
         $ # Update the existing job names.
         $ ./manage.py populate_job_names
         """
-    help = 'populating missing Job names in the system.'
+    help = 'Populates missing Job names in the system.'
 
-    def _update_job(self, job_bucket):
+    def _update_job_names(self, job_bucket):
         """
-        Persist the jobs data in the database.
+        Persist the Jobs data in the database.
         """
         job_id = job_bucket['id']
         job_name = job_bucket['properties']['singular_name']
@@ -38,7 +39,7 @@ class Command(BaseCommand):
 
     def _update_jobs(self):
         """
-        Updated the Jobs by fetching data from EMSI
+        Fetch the Jobs with missing names from EMSI and update their names.
         """
         client = EMSIJobsApiClient()
         ranking_facet = RankingFacet.TITLE
@@ -52,11 +53,9 @@ class Command(BaseCommand):
                 )
                 buckets = jobs['data']
                 for bucket in buckets:
-                    self._update_job(bucket)
+                    self._update_job_names(bucket)
         except TaxonomyAPIError as error:
-            message = 'Taxonomy API Error for updating the jobs for Ranking Facet {} Error: {}'.format(
-                ranking_facet, error
-            )
+            message = f'Taxonomy API Error for updating the jobs for Ranking Facet {ranking_facet} Error: {error}.'
             LOGGER.error(message)
             raise CommandError(message)
         except KeyError as error:
@@ -68,4 +67,6 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
+        LOGGER.info("Populate Job names process started.")
         self._update_jobs()
+        LOGGER.info("Populate Job names process finished successfully.")
