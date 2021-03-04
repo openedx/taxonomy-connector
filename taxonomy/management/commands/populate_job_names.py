@@ -67,6 +67,6 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        LOGGER.info("Populate Job names process started.")
+        LOGGER.info('Populate Job names process started.')
         self._update_jobs()
-        LOGGER.info("Populate Job names process finished successfully.")
+        LOGGER.info('Populate Job names process finished successfully.')

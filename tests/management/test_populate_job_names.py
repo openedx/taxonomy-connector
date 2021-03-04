@@ -80,7 +80,7 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
         jobs_without_name = Job.objects.filter(name='')
         self.assertEqual(jobs_without_name.count(), 2)
 
-        err_string = "Taxonomy API Error for updating the jobs for Ranking Facet RankingFacet.TITLE Error: API ERROR."
+        err_string = 'Taxonomy API Error for updating the jobs for Ranking Facet RankingFacet.TITLE Error: API ERROR.'
         with LogCapture(level=logging.INFO) as log_capture:
             with self.assertRaisesRegex(CommandError, err_string):
                 call_command(self.command)
@@ -101,7 +101,7 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
         jobs_without_name = Job.objects.filter(name='')
         self.assertEqual(jobs_without_name.count(), 2)
 
-        err_string = "Missing keys in update Job names. Error: 'singular_name'."
+        err_string = 'Missing keys in update Job names. Error: "singular_name".'
         with LogCapture(level=logging.INFO) as log_capture:
             with self.assertRaisesRegex(CommandError, err_string):
                 call_command(self.command)
