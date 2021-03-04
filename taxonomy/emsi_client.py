@@ -178,6 +178,32 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         super(EMSIJobsApiClient, self).__init__(scope='postings:us')
 
     @JwtEMSIApiClient.refresh_token
+    def get_details(self, ranking_facet, query_filter):
+        """
+        Query the EMSI API for the lookup of the pre-defined filter_query.
+
+        Arguments:
+            ranking_facet (RankingFacet): Data will be fetched for this facet.
+            query_filter (dict): Filters to be sent in the POST data.
+
+        Returns:
+            dict: A dictionary containing all the details for given facet.
+
+        """
+        url = 'taxonomies/{facet}/lookup'.format(
+            facet=ranking_facet.value,
+        )
+        try:
+            endpoint = getattr(self.client, url)
+            response = endpoint().post(query_filter)
+            return response
+        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            LOGGER.exception('[TAXONOMY] Exception raised while fetching data from EMSI')
+            raise TaxonomyAPIError(
+                'Error while fetching lookup for {ranking_facet}'.format(ranking_facet=ranking_facet.value)
+            ) from error
+
+    @JwtEMSIApiClient.refresh_token
     def get_jobs(self, ranking_facet, nested_ranking_facet, query_filter):
         """
         Query the EMSI API for the jobs of the pre-defined filter_query.
