@@ -12,10 +12,8 @@ from pytest import mark
 from testfixtures import LogCapture
 
 from django.core.management import call_command
-from django.core.management.base import CommandError
-from django.utils.translation import gettext as _
 
-from taxonomy.exceptions import CourseMetadataNotFoundError, CourseSkillsRefreshError, TaxonomyAPIError
+from taxonomy.exceptions import CourseMetadataNotFoundError, InvalidCommandOptionsError, TaxonomyAPIError
 from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
 from test_utils.mocks import MockCourse
 from test_utils.providers import DiscoveryCourseMetadataProvider
@@ -44,11 +42,24 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         """
         Test missing arguments.
         """
-        with self.assertRaisesRegex(CommandError, 'Either course or args_from_database argument must be present'):
+        with self.assertRaisesRegex(
+                InvalidCommandOptionsError,
+                'Either course, args_from_database or all argument must be provided.'
+        ):
             call_command(self.command)
 
+    def test_missing_arguments_from_database_config(self):
+        """
+        Test missing arguments from --args-from-database.
+        """
+        config = RefreshCourseSkillsConfig.get_solo()
+        config.arguments = ''
+        config.save()
+        with self.assertRaisesRegex(InvalidCommandOptionsError, 'Either course or all argument must be provided.'):
+            call_command(self.command, '--args-from-database')
+
     @responses.activate
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     def test_non_existant_course(self, get_course_provider_mock):
         """
         Test that command work as expected if course does not exist for a course uuid.
@@ -65,7 +76,42 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         )
 
     @responses.activate
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
+    def test_course_without_description(self, get_course_provider_mock):
+        """
+        Test that command work as expected if course description does not exist.
+        """
+        self.course_1.full_description = ''
+        self.course_1.save()
+        get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course_1])
+
+        skill = Skill.objects.all()
+        course_skill = CourseSkills.objects.all()
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(course_skill.count(), 0)
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            call_command(self.command, '--course', self.course_1.uuid, '--commit')
+            self.assertEqual(len(log_capture.records), 3)
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(
+                messages,
+                [
+                    '[TAXONOMY] Refresh Course Skills. Options: [%s]',
+                    '[TAXONOMY] Refresh course skills process started.',
+                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    'Courses Updated Successfully: %s \n'
+                    'Courses Skipped: %s \n'
+                    'Failures: %s \n'
+                    'Total Courses Updated Successfully: %s \n'
+                    'Total Courses Skipped: %s \nTotal Failures: %s \n'
+                ]
+            )
+
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(course_skill.count(), 0)
+
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_saved(self, get_course_skills_mock, get_course_provider_mock):
         """
@@ -98,32 +144,60 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(skill.count(), 4)
         self.assertEqual(course_skill.count(), 12)
 
-    @responses.activate
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
-    def test_course_skill_not_saved_upon_exception(self, get_course_skills_mock):
+    def test_course_skill_saved_with_all_param(self, get_course_skills_mock, get_course_provider_mock):
         """
-        Test that the command does not create any records when the API throws an exception.
+        Test that the command creates a Skill and many CourseSkills records using --all param.
         """
-        get_course_skills_mock.side_effect = TaxonomyAPIError()
+        get_course_skills_mock.return_value = self.skills_emsi_client_response
+        get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
+            [self.course_1, self.course_2, self.course_3]
+        )
         skill = Skill.objects.all()
         course_skill = CourseSkills.objects.all()
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
-        err_string = _('Could not refresh skills for the following courses:.*')
+        call_command(self.command, '--all', '--commit')
+
+        self.assertEqual(skill.count(), 4)
+        self.assertEqual(course_skill.count(), 12)
+
+    @responses.activate
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
+    def test_course_skill_not_saved_upon_exception(self, get_course_skills_mock, get_course_provider_mock):
+        """
+        Test that the command does not create any records when the API throws an exception.
+        """
+        get_course_skills_mock.side_effect = TaxonomyAPIError()
+        get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
+            [self.course_1, self.course_2]
+        )
+        skill = Skill.objects.all()
+        course_skill = CourseSkills.objects.all()
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(course_skill.count(), 0)
+
         with LogCapture(level=logging.INFO) as log_capture:
-            with self.assertRaisesRegex(CourseSkillsRefreshError, err_string):
-                call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
+            call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 4)
+            self.assertEqual(len(log_capture.records), 5)
             messages = [record.msg for record in log_capture.records]
             self.assertEqual(
                 messages,
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
-                    '[TAXONOMY] Courses Information. Data: [%s]',
-                    '[TAXONOMY] API Error for course_key: %s',
-                    '[TAXONOMY] API Error for course_key: %s'
+                    '[TAXONOMY] Refresh course skills process started.',
+                    f'[TAXONOMY] API Error for course_key: {self.course_1.key}',
+                    f'[TAXONOMY] API Error for course_key: {self.course_2.key}',
+                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    'Courses Updated Successfully: %s \n'
+                    'Courses Skipped: %s \n'
+                    'Failures: %s \n'
+                    'Total Courses Updated Successfully: %s \n'
+                    'Total Courses Skipped: %s \nTotal Failures: %s \n'
                 ]
             )
 
@@ -131,7 +205,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(course_skill.count(), 0)
 
     @responses.activate
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_args_from_database_config(self, get_course_skills_mock, get_course_provider_mock):
         """
@@ -163,7 +237,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(course_skill.count(), 8)
 
     @responses.activate
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_not_saved_for_key_error(self, get_course_skills_mock, get_course_provider_mock):
         """
@@ -178,22 +252,27 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
-        err_string = _('Could not refresh skills for the following courses:.*')
         with LogCapture(level=logging.INFO) as log_capture:
-            with self.assertRaisesRegex(CourseSkillsRefreshError, err_string):
-                call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
+            call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 6)
+            self.assertEqual(len(log_capture.records), 7)
             messages = [record.msg for record in log_capture.records]
             self.assertEqual(
                 messages,
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
-                    '[TAXONOMY] Courses Information. Data: [%s]',
-                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
-                    '[TAXONOMY] Missing keys in skills data for course_key: %s',
-                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
-                    '[TAXONOMY] Missing keys in skills data for course_key: %s'
+                    '[TAXONOMY] Refresh course skills process started.',
+                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
+                    f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_1.key}',
+                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
+                    f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_2.key}',
+                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    'Courses Updated Successfully: %s \n'
+                    'Courses Skipped: %s \n'
+                    'Failures: %s \n'
+                    'Total Courses Updated Successfully: %s \n'
+                    'Total Courses Skipped: %s \n'
+                    'Total Failures: %s \n'
                 ]
             )
 
@@ -201,7 +280,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(course_skill.count(), 0)
 
     @responses.activate
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_course_skill_not_saved_for_type_error(self, get_course_skills_mock, get_course_provider_mock):
         """
@@ -216,22 +295,28 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
 
-        err_string = _('Could not refresh skills for the following courses:.*')
         with LogCapture(level=logging.INFO) as log_capture:
-            with self.assertRaisesRegex(CourseSkillsRefreshError, err_string):
-                call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
+            call_command(self.command, '--course', self.course_1.uuid, '--course', self.course_2.uuid, '--commit')
             # Validate a descriptive and readable log message.
-            self.assertEqual(len(log_capture.records), 6)
+            self.assertEqual(len(log_capture.records), 7)
             messages = [record.msg for record in log_capture.records]
             self.assertEqual(
                 messages,
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
-                    '[TAXONOMY] Courses Information. Data: [%s]',
-                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
-                    '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s',
-                    '[TAXONOMY] Skills data recived from EMSI. Skills: [%s]',
-                    '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s']
+                    '[TAXONOMY] Refresh course skills process started.',
+                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
+                    f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_1.key}',
+                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
+                    f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_2.key}',
+                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    'Courses Updated Successfully: %s \n'
+                    'Courses Skipped: %s \n'
+                    'Failures: %s \n'
+                    'Total Courses Updated Successfully: %s \n'
+                    'Total Courses Skipped: %s \n'
+                    'Total Failures: %s \n'
+                ]
             )
 
         self.assertEqual(skill.count(), 0)

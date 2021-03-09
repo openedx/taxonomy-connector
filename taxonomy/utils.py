@@ -4,9 +4,8 @@ Utils for taxonomy.
 import logging
 
 from taxonomy.emsi_client import EMSISkillsApiClient
-from taxonomy.exceptions import CourseMetadataNotFoundError, CourseSkillsRefreshError, TaxonomyAPIError
+from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, Skill
-from taxonomy.providers.utils import get_course_metadata_provider
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,8 +35,7 @@ def process_skills_data(course, course_skills, should_commit_to_db):
         course_skills (dict): Course skills data returned by the EMSI API.
         should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
     """
-    failures = set()
-
+    failures = []
     for record in course_skills['data']:
         try:
             confidence = float(record['confidence'])
@@ -53,55 +51,45 @@ def process_skills_data(course, course_skills, should_commit_to_db):
             if should_commit_to_db:
                 update_skills_data(course['key'], skill_external_id, confidence, skill_data)
         except KeyError:
-            LOGGER.error('[TAXONOMY] Missing keys in skills data for course_key: %s', course['key'])
-            failures.add((course['uuid'], course['key']))
+            message = f'[TAXONOMY] Missing keys in skills data for course_key: {course["key"]}'
+            LOGGER.error(message)
+            failures.append((course['uuid'], message))
         except (ValueError, TypeError):
-            LOGGER.error(
-                '[TAXONOMY] Invalid type for `confidence` in course skills for course_key: %s', course['key']
-            )
-            failures.add((course['uuid'], course['key']))
-
+            message = f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {course["key"]}'
+            LOGGER.error(message)
+            failures.append((course['uuid'], message))
     return failures
 
 
-def refresh_course_skills(options):
+def refresh_course_skills(courses, should_commit_to_db):
     """
     Refresh the skills associated with the provided courses.
     """
-    LOGGER.info('[TAXONOMY] Refresh Course Skills. Options: [%s]', options)
+    all_failures = []
+    success_courses = []
+    skipped_courses = []
 
-    courses = get_course_metadata_provider().get_courses(course_ids=options['course'])
-
-    if not courses:
-        raise CourseMetadataNotFoundError(
-            'No course metadata was found for following courses. {}'.format(options['course'])
-        )
-
-    LOGGER.info('[TAXONOMY] Courses Information. Data: [%s]', courses)
-
-    failures = set()
     client = EMSISkillsApiClient()
+
     for course in courses:
         course_description = course['full_description']
-
         if course_description:
             try:
                 course_skills = client.get_course_skills(course_description)
-                LOGGER.info('[TAXONOMY] Skills data recived from EMSI. Skills: [%s]', course_skills)
+                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
+                failures = process_skills_data(course, course_skills, should_commit_to_db)
+                if failures:
+                    all_failures += failures
+                else:
+                    success_courses.append((course['uuid'], course['key']))
             except TaxonomyAPIError:
-                LOGGER.error('[TAXONOMY] API Error for course_key: %s', course['key'])
-                failures.add((course['uuid'], course['key']))
-            else:
-                failed_records = process_skills_data(course, course_skills, options['commit'])
-                failures.update(failed_records)
+                message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
+                LOGGER.error(message)
+                all_failures.append((course['uuid'], message))
+        else:
+            skipped_courses.append((course['uuid'], course['key']))
 
-    if failures:
-        keys = sorted('{key} ({uuid})'.format(key=course_key, uuid=uuid) for uuid, course_key in failures)
-        raise CourseSkillsRefreshError(
-            'Could not refresh skills for the following courses: {course_keys}'.format(
-                course_keys=', '.join(keys)
-            )
-        )
+    return success_courses, skipped_courses, all_failures
 
 
 def blacklist_course_skill(course_key, skill_id):
@@ -182,28 +170,3 @@ def get_blacklisted_course_skills(course_key, prefetch_skills=True):
     if prefetch_skills:
         qs = qs.select_related('skill')
     return qs.all()
-
-
-def chunked_queryset(queryset, chunk_size=100):
-    """
-    Slice a queryset into chunks.
-    """
-    start_pk = 0
-    queryset = queryset.order_by('pk')
-
-    while True:
-        # No entry left
-        if not queryset.filter(pk__gt=start_pk).exists():
-            return
-
-        try:
-            # Fetch chunk_size entries if possible
-            end_pk = queryset.filter(pk__gt=start_pk).values_list('pk', flat=True)[chunk_size - 1]
-
-            # Fetch rest entries if less than chunk_size left
-        except IndexError:
-            end_pk = queryset.values_list('pk', flat=True).last()
-
-        yield queryset.filter(pk__gt=start_pk).filter(pk__lte=end_pk)
-
-        start_pk = end_pk

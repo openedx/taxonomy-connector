@@ -4,6 +4,8 @@ Management command for populating missing job names by extracting from EMSI.
 
 import logging
 
+from edx_django_utils.db import chunked_queryset
+
 from django.core.management.base import BaseCommand, CommandError
 
 from taxonomy.constants import get_lookup_query_filter
@@ -11,7 +13,6 @@ from taxonomy.emsi_client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job
-from taxonomy.utils import chunked_queryset
 
 LOGGER = logging.getLogger(__name__)
 
