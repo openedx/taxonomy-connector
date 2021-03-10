@@ -53,7 +53,7 @@ code-annotations==1.1.0
     # via -r requirements/test.txt
 codecov==2.1.11
     # via -r requirements/travis.txt
-coverage==5.4
+coverage==5.5
     # via
     #   -r requirements/test.txt
     #   -r requirements/travis.txt
@@ -61,7 +61,7 @@ coverage==5.4
     #   pytest-cov
 ddt==1.4.1
     # via -r requirements/test.txt
-diff-cover==4.2.1
+diff-cover==5.0.0
     # via -r requirements/dev.in
 distlib==0.3.1
     # via
@@ -79,7 +79,7 @@ django-waffle==2.1.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-django==2.2.18
+django==2.2.19
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -91,7 +91,7 @@ django==2.2.18
     #   edx-i18n-tools
 djangorestframework==3.12.2
     # via -r requirements/test.txt
-edx-django-utils==3.13.0
+edx-django-utils==3.15.0
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
@@ -105,7 +105,7 @@ edx-rest-api-client==5.3.0
     # via -r requirements/test.txt
 factory-boy==3.2.0
     # via -r requirements/test.txt
-faker==6.1.1
+faker==6.5.2
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -119,7 +119,7 @@ idna==2.10
     #   -r requirements/test.txt
     #   -r requirements/travis.txt
     #   requests
-inflect==5.0.2
+inflect==5.3.0
     # via jinja2-pluralize
 iniconfig==1.1.1
     # via
@@ -151,7 +151,7 @@ mccabe==0.6.1
     # via pylint
 mock==4.0.3
     # via -r requirements/test.txt
-newrelic==6.0.1.155
+newrelic==6.2.0.156
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -196,7 +196,7 @@ pycodestyle==2.6.0
     # via -r requirements/dev.in
 pydocstyle==5.1.1
     # via -r requirements/dev.in
-pygments==2.7.4
+pygments==2.8.1
     # via diff-cover
 pyjwt==2.0.1
     # via
@@ -301,7 +301,7 @@ tox-battery==0.6.1
     # via
     #   -r requirements/dev.in
     #   -r requirements/travis.txt
-tox==3.21.4
+tox==3.23.0
     # via
     #   -r requirements/travis.txt
     #   tox-battery

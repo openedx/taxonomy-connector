@@ -24,7 +24,7 @@ class TaxonomyTasksTests(unittest.TestCase):
         self.course = MockCourse()
         super().setUp()
 
-    @mock.patch('taxonomy.tasks.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.tasks.get_course_metadata_provider')
     @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_course_skills')
     def test_update_course_skills_task(self, get_course_skills_mock, get_course_provider_mock):
         """

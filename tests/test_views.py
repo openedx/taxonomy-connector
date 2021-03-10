@@ -96,7 +96,7 @@ class RefreshCourseSkillsTest(TestCase):
         view.post(request)
         self.assertEqual(mock_render.call_args, None)
 
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_update_course_skill(self, get_course_skills_mock, get_course_provider_mock):
         """
@@ -128,7 +128,7 @@ class RefreshCourseSkillsTest(TestCase):
             self.assertEqual(msg, message.message)
             self.assertEqual(msg_tag, message.tags)
 
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     def test_update_course_skill_failed(self, get_course_provider_mock):
         """
         Test that the course skills updation failed and exception is raised.
@@ -159,7 +159,7 @@ class RefreshCourseSkillsTest(TestCase):
             self.assertIn(msg, message.message.args)
             self.assertEqual(msg_tag, message.tags)
 
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
     def test_update_course_skill_failed_unknown_uuid(self, get_course_skills_mock, get_course_provider_mock):
         """

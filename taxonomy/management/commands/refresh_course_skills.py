@@ -9,19 +9,23 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
 from taxonomy import utils
+from taxonomy.exceptions import CourseMetadataNotFoundError, InvalidCommandOptionsError
 from taxonomy.models import RefreshCourseSkillsConfig
+from taxonomy.providers.utils import get_course_metadata_provider
 
 LOGGER = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
     """
-    Command to referesh skills associated with the courses.
+    Command to refresh skills associated with the courses.
 
     Example usage:
         $ ./manage.py refresh_course_skills --course 'Course1_uuid' --course 'Course2_uuid' --commit
         $ # args-from-database means command line arguments will be picked from the database.
         $ ./manage.py refresh_course_skills --args-from-database
+        $ # To update all the courses
+        $ ./manage.py refresh_course_skills --all --commit
     """
     help = 'Refreshes the skills associated with courses.'
 
@@ -40,6 +44,11 @@ class Command(BaseCommand):
             '--args-from-database',
             action='store_true',
             help=_('Use arguments from the RefreshCourseSkillsConfig model instead of the command line.'),
+        )
+        parser.add_argument(
+            '--all',
+            action='store_true',
+            help=_('Create course skill mapping for all the courses.'),
         )
         parser.add_argument(
             '--commit',
@@ -61,11 +70,39 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        if options['course'] == [] and options['args_from_database'] is False:
-            parser = self.create_parser('manage.py', 'refresh_course_skills')
-            parser.error('Either course or args_from_database argument must be present')
+        if not (options['args_from_database'] or options['all'] or options['course']):
+            raise InvalidCommandOptionsError('Either course, args_from_database or all argument must be provided.')
 
         if options['args_from_database']:
             options = self.get_args_from_database()
 
-        utils.refresh_course_skills(options)
+        LOGGER.info('[TAXONOMY] Refresh Course Skills. Options: [%s]', options)
+
+        if options['all']:
+            courses = get_course_metadata_provider().get_all_courses()
+        elif options['course']:
+            courses = get_course_metadata_provider().get_courses(course_ids=options['course'])
+            if not courses:
+                raise CourseMetadataNotFoundError(
+                    'No course metadata was found for following courses. {}'.format(options['course'])
+                )
+        else:
+            raise InvalidCommandOptionsError('Either course or all argument must be provided.')
+
+        LOGGER.info('[TAXONOMY] Refresh course skills process started.')
+        success_courses, skipped_courses, failures = utils.refresh_course_skills(courses, options['commit'])
+        LOGGER.info(
+            '[TAXONOMY] Refresh course skills process completed. \n'
+            'Courses Updated Successfully: %s \n'
+            'Courses Skipped: %s \n'
+            'Failures: %s \n'
+            'Total Courses Updated Successfully: %s \n'
+            'Total Courses Skipped: %s \n'
+            'Total Failures: %s \n',
+            success_courses,
+            skipped_courses,
+            failures,
+            len(success_courses),
+            len(skipped_courses),
+            len(failures),
+        )

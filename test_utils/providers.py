@@ -32,3 +32,20 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
             'short_description': course.short_description,
             'full_description': course.full_description,
         } for course in courses]
+
+    def get_all_courses(self):
+        """
+        Get iterator of all the courses
+        """
+        if self.mock_courses is not None:
+            courses = self.mock_courses
+        else:
+            courses = [MockCourse() for _ in range(5)]
+        for course in courses:
+            yield {
+                'uuid': course.uuid,
+                'key': course.key,
+                'title': course.title,
+                'short_description': course.short_description,
+                'full_description': course.full_description,
+            }

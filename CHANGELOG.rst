@@ -17,12 +17,17 @@ Unreleased
 [1.5.0] - 2021-03-04
 --------------------
 
-* added `populate_job_names` command.
+* Added support for --all param in `refresh_course_skills` command to back populate data.
+
+[1.5.0] - 2021-03-04
+--------------------
+
+* Added `populate_job_names` command.
 
 [1.4.1] - 2021-02-19
 --------------------
 
-*  added description field in Skill model and update the refresh_course_skill command to save skill description.
+*  Added description field in Skill model and update the refresh_course_skill command to save skill description.
 *  Pinning EMSI skills API version to 7.35
 
 [1.4.0] - 2021-02-17

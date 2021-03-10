@@ -31,6 +31,7 @@ class CourseMetadataProviderValidator:
         this method is responsible for calling the rest of the validation functions.
         """
         self.validate_get_courses()
+        self.validate_get_all_courses()
 
     def validate_get_courses(self):
         """
@@ -39,6 +40,19 @@ class CourseMetadataProviderValidator:
         courses = self.course_metadata_provider.get_courses(self.test_courses)
 
         assert len(courses) == len(self.test_courses)
+
+        for course in courses:
+            assert 'uuid' in course
+            assert 'key' in course
+            assert 'title' in course
+            assert 'short_description' in course
+            assert 'full_description' in course
+
+    def validate_get_all_courses(self):
+        """
+        Validate `get_all_courses` methods has the correct interface implemented.
+        """
+        courses = self.course_metadata_provider.get_all_courses()
 
         for course in courses:
             assert 'uuid' in course

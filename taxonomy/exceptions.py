@@ -16,7 +16,7 @@ class CourseMetadataNotFoundError(Exception):
     """
 
 
-class CourseSkillsRefreshError(Exception):
+class InvalidCommandOptionsError(Exception):
     """
-    Exception to raise when errors were encountered during refreshing the course skills.
+    Exception to raise when incorrect command options are provided.
     """
