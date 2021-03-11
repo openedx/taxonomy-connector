@@ -14,7 +14,12 @@ Change Log
 Unreleased
 --------------------
 
-[1.5.0] - 2021-03-04
+[1.6.1] - 2021-03-10
+--------------------
+
+* Updated logging structure for `refresh_course_skills` command.
+
+[1.6.0] - 2021-03-09
 --------------------
 
 * Added support for --all param in `refresh_course_skills` command to back populate data.

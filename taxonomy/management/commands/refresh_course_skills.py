@@ -90,19 +90,15 @@ class Command(BaseCommand):
             raise InvalidCommandOptionsError('Either course or all argument must be provided.')
 
         LOGGER.info('[TAXONOMY] Refresh course skills process started.')
-        success_courses, skipped_courses, failures = utils.refresh_course_skills(courses, options['commit'])
+        success_courses_count, skipped_courses_count, failures = utils.refresh_course_skills(courses, options['commit'])
         LOGGER.info(
             '[TAXONOMY] Refresh course skills process completed. \n'
-            'Courses Updated Successfully: %s \n'
-            'Courses Skipped: %s \n'
             'Failures: %s \n'
             'Total Courses Updated Successfully: %s \n'
             'Total Courses Skipped: %s \n'
             'Total Failures: %s \n',
-            success_courses,
-            skipped_courses,
             failures,
-            len(success_courses),
-            len(skipped_courses),
+            success_courses_count,
+            skipped_courses_count,
             len(failures),
         )
