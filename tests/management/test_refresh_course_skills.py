@@ -100,11 +100,10 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
                     '[TAXONOMY] Refresh course skills process completed. \n'
-                    'Courses Updated Successfully: %s \n'
-                    'Courses Skipped: %s \n'
                     'Failures: %s \n'
                     'Total Courses Updated Successfully: %s \n'
-                    'Total Courses Skipped: %s \nTotal Failures: %s \n'
+                    'Total Courses Skipped: %s \n'
+                    'Total Failures: %s \n'
                 ]
             )
 
@@ -193,11 +192,10 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                     f'[TAXONOMY] API Error for course_key: {self.course_1.key}',
                     f'[TAXONOMY] API Error for course_key: {self.course_2.key}',
                     '[TAXONOMY] Refresh course skills process completed. \n'
-                    'Courses Updated Successfully: %s \n'
-                    'Courses Skipped: %s \n'
                     'Failures: %s \n'
                     'Total Courses Updated Successfully: %s \n'
-                    'Total Courses Skipped: %s \nTotal Failures: %s \n'
+                    'Total Courses Skipped: %s \n'
+                    'Total Failures: %s \n'
                 ]
             )
 
@@ -267,8 +265,6 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_2.key}',
                     '[TAXONOMY] Refresh course skills process completed. \n'
-                    'Courses Updated Successfully: %s \n'
-                    'Courses Skipped: %s \n'
                     'Failures: %s \n'
                     'Total Courses Updated Successfully: %s \n'
                     'Total Courses Skipped: %s \n'
@@ -310,8 +306,6 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_2.key}',
                     '[TAXONOMY] Refresh course skills process completed. \n'
-                    'Courses Updated Successfully: %s \n'
-                    'Courses Skipped: %s \n'
                     'Failures: %s \n'
                     'Total Courses Updated Successfully: %s \n'
                     'Total Courses Skipped: %s \n'

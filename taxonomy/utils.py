@@ -66,8 +66,8 @@ def refresh_course_skills(courses, should_commit_to_db):
     Refresh the skills associated with the provided courses.
     """
     all_failures = []
-    success_courses = []
-    skipped_courses = []
+    success_courses_count = 0
+    skipped_courses_count = 0
 
     client = EMSISkillsApiClient()
 
@@ -81,15 +81,15 @@ def refresh_course_skills(courses, should_commit_to_db):
                 if failures:
                     all_failures += failures
                 else:
-                    success_courses.append((course['uuid'], course['key']))
+                    success_courses_count += 1
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
                 LOGGER.error(message)
                 all_failures.append((course['uuid'], message))
         else:
-            skipped_courses.append((course['uuid'], course['key']))
+            skipped_courses_count += 1
 
-    return success_courses, skipped_courses, all_failures
+    return success_courses_count, skipped_courses_count, all_failures
 
 
 def blacklist_course_skill(course_key, skill_id):
