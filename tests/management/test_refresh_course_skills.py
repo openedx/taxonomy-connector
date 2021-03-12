@@ -260,10 +260,10 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
-                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_1.key}',
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_2.key}',
+                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     '[TAXONOMY] Refresh course skills process completed. \n'
                     'Failures: %s \n'
                     'Total Courses Updated Successfully: %s \n'
@@ -301,16 +301,59 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
-                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_1.key}',
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_2.key}',
+                    '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
                     '[TAXONOMY] Refresh course skills process completed. \n'
                     'Failures: %s \n'
                     'Total Courses Updated Successfully: %s \n'
                     'Total Courses Skipped: %s \n'
                     'Total Failures: %s \n'
                 ]
+            )
+
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(course_skill.count(), 0)
+
+    @responses.activate
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.process_skills_data')
+    def test_course_skill_not_saved_for_exception(
+            self,
+            mock_process_skills_data,
+            get_course_skills_mock,
+            get_course_provider_mock,
+
+    ):
+        """
+        Test that the command does not create any records when a record value error occurs.
+        """
+        get_course_skills_mock.return_value = self.skills_emsi_client_response
+        get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course_1])
+        mock_process_skills_data.side_effect = Exception("UNKNOWN ERROR.")
+        skill = Skill.objects.all()
+        course_skill = CourseSkills.objects.all()
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(course_skill.count(), 0)
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            call_command(self.command, '--course', self.course_1.uuid, '--commit')
+            # Validate a descriptive and readable log message.
+            self.assertEqual(len(log_capture.records), 5)
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(
+                messages,
+                ['[TAXONOMY] Refresh Course Skills. Options: [%s]',
+                 '[TAXONOMY] Refresh course skills process started.',
+                 '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
+                 f'[TAXONOMY] Exception for course_key: {self.course_1.key} Error: UNKNOWN ERROR.',
+                 '[TAXONOMY] Refresh course skills process completed. \n'
+                 'Failures: %s \n'
+                 'Total Courses Updated Successfully: %s \n'
+                 'Total Courses Skipped: %s \n'
+                 'Total Failures: %s \n']
             )
 
         self.assertEqual(skill.count(), 0)

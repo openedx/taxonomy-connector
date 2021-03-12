@@ -76,20 +76,38 @@ def refresh_course_skills(courses, should_commit_to_db):
         if course_description:
             try:
                 course_skills = client.get_course_skills(course_description)
-                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
+            except TaxonomyAPIError:
+                message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
+                LOGGER.error(message)
+                all_failures.append((course['uuid'], message))
+                continue
+
+            try:
                 failures = process_skills_data(course, course_skills, should_commit_to_db)
                 if failures:
+                    LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
                     all_failures += failures
                 else:
                     success_courses_count += 1
-            except TaxonomyAPIError:
-                message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
+            except Exception as ex:  # pylint: disable=broad-except
+                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
+                message = f'[TAXONOMY] Exception for course_key: {course["key"]} Error: {ex}'
                 LOGGER.error(message)
                 all_failures.append((course['uuid'], message))
         else:
             skipped_courses_count += 1
 
-    return success_courses_count, skipped_courses_count, all_failures
+    LOGGER.info(
+        '[TAXONOMY] Refresh course skills process completed. \n'
+        'Failures: %s \n'
+        'Total Courses Updated Successfully: %s \n'
+        'Total Courses Skipped: %s \n'
+        'Total Failures: %s \n',
+        all_failures,
+        success_courses_count,
+        skipped_courses_count,
+        len(all_failures),
+    )
 
 
 def blacklist_course_skill(course_key, skill_id):
