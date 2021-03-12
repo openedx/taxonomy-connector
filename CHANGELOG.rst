@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.6.2] - 2021-03-12
+--------------------
+
+* Handled edge cases in `refresh_course_skills` command.
+
 [1.6.1] - 2021-03-10
 --------------------
 
