@@ -5,6 +5,8 @@ Model Factories for the taxonomy tests.
 import factory
 from faker import Factory as FakerFactory
 
+from django.contrib.auth.models import User
+
 from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
 
 FAKER = FakerFactory.create()
@@ -94,3 +96,20 @@ class JobPostingsFactory(factory.django.DjangoModelFactory):
     median_posting_duration = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
     unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
     unique_companies = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+
+
+class UserFactory(factory.django.DjangoModelFactory):
+    """
+    Factory for User model.
+    """
+
+    class Meta:
+        model = User
+
+    email = factory.LazyAttribute(lambda x: FAKER.email())
+    username = factory.LazyAttribute(lambda x: FAKER.user_name())
+    first_name = factory.LazyAttribute(lambda x: FAKER.first_name())
+    last_name = factory.LazyAttribute(lambda x: FAKER.last_name())
+    is_superuser = False
+    is_staff = False
+    is_active = True

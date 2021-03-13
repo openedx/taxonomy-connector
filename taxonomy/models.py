@@ -31,6 +31,7 @@ class Skill(TimeStampedModel):
     name = models.CharField(
         max_length=255,
         blank=True,
+        db_index=True,
         help_text=_(
             'The name of the skill.'
         )
