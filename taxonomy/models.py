@@ -122,6 +122,7 @@ class CourseSkills(TimeStampedModel):
         Meta configuration for CourseSkills model.
         """
 
+        verbose_name_plural = 'CourseSkills'
         ordering = ('created', )
         app_label = 'taxonomy'
         unique_together = ('course_id', 'skill')
@@ -260,6 +261,7 @@ class JobSkills(TimeStampedModel):
         Metadata for the JobSkills model.
         """
 
+        verbose_name_plural = 'JobSkills'
         ordering = ('created',)
         app_label = 'taxonomy'
         unique_together = ('job', 'skill')
@@ -332,6 +334,7 @@ class JobPostings(TimeStampedModel):
         Metadata for the JobPostings model.
         """
 
+        verbose_name_plural = 'JobPostings'
         ordering = ('created',)
         app_label = 'taxonomy'
 
