@@ -90,11 +90,22 @@ class CourseSkills(TimeStampedModel):
     .. no_pii:
     """
 
+    # TODO: This field is being deprecated and renamed to `course_key`.
+    #  course_id will be removed in subsequent releases
     course_id = models.CharField(
         max_length=255,
         blank=False,
         help_text=_(
             'The ID of the course whose text was used for skills extraction.'
+        )
+    )
+    course_key = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        editable=False,
+        help_text=_(
+            'The key of the course whose text was used for skills extraction.'
         )
     )
     skill = models.ForeignKey(
@@ -122,6 +133,8 @@ class CourseSkills(TimeStampedModel):
         Meta configuration for CourseSkills model.
         """
 
+        verbose_name = 'Course Skill'
+        verbose_name_plural = 'Course Skills'
         ordering = ('created', )
         app_label = 'taxonomy'
         unique_together = ('course_id', 'skill')
@@ -130,13 +143,13 @@ class CourseSkills(TimeStampedModel):
         """
         Create a human-readable string representation of the object.
         """
-        return '<Skill name="{}" course_id="{}">'.format(self.skill.name, self.course_id)
+        return '<CourseSkills name="{}" course_id="{}">'.format(self.skill.name, self.course_id)
 
     def __repr__(self):
         """
         Create a unique string representation of the object.
         """
-        return '<Skill id="{0}" skill="{1!r}">'.format(self.id, self.skill)
+        return '<CourseSkills id="{0}" skill="{1!r}">'.format(self.id, self.skill)
 
 
 class RefreshCourseSkillsConfig(SingletonModel):
@@ -268,7 +281,7 @@ class JobSkills(TimeStampedModel):
         """
         Create a human-readable string representation of the object.
         """
-        return '<Skill name="{}" significance="{}" unique_postings="{}">'.format(
+        return '<JobSkills name="{}" significance="{}" unique_postings="{}">'.format(
             self.skill.name, self.significance, self.unique_postings
         )
 
@@ -276,7 +289,7 @@ class JobSkills(TimeStampedModel):
         """
         Create a unique string representation of the object.
         """
-        return '<Skill id="{0}" name="{1}" job="{2!r}">'.format(
+        return '<JobSkills id="{0}" name="{1}" job="{2!r}">'.format(
             self.id, self.skill.name, self.job,
         )
 

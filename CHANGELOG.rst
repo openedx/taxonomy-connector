@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.8.0] - 2021-04-09
+--------------------
+
+* Added a new field named `course_key` in `CourseSkills` model to deprecate and replace the old `course_id` field in future.
+
 [1.7.0] - 2021-04-07
 --------------------
 
