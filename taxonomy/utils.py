@@ -21,7 +21,8 @@ def update_skills_data(course_key, skill_external_id, confidence, skill_data):
             course_id=course_key,
             skill=skill,
             defaults={
-                'confidence': confidence
+                'confidence': confidence,
+                'course_key': course_key,
             },
         )
 

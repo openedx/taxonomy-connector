@@ -67,3 +67,43 @@ class TestSkill(TestCase):
 
         assert expected_str == skill.__str__()
         assert expected_repr == skill.__repr__()
+
+
+@mark.django_db
+class TestCourseSkills(TestCase):
+    """
+    Tests for the ``CourseSkills`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the CourseSkill model.
+        """
+        course_skill = factories.CourseSkillsFactory()
+        expected_str = '<CourseSkills name="{}" course_id="{}">'.format(course_skill.skill.name, course_skill.course_id)
+        expected_repr = '<CourseSkills id="{0}" skill="{1!r}">'.format(course_skill.id, course_skill.skill)
+
+        assert expected_str == course_skill.__str__()
+        assert expected_repr == course_skill.__repr__()
+
+
+@mark.django_db
+class TestJobSkills(TestCase):
+    """
+    Tests for the ``JobSkills`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the JobSkills model.
+        """
+        job_skill = factories.JobSkillFactory()
+        expected_str = '<JobSkills name="{}" significance="{}" unique_postings="{}">'.format(
+            job_skill.skill.name, job_skill.significance, job_skill.unique_postings
+        )
+        expected_repr = '<JobSkills id="{0}" name="{1}" job="{2!r}">'.format(
+            job_skill.id, job_skill.skill.name, job_skill.job,
+        )
+
+        assert expected_str == job_skill.__str__()
+        assert expected_repr == job_skill.__repr__()
