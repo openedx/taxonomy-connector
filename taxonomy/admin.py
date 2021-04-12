@@ -27,14 +27,14 @@ class CourseSkillsTitleAdmin(admin.ModelAdmin):
     Administrative view for Course Skills.
     """
 
-    list_display = ('id', 'course_id', 'created', 'modified')
-    search_fields = ('course_id',)
+    list_display = ('id', 'course_key', 'created', 'modified')
+    search_fields = ('course_key',)
 
     def save_model(self, request, obj, form, change):
         """
-        Set `course_key` to the same value as `course_id` before saving the model.
+        Set `course_id` to the same value as `course_key` before saving the model.
         """
-        obj.course_key = obj.course_id
+        obj.course_id = obj.course_key
         super().save_model(request, obj, form, change)
 
 

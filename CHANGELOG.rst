@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.9.0] - 2021-04-12
+--------------------
+
+* Replace the usages of old `course_id` in `CourseSkills` with the new `course_key` field.
+
 [1.8.0] - 2021-04-09
 --------------------
 

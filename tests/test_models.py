@@ -80,7 +80,9 @@ class TestCourseSkills(TestCase):
         Test the string representation of the CourseSkill model.
         """
         course_skill = factories.CourseSkillsFactory()
-        expected_str = '<CourseSkills name="{}" course_id="{}">'.format(course_skill.skill.name, course_skill.course_id)
+        expected_str = '<CourseSkills name="{}" course_key="{}">'.format(
+            course_skill.skill.name, course_skill.course_key
+        )
         expected_repr = '<CourseSkills id="{0}" skill="{1!r}">'.format(course_skill.id, course_skill.skill)
 
         assert expected_str == course_skill.__str__()
