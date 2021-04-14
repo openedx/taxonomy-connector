@@ -37,11 +37,11 @@ class TestUtils(TaxonomyTestCase):
         """
         Validate that blacklist_course_skill works as expected.
         """
-        factories.CourseSkillsFactory(course_id=COURSE_KEY, skill_id=self.skill.id)
+        factories.CourseSkillsFactory(course_key=COURSE_KEY, skill_id=self.skill.id)
         utils.blacklist_course_skill(course_key=COURSE_KEY, skill_id=self.skill.id)
 
         course_skill = models.CourseSkills.objects.get(
-            course_id=COURSE_KEY, skill_id=self.skill.id,
+            course_key=COURSE_KEY, skill_id=self.skill.id,
         )
         assert course_skill.is_blacklisted is True
 
@@ -50,11 +50,11 @@ class TestUtils(TaxonomyTestCase):
         Validate that remove_course_skill_from_blacklist works as expected.
         """
         # Create a blacklisted course skill.
-        factories.CourseSkillsFactory(course_id=COURSE_KEY, skill_id=self.skill.id, is_blacklisted=True)
+        factories.CourseSkillsFactory(course_key=COURSE_KEY, skill_id=self.skill.id, is_blacklisted=True)
         utils.remove_course_skill_from_blacklist(course_key=COURSE_KEY, skill_id=self.skill.id)
 
         course_skill = models.CourseSkills.objects.get(
-            course_id=COURSE_KEY, skill_id=self.skill.id
+            course_key=COURSE_KEY, skill_id=self.skill.id
         )
         assert course_skill.is_blacklisted is not True
 
@@ -63,7 +63,7 @@ class TestUtils(TaxonomyTestCase):
         Validate that is_course_skill_blacklisted works as expected.
         """
         # Create a Black listed course skill.
-        factories.CourseSkillsFactory(course_id=COURSE_KEY, skill_id=self.skill.id, is_blacklisted=True)
+        factories.CourseSkillsFactory(course_key=COURSE_KEY, skill_id=self.skill.id, is_blacklisted=True)
 
         assert utils.is_course_skill_blacklisted(COURSE_KEY, self.skill.id) is True
         assert utils.is_course_skill_blacklisted(COURSE_KEY, 0) is not True
@@ -76,7 +76,7 @@ class TestUtils(TaxonomyTestCase):
         """
         Validate that update_skills_data works as expected.
         """
-        black_listed_course_skill = factories.CourseSkillsFactory(course_id=COURSE_KEY, is_blacklisted=True)
+        black_listed_course_skill = factories.CourseSkillsFactory(course_key=COURSE_KEY, is_blacklisted=True)
         skills_count = Skill.objects.count()
         utils.update_skills_data(
             course_key=COURSE_KEY,
@@ -115,7 +115,7 @@ class TestUtils(TaxonomyTestCase):
         # Make sure `CourseSkills` is no removed from the blacklist.
         assert utils.is_course_skill_blacklisted(COURSE_KEY, black_listed_course_skill.skill.id) is True
         course_skill = models.CourseSkills.objects.get(
-            course_id=COURSE_KEY,
+            course_key=COURSE_KEY,
             skill=black_listed_course_skill.skill,
         )
         assert course_skill.is_blacklisted is True
@@ -123,7 +123,7 @@ class TestUtils(TaxonomyTestCase):
         # Make sure that skill that was not black listed is added with no issues.
         assert utils.is_course_skill_blacklisted(COURSE_KEY, self.skill.id) is False
         assert models.CourseSkills.objects.filter(
-            course_id=COURSE_KEY,
+            course_key=COURSE_KEY,
             skill=self.skill,
             is_blacklisted=False,
         ).exists()
@@ -141,10 +141,10 @@ class TestUtils(TaxonomyTestCase):
         Validate that get_course_skills works as expected.
         """
         # Create 10 blacklisted course skill.
-        factories.CourseSkillsFactory.create_batch(10, course_id=COURSE_KEY, is_blacklisted=True)
+        factories.CourseSkillsFactory.create_batch(10, course_key=COURSE_KEY, is_blacklisted=True)
 
         # Create 5 course skill that are not blacklisted.
-        factories.CourseSkillsFactory.create_batch(5, course_id=COURSE_KEY, is_blacklisted=False)
+        factories.CourseSkillsFactory.create_batch(5, course_key=COURSE_KEY, is_blacklisted=False)
 
         # 1 query for fetching all 5 course skills and its associated skill.
         with self.django_assert_num_queries(1):
@@ -164,10 +164,10 @@ class TestUtils(TaxonomyTestCase):
         Validate that get_blacklisted_course_skills works as expected.
         """
         # Create 10 blacklisted course skill.
-        factories.CourseSkillsFactory.create_batch(10, course_id=COURSE_KEY, is_blacklisted=True)
+        factories.CourseSkillsFactory.create_batch(10, course_key=COURSE_KEY, is_blacklisted=True)
 
         # Create 5 course skill that are not blacklisted.
-        factories.CourseSkillsFactory.create_batch(5, course_id=COURSE_KEY, is_blacklisted=False)
+        factories.CourseSkillsFactory.create_batch(5, course_key=COURSE_KEY, is_blacklisted=False)
 
         # 1 query for fetching all 10 course skills and its associated skill.
         with self.django_assert_num_queries(1):

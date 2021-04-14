@@ -101,12 +101,7 @@ class CourseSkills(TimeStampedModel):
     )
     course_key = models.CharField(
         max_length=255,
-        blank=True,
-        null=True,
-        editable=False,
-        help_text=_(
-            'The key of the course whose text was used for skills extraction.'
-        )
+        help_text=_('The key of the course whose text was used for skills extraction.')
     )
     skill = models.ForeignKey(
         Skill,
@@ -137,13 +132,13 @@ class CourseSkills(TimeStampedModel):
         verbose_name_plural = 'Course Skills'
         ordering = ('created', )
         app_label = 'taxonomy'
-        unique_together = ('course_id', 'skill')
+        unique_together = ('course_key', 'skill')
 
     def __str__(self):
         """
         Create a human-readable string representation of the object.
         """
-        return '<CourseSkills name="{}" course_id="{}">'.format(self.skill.name, self.course_id)
+        return '<CourseSkills name="{}" course_key="{}">'.format(self.skill.name, self.course_key)
 
     def __repr__(self):
         """

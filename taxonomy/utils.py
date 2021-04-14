@@ -18,11 +18,11 @@ def update_skills_data(course_key, skill_external_id, confidence, skill_data):
 
     if not is_course_skill_blacklisted(course_key, skill.id):
         CourseSkills.objects.update_or_create(
-            course_id=course_key,
+            course_key=course_key,
             skill=skill,
             defaults={
                 'confidence': confidence,
-                'course_key': course_key,
+                'course_id': course_key,
             },
         )
 
@@ -120,7 +120,7 @@ def blacklist_course_skill(course_key, skill_id):
         skill_id (int): Primary key identifier of the skill that need to be blacklisted.
     """
     CourseSkills.objects.filter(
-        course_id=course_key,
+        course_key=course_key,
         skill_id=skill_id,
     ).update(is_blacklisted=True)
 
@@ -134,7 +134,7 @@ def remove_course_skill_from_blacklist(course_key, skill_id):
         skill_id (int): Primary key identifier of the skill that need to be blacklisted.
     """
     CourseSkills.objects.filter(
-        course_id=course_key,
+        course_key=course_key,
         skill_id=skill_id,
     ).update(is_blacklisted=False)
 
@@ -151,7 +151,7 @@ def is_course_skill_blacklisted(course_key, skill_id):
         (bool): True if course-skill (identified by the arguments) is black-listed, False otherwise.
     """
     return CourseSkills.objects.filter(
-        course_id=course_key,
+        course_key=course_key,
         skill_id=skill_id,
         is_blacklisted=True,
     ).exists()
@@ -168,7 +168,7 @@ def get_whitelisted_course_skills(course_key, prefetch_skills=True):
     Returns:
         (list<CourseSkills>): A list of all the course skills that are not blacklisted.
     """
-    qs = CourseSkills.objects.filter(course_id=course_key, is_blacklisted=False)
+    qs = CourseSkills.objects.filter(course_key=course_key, is_blacklisted=False)
     if prefetch_skills:
         qs = qs.select_related('skill')
     return qs.all()
@@ -185,7 +185,7 @@ def get_blacklisted_course_skills(course_key, prefetch_skills=True):
     Returns:
         (list<CourseSkills>): A list of all the course skills that are blacklisted.
     """
-    qs = CourseSkills.objects.filter(course_id=course_key, is_blacklisted=True)
+    qs = CourseSkills.objects.filter(course_key=course_key, is_blacklisted=True)
     if prefetch_skills:
         qs = qs.select_related('skill')
     return qs.all()
