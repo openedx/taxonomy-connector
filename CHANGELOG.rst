@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.10.0] - 2021-04-12
+--------------------
+
+* Remove all the usages of old `course_id` field including the column definition in `CourseSkills` model.
+
 [1.9.0] - 2021-04-12
 --------------------
 
