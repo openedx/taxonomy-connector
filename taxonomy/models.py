@@ -259,6 +259,8 @@ class JobSkills(TimeStampedModel):
         Metadata for the JobSkills model.
         """
 
+        verbose_name = 'Job Skill'
+        verbose_name_plural = 'Job Skills'
         ordering = ('created',)
         app_label = 'taxonomy'
         unique_together = ('job', 'skill')
@@ -301,7 +303,7 @@ class JobPostings(TimeStampedModel):
     median_salary = models.FloatField(
         blank=False,
         help_text=_(
-            'The median annual salary advertised on job postings for the job.'
+            'The median annual salary (in USD) advertised on job postings for the job.'
         )
     )
 
@@ -331,6 +333,8 @@ class JobPostings(TimeStampedModel):
         Metadata for the JobPostings model.
         """
 
+        verbose_name = 'Job Posting'
+        verbose_name_plural = 'Job Postings'
         ordering = ('created',)
         app_label = 'taxonomy'
 
@@ -338,8 +342,8 @@ class JobPostings(TimeStampedModel):
         """
         Create a human-readable string representation of the object.
         """
-        return '<Job postings for job: {}, have a median_salary: {}, median_posting_duration: {}, unique_postings: {}' \
-               ', unique hiring companies: {} >'.format(
+        return '<Job postings for job: {}, have a median_salary: ${}, median_posting_duration: {}, ' \
+               'unique_postings: {}, unique hiring companies: {} >'.format(
                    self.job.name, self.median_salary, self.median_posting_duration, self.unique_postings,
                    self.unique_companies)
 
@@ -347,7 +351,7 @@ class JobPostings(TimeStampedModel):
         """
         Return string representation.
         """
-        return '<JobPosting id="{0}" job="{1!r}" median_salary="{2!r}" median_posting_duration="{3!r}" ' \
+        return '<JobPosting id="{0}" job="{1!r}" median_salary="${2!r}" median_posting_duration="{3!r}" ' \
             'unique_postings="{4!r} unique_companies={5!r}">'.format(
                 self.id, self.job, self.median_salary, self.median_posting_duration, self.unique_postings,
                 self.unique_companies)
