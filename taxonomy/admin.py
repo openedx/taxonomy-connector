@@ -30,13 +30,6 @@ class CourseSkillsTitleAdmin(admin.ModelAdmin):
     list_display = ('id', 'course_key', 'created', 'modified')
     search_fields = ('course_key',)
 
-    def save_model(self, request, obj, form, change):
-        """
-        Set `course_id` to the same value as `course_key` before saving the model.
-        """
-        obj.course_id = obj.course_key
-        super().save_model(request, obj, form, change)
-
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):

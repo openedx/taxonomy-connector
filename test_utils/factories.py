@@ -46,7 +46,6 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
         model = CourseSkills
         django_get_or_create = ('course_key', 'skill')
 
-    course_id = factory.LazyAttribute(lambda x: FAKER.slug())
     course_key = factory.LazyAttribute(lambda x: FAKER.slug())
     skill = factory.SubFactory(SkillFactory)
     confidence = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=1))

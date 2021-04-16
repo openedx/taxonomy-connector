@@ -90,15 +90,6 @@ class CourseSkills(TimeStampedModel):
     .. no_pii:
     """
 
-    # TODO: This field is being deprecated and renamed to `course_key`.
-    #  course_id will be removed in subsequent releases
-    course_id = models.CharField(
-        max_length=255,
-        blank=False,
-        help_text=_(
-            'The ID of the course whose text was used for skills extraction.'
-        )
-    )
     course_key = models.CharField(
         max_length=255,
         help_text=_('The key of the course whose text was used for skills extraction.')
