@@ -14,13 +14,18 @@ Change Log
 Unreleased
 --------------------
 
+[1.11.1] - 2021-04-20
+---------------------
+
+* Fixed .rst issues in CHANGELOG.rst
+
 [1.11.0] - 2021-04-16
---------------------
+---------------------
 
 * Mention currency in median salary field and add verbose name for models.
 
 [1.10.0] - 2021-04-12
---------------------
+---------------------
 
 * Remove all the usages of old `course_id` field including the column definition in `CourseSkills` model.
 
