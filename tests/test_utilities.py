@@ -183,3 +183,19 @@ class TestUtils(TaxonomyTestCase):
             )
             skill_ids = [course_skill.skill.id for course_skill in blacklisted_course_skills]
             assert len(skill_ids) == 10
+
+    def test_get_whitelisted_serialized_skills(self):
+        """
+        Validate that `get_whitelisted_serialized_skills` returns serialized skills in expected format.
+        """
+        factories.CourseSkillsFactory.create_batch(2, course_key=COURSE_KEY, is_blacklisted=False)
+        expected_skills = utils.get_whitelisted_course_skills(course_key=COURSE_KEY)
+        expected_serialized_skills = [
+            {
+                'name': expected_skill.skill.name,
+                'description': expected_skill.skill.description
+            } for expected_skill in expected_skills
+        ]
+
+        actual_serialized_skills = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+        assert actual_serialized_skills == expected_serialized_skills

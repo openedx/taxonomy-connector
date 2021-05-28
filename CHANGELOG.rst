@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.11.2] - 2021-05-28
+---------------------
+
+* Added utility method to return serialized course skills.
+
 [1.11.1] - 2021-04-20
 ---------------------
 
