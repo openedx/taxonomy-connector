@@ -6,8 +6,27 @@ import logging
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, Skill
+from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
+
+
+def get_whitelisted_serialized_skills(course_key):
+    """
+    Get a list of serialized course skills.
+
+    Arguments:
+        course_key (str): Key of the course whose course skills need to be returned.
+
+    Returns:
+        (dict): A dictionary containing the following key-value pairs
+            1.  name: 'Skill name'
+            2. description: "Skill Description"
+    """
+    course_skills = get_whitelisted_course_skills(course_key)
+    skills = [course_skill.skill for course_skill in course_skills]
+    serializer = SkillSerializer(skills, many=True)
+    return serializer.data
 
 
 def update_skills_data(course_key, skill_external_id, confidence, skill_data):
