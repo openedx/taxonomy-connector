@@ -92,5 +92,14 @@ setup(
     author_email='oscm@edx.org',
     url='https://github.com/edx/taxonomy-connector',
     license='MIT',
-    install_requires=REQUIREMENTS
+    install_requires=REQUIREMENTS,
+    classifiers=[
+        'Framework :: Django',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
+        'Framework :: Django :: 3.2',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.8',
+    ],
 )
