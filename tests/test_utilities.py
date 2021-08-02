@@ -5,7 +5,7 @@ from ddt import ddt
 from pytest import fixture, mark
 
 from taxonomy import models, utils
-from taxonomy.models import Skill
+from taxonomy.models import CourseSkills, JobSkills, Skill
 from test_utils import factories
 from test_utils.constants import COURSE_KEY
 from test_utils.testcase import TaxonomyTestCase
@@ -199,3 +199,25 @@ class TestUtils(TaxonomyTestCase):
 
         actual_serialized_skills = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
         assert actual_serialized_skills == expected_serialized_skills
+
+    def test_get_course_jobs(self):
+        """
+        Validate that `get_course_jobs` works as expected.
+        """
+        # import pdb ; pdb.set_trace()
+        course_skills = factories.CourseSkillsFactory(course_key=COURSE_KEY, is_blacklisted=False)
+        factories.JobSkillFactory.create_batch(5, skill=course_skills.skill)
+
+        expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY)
+
+        # course jobs should not be empty
+        assert expected_course_jobs
+
+        for course_job in expected_course_jobs:
+            job_skill = JobSkills.objects.get(job__name=course_job).skill
+
+            # verify that skill is associated with correct course
+            assert CourseSkills.objects.filter(skill=job_skill).exists()
+
+            # verify that job is associated with correct skill
+            assert job_skill == course_skills.skill

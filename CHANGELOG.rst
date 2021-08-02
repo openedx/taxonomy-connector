@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.12.1] - 2021-08-3
+---------------------
+
+* Add utility method `get_course_jobs` to return job associated with a course.
+
 [1.12.0] - 2021-07-13
 ---------------------
 
