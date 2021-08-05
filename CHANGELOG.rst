@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.12.2] - 2021-08-5
+---------------------
+
+* Add job posting information in utility method `get_course_jobs`.
+
 [1.12.1] - 2021-08-3
 ---------------------
 

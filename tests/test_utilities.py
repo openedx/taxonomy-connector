@@ -204,9 +204,10 @@ class TestUtils(TaxonomyTestCase):
         """
         Validate that `get_course_jobs` works as expected.
         """
-        # import pdb ; pdb.set_trace()
         course_skills = factories.CourseSkillsFactory(course_key=COURSE_KEY, is_blacklisted=False)
-        factories.JobSkillFactory.create_batch(5, skill=course_skills.skill)
+        jobskills = factories.JobSkillFactory.create_batch(5, skill=course_skills.skill)
+        for jobskill in jobskills:
+            factories.JobPostingsFactory(job=jobskill.job)
 
         expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY)
 
@@ -214,10 +215,15 @@ class TestUtils(TaxonomyTestCase):
         assert expected_course_jobs
 
         for course_job in expected_course_jobs:
-            job_skill = JobSkills.objects.get(job__name=course_job).skill
+            job_skill = JobSkills.objects.get(job__name=course_job.get('name'))
+            job_posting = job_skill.job.jobpostings_set.first()
+
+            # verify job posting data
+            assert job_posting.median_salary == course_job.get('median_salary')
+            assert job_posting.unique_postings == course_job.get('unique_postings')
 
             # verify that skill is associated with correct course
-            assert CourseSkills.objects.filter(skill=job_skill).exists()
+            assert CourseSkills.objects.filter(skill=job_skill.skill).exists()
 
             # verify that job is associated with correct skill
-            assert job_skill == course_skills.skill
+            assert job_skill.skill == course_skills.skill
