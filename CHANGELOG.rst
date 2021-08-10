@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.13.0] - 2021-08-9
+---------------------
+
+* Added Skill, Job and JobPostings viewsets.
+
 [1.12.2] - 2021-08-5
 ---------------------
 
