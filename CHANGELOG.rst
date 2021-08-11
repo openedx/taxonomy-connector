@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.14.0] - 2021-08-16
+---------------------
+
+* Added managment command and related code to index jobs data to algolia.
+
 [1.13.0] - 2021-08-9
 ---------------------
 

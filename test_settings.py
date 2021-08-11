@@ -69,3 +69,10 @@ CELERY_TASK_ALWAYS_EAGER = True
 CELERY_BROKER_URL = 'memory://localhost/'
 
 ### END CELERY
+
+ALGOLIA = {
+    'APPLICATION_ID': '',
+    'API_KEY': '',
+    'TAXONOMY_INDEX_NAME': ''
+}
+
