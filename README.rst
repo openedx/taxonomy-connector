@@ -31,11 +31,25 @@ To install ``taxonomy-connector``, for example, in Course Discovery, follow thes
 #. Changes made into the taxonomy repository will now be picked up by your host environment.
 
 
-Note:
-In order to communicate with EMSI service, you need to set the values of ``client_id`` and ``client_secret``. These values are picked up from the host environment so you need to pass them in ``.yaml`` file of the host environment.
+Notes:
+
+- In order to communicate with EMSI service, you need to set the values of ``client_id`` and ``client_secret``. These values are picked up from the host environment so you need to pass them in ``.yaml`` file of the host environment.
+- Also, to make taxonomy work, the host platform must add an implementation of data providers written in ``./taxonomy/providers``
+- Taxonomy APIs use throttle rate set in ``DEFAULT_THROTTLE_RATES`` settings by default. Custom Throttle rate can by set by adding ``ScopedRateThrottle`` class in ``DEFAULT_THROTTLE_CLASSES`` settings and ``taxonomy-api-throttle-scope`` key in ``DEFAULT_THROTTLE_RATES``
 
 
-Also, to make taxonomy work, the host platform must add an implementation of data providers written in ``./taxonomy/providers``
+.. code-block:: python
+
+    REST_FRAMEWORK = {
+        'DEFAULT_THROTTLE_CLASSES': (
+            'rest_framework.throttling.UserRateThrottle',
+            'rest_framework.throttling.ScopedRateThrottle'
+        ),
+        'DEFAULT_THROTTLE_RATES': {
+            'user': '100/hour',
+            'taxonomy-api-throttle-scope': '60/min',  # custom throttle rate for taxonomy api
+        },
+    }
 
 
 Developer Notes

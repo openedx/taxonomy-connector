@@ -14,6 +14,26 @@ Change Log
 Unreleased
 --------------------
 
+[1.13.0] - 2021-08-9
+---------------------
+
+* Added Skill, Job and JobPostings viewsets.
+
+[1.12.2] - 2021-08-5
+---------------------
+
+* Add job posting information in utility method `get_course_jobs`.
+
+[1.12.1] - 2021-08-3
+---------------------
+
+* Add utility method `get_course_jobs` to return job associated with a course.
+
+[1.12.0] - 2021-07-13
+---------------------
+
+* Added support for django 3.1 and 3.2
+
 [1.11.2] - 2021-05-28
 ---------------------
 

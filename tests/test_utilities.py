@@ -5,7 +5,7 @@ from ddt import ddt
 from pytest import fixture, mark
 
 from taxonomy import models, utils
-from taxonomy.models import Skill
+from taxonomy.models import CourseSkills, JobSkills, Skill
 from test_utils import factories
 from test_utils.constants import COURSE_KEY
 from test_utils.testcase import TaxonomyTestCase
@@ -199,3 +199,31 @@ class TestUtils(TaxonomyTestCase):
 
         actual_serialized_skills = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
         assert actual_serialized_skills == expected_serialized_skills
+
+    def test_get_course_jobs(self):
+        """
+        Validate that `get_course_jobs` works as expected.
+        """
+        course_skills = factories.CourseSkillsFactory(course_key=COURSE_KEY, is_blacklisted=False)
+        jobskills = factories.JobSkillFactory.create_batch(5, skill=course_skills.skill)
+        for jobskill in jobskills:
+            factories.JobPostingsFactory(job=jobskill.job)
+
+        expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY)
+
+        # course jobs should not be empty
+        assert expected_course_jobs
+
+        for course_job in expected_course_jobs:
+            job_skill = JobSkills.objects.get(job__name=course_job.get('name'))
+            job_posting = job_skill.job.jobpostings_set.first()
+
+            # verify job posting data
+            assert job_posting.median_salary == course_job.get('median_salary')
+            assert job_posting.unique_postings == course_job.get('unique_postings')
+
+            # verify that skill is associated with correct course
+            assert CourseSkills.objects.filter(skill=job_skill.skill).exists()
+
+            # verify that job is associated with correct skill
+            assert job_skill.skill == course_skills.skill

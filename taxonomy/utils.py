@@ -5,7 +5,7 @@ import logging
 
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, Skill
+from taxonomy.models import CourseSkills, JobSkills, Skill
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -207,3 +207,34 @@ def get_blacklisted_course_skills(course_key, prefetch_skills=True):
     if prefetch_skills:
         qs = qs.select_related('skill')
     return qs.all()
+
+
+def get_course_jobs(course_key):
+    """
+    Get data for all course jobs.
+
+    Arguments:
+        course_key (str): Key of the course whose course skills need to be returned.
+
+    Returns:
+        list: A list of dicts where each dict contain information about a particular job.
+    """
+    course_skills = get_whitelisted_course_skills(course_key)
+    job_skills = JobSkills.objects.select_related(
+        'skill',
+        'job',
+        'job__jobpostings',
+    ).filter(
+        skill__in=[course_skill.skill for course_skill in course_skills]
+    )
+    data = []
+    for job_skill in job_skills:
+        job_posting = job_skill.job.jobpostings_set.first()
+        data.append(
+            {
+                'name': job_skill.job.name,
+                'median_salary': job_posting.median_salary,
+                'unique_postings': job_posting.unique_postings,
+            }
+        )
+    return data
