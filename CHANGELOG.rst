@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.14.1] - 2021-08-20
+---------------------
+
+* Decreased skills query chunk_size from 2000 to 50 to fetch more jobs.
+
 [1.14.0] - 2021-08-16
 ---------------------
 

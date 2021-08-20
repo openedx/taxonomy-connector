@@ -62,7 +62,7 @@ class Command(BaseCommand):
         client = EMSIJobsApiClient()
         try:
             skills = Skill.objects.all()
-            for chunked_skills in chunked_queryset(skills):
+            for chunked_skills in chunked_queryset(skills, chunk_size=50):
                 skill_external_ids = list(chunked_skills.values_list('external_id', flat=True))
                 jobs = client.get_jobs(
                     ranking_facet=ranking_facet,
