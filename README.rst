@@ -8,6 +8,10 @@ Taxonomy
 .. image:: http://codecov.io/github/edx/taxonomy-connector/coverage.svg?branch=master
     :target: http://codecov.io/github/edx/taxonomy-connector?branch=master
     :alt: Codecov
+    
+.. image:: https://github.com/edx/taxonomy-connector/workflows/Python%20CI/badge.svg?branch=master
+    :target: https://github.com/edx/taxonomy-connector/actions?query=workflow%3A%22Python+CI%22
+    :alt: CI
 
 The taxonomy service is a library that can be installed in other edX components
 that provides access to third party taxonomy vendors. EMSI is currently the
