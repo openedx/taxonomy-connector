@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.14.2] - 2021-09-08
+---------------------
+
+* Fixed an issue that was causing an error while index jobs data to algolia.
+
 [1.14.1] - 2021-08-20
 ---------------------
 
