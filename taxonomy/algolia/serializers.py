@@ -7,6 +7,7 @@ This module depends on serializers provided by django-rest-framework.
 
 from rest_framework import serializers
 
+from taxonomy.algolia.constants import EMBEDDED_OBJECT_LENGTH_CAP
 from taxonomy.models import Job, JobPostings, JobSkills
 
 
@@ -61,7 +62,8 @@ class JobSerializer(serializers.ModelSerializer):
         Arguments:
             obj (Job): Job instance whose skills need to be fetched.
         """
-        qs = JobSkills.objects.filter(job=obj).select_related('skill')
+        # We only need to fetch up-to 20 skills per job.
+        qs = JobSkills.objects.filter(job=obj).select_related('skill')[:EMBEDDED_OBJECT_LENGTH_CAP]
         serializer = JobSkillSerializer(qs, many=True)
         return serializer.data
 
@@ -72,7 +74,8 @@ class JobSerializer(serializers.ModelSerializer):
         Arguments:
             obj (Job): Job instance whose job postings need to be fetched.
         """
-        qs = JobPostings.objects.filter(job=obj)
+        # We only need to fetch up-to 20 job postings per job.
+        qs = JobPostings.objects.filter(job=obj)[:EMBEDDED_OBJECT_LENGTH_CAP]
         serializer = JobPostingSerializer(qs, many=True)
         return serializer.data
 

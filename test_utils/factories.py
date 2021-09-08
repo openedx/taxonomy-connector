@@ -24,7 +24,7 @@ class SkillFactory(factory.django.DjangoModelFactory):
         model = Skill
         django_get_or_create = ('external_id', )
 
-    external_id = factory.LazyAttribute(lambda x: FAKER.slug())
+    external_id = factory.Sequence('SKILL-{}'.format)
     name = factory.LazyAttribute(lambda x: FAKER.job())
     info_url = factory.LazyAttribute(lambda x: FAKER.uri())
     type_id = factory.LazyAttribute(lambda x: FAKER.slug())
@@ -61,7 +61,7 @@ class JobFactory(factory.django.DjangoModelFactory):
 
         model = Job
 
-    external_id = factory.LazyAttribute(lambda x: FAKER.slug())
+    external_id = factory.Sequence('JOB-{}'.format)
     name = factory.LazyAttribute(lambda x: FAKER.job())
 
 

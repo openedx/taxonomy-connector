@@ -18,3 +18,6 @@ ALGOLIA_JOBS_INDEX_SETTINGS = {
 }
 
 JOBS_PAGE_SIZE = 1
+
+# This is the the maximum number of objects that should be embedded inside an algolia record.
+EMBEDDED_OBJECT_LENGTH_CAP = 20
