@@ -188,6 +188,8 @@ class Job(TimeStampedModel):
     )
     name = models.CharField(
         max_length=255,
+        unique=True,
+        null=True,
         blank=False,
         help_text=_(
             'The title of job.'
@@ -212,7 +214,7 @@ class Job(TimeStampedModel):
         """
         Create a unique string representation of the object.
         """
-        return '<Job id="{}" name="{}">'.format(self.id, self.name)
+        return '<Job id="{}" name="{}" external_id="{}" >'.format(self.id, self.name, self.external_id)
 
 
 class JobSkills(TimeStampedModel):

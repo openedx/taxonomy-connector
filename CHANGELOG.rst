@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.14.3] - 2021-10-27
+---------------------
+
+* fix: Make job names unique and handle exception where ever job is created/updated
+
 [1.14.2] - 2021-09-08
 ---------------------
 

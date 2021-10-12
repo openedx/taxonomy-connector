@@ -7,6 +7,7 @@ import logging
 from edx_django_utils.db import chunked_queryset
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import IntegrityError
 
 from taxonomy.constants import get_lookup_query_filter
 from taxonomy.emsi_client import EMSIJobsApiClient
@@ -36,7 +37,12 @@ class Command(BaseCommand):
         """
         job_id = job_bucket['id']
         job_name = job_bucket['properties']['singular_name']
-        Job.objects.update_or_create(external_id=job_id, defaults={'name': job_name})
+        try:
+            Job.objects.update_or_create(external_id=job_id, defaults={'name': job_name})
+        except IntegrityError:
+            LOGGER.exception(
+                f'Integrity error on attempt to create/update job with name {job_name}.'
+            )
 
     def _update_jobs(self):
         """
@@ -45,7 +51,7 @@ class Command(BaseCommand):
         client = EMSIJobsApiClient()
         ranking_facet = RankingFacet.TITLE
         try:
-            jobs = Job.objects.filter(name='')
+            jobs = Job.objects.filter(name=None)
             for chunked_jobs in chunked_queryset(jobs):
                 jobs_external_ids = list(chunked_jobs.values_list('external_id', flat=True))
                 jobs = client.get_details(
