@@ -4,10 +4,12 @@ Model Factories for the taxonomy tests.
 """
 import factory
 from faker import Factory as FakerFactory
+from faker import Faker
 
 from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
 
 FAKER = FakerFactory.create()
+FAKER_OBJECT = Faker()
 
 
 # pylint: disable=no-member
@@ -62,7 +64,7 @@ class JobFactory(factory.django.DjangoModelFactory):
         model = Job
 
     external_id = factory.Sequence('JOB-{}'.format)
-    name = factory.LazyAttribute(lambda x: FAKER.job())
+    name = factory.LazyAttribute(lambda x: FAKER_OBJECT.unique.job())
 
 
 class JobSkillFactory(factory.django.DjangoModelFactory):

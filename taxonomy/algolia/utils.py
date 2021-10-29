@@ -52,7 +52,7 @@ def fetch_jobs_data():
     start, page_size = 0, JOBS_PAGE_SIZE
     jobs = []
 
-    qs = Job.objects.all()
+    qs = Job.objects.exclude(name__isnull=True)
 
     while qs[start:start + page_size].exists():
         job_serializer = JobSerializer(qs[start:start + page_size], many=True)

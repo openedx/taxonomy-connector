@@ -55,7 +55,7 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
         get_details_mock.return_value = self.job_lookup_response
 
         all_jobs = Job.objects.all()
-        jobs_without_name = Job.objects.filter(name='')
+        jobs_without_name = Job.objects.filter(name=None)
 
         self.assertEqual(all_jobs.count(), 3)
         self.assertEqual(jobs_without_name.count(), 2)
@@ -72,12 +72,37 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_details')
+    def test_job_postings_with_duplicate_name(self, get_details_mock):
+        """
+        Test that the command updates.
+        """
+        # creating job with duplicate name
+        duplicate_job_name = self.job_lookup_response['data'][0]['properties']['singular_name']
+        JobFactory(external_id='test_id', name=duplicate_job_name)
+
+        get_details_mock.return_value = self.job_lookup_response
+        # assert jobs without name before running command
+        jobs_without_name = Job.objects.filter(name=None)
+        self.assertEqual(jobs_without_name.count(), 2)
+
+        err_string = f'Integrity error on attempt to create/update job with name {duplicate_job_name}.'
+        with LogCapture(level=logging.INFO) as log_capture:
+            call_command(self.command)
+            # Validate a descriptive and readable log message.
+            self.assertEqual(len(log_capture.records), 3)
+            message = log_capture.records[-2].msg
+            self.assertEqual(message, err_string)
+        # assert only one job populated with name
+        self.assertEqual(jobs_without_name.count(), 1)
+
+    @responses.activate
+    @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_details')
     def test_job_postings_not_saved_upon_exception(self, get_details_mock):
         """
         Test that the command does not create any records when the API throws an exception.
         """
         get_details_mock.side_effect = TaxonomyAPIError("API ERROR")
-        jobs_without_name = Job.objects.filter(name='')
+        jobs_without_name = Job.objects.filter(name=None)
         self.assertEqual(jobs_without_name.count(), 2)
 
         err_string = 'Taxonomy API Error for updating the jobs for Ranking Facet RankingFacet.TITLE Error: API ERROR.'
@@ -98,7 +123,7 @@ class UpdateJobNamesCommandTests(TaxonomyTestCase):
         Test that the command does not create any records when a key error occurs.
         """
         get_details_mock.return_value = self.missing_key_job_lookup_response
-        jobs_without_name = Job.objects.filter(name='')
+        jobs_without_name = Job.objects.filter(name=None)
         self.assertEqual(jobs_without_name.count(), 2)
 
         err_string = "Missing keys in update Job names. Error: 'singular_name'."
