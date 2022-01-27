@@ -42,7 +42,7 @@ class TestJobPostings(TestCase):
                            self.job_title, self.median_salary, self.median_posting_duration, self.unique_postings,
                            self.unique_companies)
 
-        expected_repr = '<JobPosting id="{0}" job="{1!r}" median_salary="${2!r}" median_posting_duration="{3!r}" ' \
+        expected_repr = '<JobPostings id="{0}" job="{1!r}" median_salary="${2!r}" median_posting_duration="{3!r}" ' \
                         'unique_postings="{4!r} unique_companies={5!r}">'.format(
                             self.job_posting.id, self.job, self.median_salary, self.median_posting_duration,
                             self.unique_postings, self.unique_companies)
