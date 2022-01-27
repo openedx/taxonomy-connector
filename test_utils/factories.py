@@ -6,7 +6,7 @@ import factory
 from faker import Factory as FakerFactory
 from faker import Faker
 
-from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
+from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill, Translation
 
 FAKER = FakerFactory.create()
 FAKER_OBJECT = Faker()
@@ -96,3 +96,25 @@ class JobPostingsFactory(factory.django.DjangoModelFactory):
     median_posting_duration = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
     unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
     unique_companies = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+
+
+class TranslationFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for Translation model.
+    """
+
+    class Meta:
+        """
+        Meta for ``Translation``.
+        """
+
+        model = Translation
+        django_get_or_create = ('source_record_identifier',)
+
+    source_record_identifier = factory.LazyAttribute(lambda x: FAKER.slug())
+    source_model_name = factory.LazyAttribute(lambda x: FAKER.word())
+    source_model_field = factory.LazyAttribute(lambda x: FAKER.word())
+    source_text = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
+    source_language = factory.LazyAttribute(lambda x: FAKER.language_code())
+    translated_text = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
+    translated_text_language = factory.LazyAttribute(lambda x: FAKER.language_code())
