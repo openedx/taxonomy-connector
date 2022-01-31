@@ -64,7 +64,7 @@ class JobPostingsAdmin(admin.ModelAdmin):
 @admin.register(Translation)
 class TranslationAdmin(admin.ModelAdmin):
     """
-    Administrative view for Job Postings.
+    Administrative view for Translation.
     """
 
     list_display = ('source_model_name', 'source_record_identifier', 'source_model_field',)
