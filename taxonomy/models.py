@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 from solo.models import SingletonModel
 
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext_lazy as _
 
 from model_utils.models import TimeStampedModel
 
@@ -357,3 +357,92 @@ class JobPostings(TimeStampedModel):
             'unique_postings="{4!r} unique_companies={5!r}">'.format(
                 self.id, self.job, self.median_salary, self.median_posting_duration, self.unique_postings,
                 self.unique_companies)
+
+
+class Translation(TimeStampedModel):
+    """
+    Model to save translated descriptions.
+
+    .. no_pii:
+    """
+
+    source_model_name = models.CharField(
+        max_length=255,
+        help_text=_(
+            'The name of the model to which the source belongs e:g Course.'
+        )
+    )
+
+    source_model_field = models.CharField(
+        max_length=255,
+        help_text=_(
+            'The name of the source field to be translated e:g course description.'
+        )
+    )
+
+    source_record_identifier = models.CharField(
+        max_length=255,
+        help_text=_('The identifier of the source record e:g course key.')
+    )
+
+    source_text = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'The source text to be translated.'
+        )
+    )
+
+    source_language = models.CharField(
+        blank=True,
+        null=True,
+        max_length=8,
+        help_text=_(
+            'The original language of the source text before translation e:g Spanish.'
+        )
+    )
+
+    translated_text = models.TextField(
+        blank=True,
+        null=True,
+        help_text=_(
+            'The translated source text.'
+        )
+    )
+
+    translated_text_language = models.CharField(
+        blank=True,
+        null=True,
+        max_length=8,
+        help_text=_(
+            'The language of the source text to which it is translated e:g English.'
+        )
+    )
+
+    class Meta:
+        """
+        Metadata for the Translation model.
+        """
+
+        ordering = ('created',)
+        app_label = 'taxonomy'
+        unique_together = ('source_record_identifier', 'source_model_name', 'source_model_field',)
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<Translation for source_record_identifier={} source_language={} translated_text_language={}>'.format(
+            self.source_record_identifier,
+            self.source_language,
+            self.translated_text_language
+        )
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<Translation source_model_name="{}" source_model_field="{}" source_record_identifier="{}" ' \
+               'source_text="{}" source_language="{}" translated_text="{}" translated_text_language="{}">'.format(
+                   self.source_model_name, self.source_model_field, self.source_record_identifier, self.source_text,
+                   self.source_language, self.translated_text, self.translated_text_language)

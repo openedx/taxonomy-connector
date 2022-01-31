@@ -109,3 +109,30 @@ class TestJobSkills(TestCase):
 
         assert expected_str == job_skill.__str__()
         assert expected_repr == job_skill.__repr__()
+
+
+@mark.django_db
+class TestTranslation(TestCase):
+    """
+    Tests for the ``Translation`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the Translation model.
+        """
+        translation = factories.TranslationFactory()
+        expected_str = '<Translation for source_record_identifier={} source_language={} translated_text_language={}>'.\
+            format(
+                translation.source_record_identifier,
+                translation.source_language,
+                translation.translated_text_language
+            )
+        expected_repr = '<Translation source_model_name="{}" source_model_field="{}" source_record_identifier="{}" ' \
+            'source_text="{}" source_language="{}" translated_text="{}" translated_text_language="{}">'.format(
+                translation.source_model_name, translation.source_model_field, translation.source_record_identifier,
+                translation.source_text, translation.source_language, translation.translated_text,
+                translation.translated_text_language)
+
+        assert expected_str == translation.__str__()
+        assert expected_repr == translation.__repr__()
