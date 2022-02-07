@@ -67,5 +67,5 @@ class TranslationAdmin(admin.ModelAdmin):
     Administrative view for Translation.
     """
 
-    list_display = ('source_model_name', 'source_record_identifier', 'source_model_field',)
+    list_display = ('id', 'source_model_name', 'source_record_identifier', 'source_model_field',)
     search_fields = ('source_record_identifier',)
