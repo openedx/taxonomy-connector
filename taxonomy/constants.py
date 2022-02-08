@@ -93,3 +93,9 @@ def get_job_posting_query_filter(jobs=None):
             'include_op': 'or'
         }
     return job_posting_query_filter
+
+
+TRANSLATE_SERVICE = 'translate'
+ENGLISH = 'en'
+AUTO = 'auto'
+REGION = 'us-east-1'

@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
+from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill, Translation
 
 
 @admin.register(Skill)
@@ -59,3 +59,13 @@ class JobPostingsAdmin(admin.ModelAdmin):
 
     list_display = ('median_salary', 'median_posting_duration', 'unique_postings', 'unique_companies',)
     search_fields = ('job__name',)
+
+
+@admin.register(Translation)
+class TranslationAdmin(admin.ModelAdmin):
+    """
+    Administrative view for Translation.
+    """
+
+    list_display = ('id', 'source_model_name', 'source_record_identifier', 'source_model_field',)
+    search_fields = ('source_record_identifier',)

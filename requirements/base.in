@@ -7,3 +7,4 @@ edx-rest-api-client
 edx-django-utils
 celery
 algoliasearch
+django-ses

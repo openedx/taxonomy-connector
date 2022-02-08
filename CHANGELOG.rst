@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.14.5] - 2022-02-08
+---------------------
+
+* feat: Added Support for course description translation
+
 [1.14.4] - 2022-01-28
 ---------------------
 

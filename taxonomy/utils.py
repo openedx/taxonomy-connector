@@ -3,9 +3,12 @@ Utils for taxonomy.
 """
 import logging
 
+import boto3
+
+from taxonomy.constants import AUTO, ENGLISH, REGION, TRANSLATE_SERVICE
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, JobSkills, Skill
+from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -93,8 +96,9 @@ def refresh_course_skills(courses, should_commit_to_db):
     for course in courses:
         course_description = course['full_description']
         if course_description:
+            course_translated_description = get_translated_course_description(course['key'], course_description)
             try:
-                course_skills = client.get_course_skills(course_description)
+                course_skills = client.get_course_skills(course_translated_description)
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
                 LOGGER.error(message)
@@ -238,3 +242,87 @@ def get_course_jobs(course_key):
             }
         )
     return data
+
+
+def get_translated_course_description(course_key, course_description):
+    """
+    Return translated course description.
+
+    Create translation for course description if translation object doesn't already exist.
+     OR update translation if course description changed from previous description in translation and
+      return the translated course description.
+
+    Arguments:
+        course_key (str): Key of the course whose description needs to be translated.
+        course_description (str): Full course description of the course which needs to be translated.
+
+    Returns:
+        str: Translated full course description.
+    """
+    translation = Translation.objects.filter(
+        source_model_name='Course',
+        source_model_field='full_description',
+        source_record_identifier=course_key
+    ).first()
+    if translation:
+        if translation.source_text != course_description:
+            result = translate_text(course_key, course_description, AUTO, ENGLISH)
+            if not result:
+                return course_description
+            if result['SourceLanguageCode'] == ENGLISH:
+                translation.translated_text = course_description
+            else:
+                translation.translated_text = result['TranslatedText']
+            LOGGER.info(f'[TAXONOMY] Translate course description updated for key: {course_key}')
+            translation.source_text = course_description
+            translation.source_language = result['SourceLanguageCode']
+            translation.save()
+        return translation.translated_text
+    result = translate_text(course_key, course_description, AUTO, ENGLISH)
+    if not result:
+        return course_description
+    if result['SourceLanguageCode'] == ENGLISH:
+        translated_text = course_description
+    else:
+        translated_text = result['TranslatedText']
+
+    translation = Translation.objects.create(
+        source_model_name='Course',
+        source_model_field='full_description',
+        source_record_identifier=course_key,
+        source_text=course_description,
+        translated_text=translated_text,
+        translated_text_language=ENGLISH,
+        source_language=result['SourceLanguageCode'],
+    )
+    LOGGER.info(f'[TAXONOMY] Translate course description createad for key: {course_key}')
+    return translation.translated_text
+
+
+def translate_text(key, text, source_language, target_language):
+    """
+    Translate text into the target language.
+
+    Arguments:
+        key (str): Key or id of the object to uniquely identify.
+        text (str): Text which needs to be translated.
+        source_language (str): Source Language of text if known otherwise provide auto.
+        target_language (str): Desired language in which text needs to be converted.
+
+    Returns:
+        dict: Translated object which contains TranslatedText, SourceLanguageCode and TargetLanguageCode.
+    """
+    translate = boto3.client(service_name=TRANSLATE_SERVICE, region_name=REGION)
+
+    result = None
+    try:
+        result = translate.translate_text(
+            Text=text,
+            SourceLanguageCode=source_language,
+            TargetLanguageCode=target_language,
+        )
+    except Exception as ex:  # pylint: disable=broad-except
+        message = f'[TAXONOMY] Translate course description exception for key: {key} Error: {ex}'
+        LOGGER.exception(message)
+
+    return result
