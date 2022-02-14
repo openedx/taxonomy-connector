@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.15.0] - 2022-02-11
+---------------------
+
+* chore: Removed Django22, 30 and 31 support and added support for Django40
+
 [1.14.5] - 2022-02-08
 ---------------------
 
