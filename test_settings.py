@@ -49,7 +49,7 @@ SECRET_KEY = 'insecure-secret-key'
 # Settings related to to EMSI client
 # API URLs are altered to avoid accidentally calling the API in tests
 # Original URL: https://auth.emsicloud.com/connect/token
-EMSI_API_ACCESS_TOKEN_URL = 'http://example.com/connect/token'
+EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
 
 # Original URL: https://emsiservices.com
 EMSI_API_BASE_URL = 'http://example.com'
