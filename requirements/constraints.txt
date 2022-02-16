@@ -9,7 +9,7 @@
 # linking to it here is good.
 
 # Stay on an LTS release
-django<2.3
+django<4.0
 
 path==13.1.0
 
@@ -19,5 +19,5 @@ celery<5.0
 edx-lint<=1.5.2
 
 # latest version causing issues in discovery.
-algoliasearch-django<2.0.0
+algoliasearch-django<4.0.0
 algoliasearch<2.0.0
