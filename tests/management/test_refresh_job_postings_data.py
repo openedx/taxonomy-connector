@@ -76,7 +76,7 @@ class RefreshJobPostingsCommandTests(TaxonomyTestCase):
         get_job_postings_mock.side_effect = TaxonomyAPIError()
         jobs = Job.objects.all()
         job_postings = JobPostings.objects.all()
-        self.assertEqual(jobs.count(), 3)
+        self.assertEqual(jobs.count(), 4)
         self.assertEqual(job_postings.count(), 0)
 
         err_string = _('Taxonomy API Error for refreshing the job postings data for Ranking Facet RankingFacet.TITLE')
@@ -91,7 +91,7 @@ class RefreshJobPostingsCommandTests(TaxonomyTestCase):
                 'Taxonomy API Error for refreshing the job postings data for Ranking Facet RankingFacet.TITLE'
             )
 
-        self.assertEqual(jobs.count(), 3)
+        self.assertEqual(jobs.count(), 4)
         self.assertEqual(job_postings.count(), 0)
 
     @responses.activate
@@ -103,7 +103,7 @@ class RefreshJobPostingsCommandTests(TaxonomyTestCase):
         get_job_postings_mock.return_value = self.missing_median_salary
         jobs = Job.objects.all()
         job_postings = JobPostings.objects.all()
-        self.assertEqual(jobs.count(), 3)
+        self.assertEqual(jobs.count(), 4)
         self.assertEqual(job_postings.count(), 0)
 
         err_string = _("Missing keys in job postings data. Error: 'median_salary'")
@@ -115,5 +115,5 @@ class RefreshJobPostingsCommandTests(TaxonomyTestCase):
             message = log_capture.records[0].msg
             self.assertEqual(message, "Missing keys in job postings data. Error: 'median_salary'")
 
-        self.assertEqual(jobs.count(), 3)
+        self.assertEqual(jobs.count(), 4)
         self.assertEqual(job_postings.count(), 0)

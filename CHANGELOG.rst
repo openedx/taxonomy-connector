@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.15.1] - 2022-02-17
+---------------------
+
+* fix: Made the median_posting_duration in JobPosting Nullable to avoid errors on jenkins.
+
 [1.15.0] - 2022-02-11
 ---------------------
 

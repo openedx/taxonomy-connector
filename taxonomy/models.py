@@ -310,7 +310,8 @@ class JobPostings(TimeStampedModel):
     )
 
     median_posting_duration = models.IntegerField(
-        blank=False,
+        blank=True,
+        null=True,
         help_text=_(
             'The median duration of closed job postings. Duration is measured in days.'
         )
