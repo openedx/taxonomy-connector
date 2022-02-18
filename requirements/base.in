@@ -8,3 +8,4 @@ edx-django-utils
 celery
 algoliasearch
 django-ses
+beautifulsoup4

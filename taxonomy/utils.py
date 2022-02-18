@@ -5,7 +5,8 @@ import logging
 
 import boto3
 
-from taxonomy.constants import AUTO, ENGLISH, REGION, TRANSLATE_SERVICE
+from bs4 import BeautifulSoup
+from taxonomy.constants import AMAZON_TRANSLATION_ALLOWED_SIZE, AUTO, ENGLISH, REGION, TRANSLATE_SERVICE
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
@@ -266,8 +267,11 @@ def get_translated_course_description(course_key, course_description):
     ).first()
     if translation:
         if translation.source_text != course_description:
-            result = translate_text(course_key, course_description, AUTO, ENGLISH)
-            if not result:
+            if (len(course_description)) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+                result = translate_text(course_key, course_description, AUTO, ENGLISH)
+            else:
+                result = apply_batching_to_translate_large_text(course_key, course_description)
+            if not result['TranslatedText']:
                 return course_description
             if result['SourceLanguageCode'] == ENGLISH:
                 translation.translated_text = course_description
@@ -278,8 +282,11 @@ def get_translated_course_description(course_key, course_description):
             translation.source_language = result['SourceLanguageCode']
             translation.save()
         return translation.translated_text
-    result = translate_text(course_key, course_description, AUTO, ENGLISH)
-    if not result:
+    if (len(course_description)) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+        result = translate_text(course_key, course_description, AUTO, ENGLISH)
+    else:
+        result = apply_batching_to_translate_large_text(course_key, course_description)
+    if not result['TranslatedText']:
         return course_description
     if result['SourceLanguageCode'] == ENGLISH:
         translated_text = course_description
@@ -295,7 +302,7 @@ def get_translated_course_description(course_key, course_description):
         translated_text_language=ENGLISH,
         source_language=result['SourceLanguageCode'],
     )
-    LOGGER.info(f'[TAXONOMY] Translate course description createad for key: {course_key}')
+    LOGGER.info(f'[TAXONOMY] Translate course description created for key: {course_key}')
     return translation.translated_text
 
 
@@ -314,7 +321,7 @@ def translate_text(key, text, source_language, target_language):
     """
     translate = boto3.client(service_name=TRANSLATE_SERVICE, region_name=REGION)
 
-    result = None
+    result = {'SourceLanguageCode': '', 'TranslatedText': ''}
     try:
         result = translate.translate_text(
             Text=text,
@@ -325,4 +332,48 @@ def translate_text(key, text, source_language, target_language):
         message = f'[TAXONOMY] Translate course description exception for key: {key} Error: {ex}'
         LOGGER.exception(message)
 
+    return result
+
+
+def apply_batching_to_translate_large_text(course_key, source_text):
+    """
+    Apply batching if text to translate is large and then combine it again.
+
+    Arguments:
+        course_key (str): Key or id of the object to uniquely identify.
+        source_text (str): Text which needs to be translated.
+
+    Returns:
+        dict: Translated object which contains TranslatedText and SourceLanguageCode.
+    """
+    soup = BeautifulSoup(source_text, 'html.parser')
+    # Split input text into a list of sentences on the basis of html tags
+    sentences = soup.findAll()
+    translated_text = ''
+    source_text_chunk = ''
+    result = {}
+    source_language_code = ''
+    LOGGER.info(f'[TAXONOMY] Translate course description applying batching for key: {course_key}')
+
+    for sentence in sentences:
+        # Translate expects utf-8 encoded input to be no more than
+        # 5000 bytes, so we’ll split on the 5000th byte.
+
+        if len(sentence.encode('utf-8')) + len(source_text_chunk.encode('utf-8')) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+            source_text_chunk = '%s%s' % (source_text_chunk, sentence)
+        else:
+            translation_chunk = translate_text(course_key, source_text_chunk, AUTO, ENGLISH)
+            translated_text = translated_text + translation_chunk['TranslatedText']
+            source_text_chunk = sentence
+            source_language_code = translation_chunk['SourceLanguageCode']
+
+    # Translate the final chunk of input text
+    if source_text_chunk:
+        translation_chunk = translate_text(course_key, source_text_chunk, AUTO, ENGLISH)
+        translated_text = translated_text + translation_chunk['TranslatedText']
+        source_language_code = translation_chunk['SourceLanguageCode']
+    # bs4 adds /r/n which needs to be removed for consistency.
+    translated_text = translated_text.replace('\r', '').replace('\n', '')
+    result['TranslatedText'] = translated_text
+    result['SourceLanguageCode'] = source_language_code
     return result

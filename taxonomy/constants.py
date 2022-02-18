@@ -95,6 +95,7 @@ def get_job_posting_query_filter(jobs=None):
     return job_posting_query_filter
 
 
+AMAZON_TRANSLATION_ALLOWED_SIZE = 5000
 TRANSLATE_SERVICE = 'translate'
 ENGLISH = 'en'
 AUTO = 'auto'

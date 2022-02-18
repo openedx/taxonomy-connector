@@ -14,11 +14,13 @@ asgiref==3.5.0
     # via django
 attrs==21.4.0
     # via pytest
+beautifulsoup4==4.10.0
+    # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.20.53
+boto3==1.21.2
     # via django-ses
-botocore==1.23.53
+botocore==1.24.2
     # via
     #   boto3
     #   s3transfer
@@ -28,7 +30,7 @@ celery==4.4.7
     #   -r requirements/base.in
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.11
+charset-normalizer==2.0.12
     # via requests
 click==8.0.3
     # via code-annotations
@@ -51,7 +53,7 @@ django-crum==0.7.9
     # via edx-django-utils
 django-model-utils==4.2.0
     # via -r requirements/base.in
-django-ses==2.4.0
+django-ses==2.5.0
     # via -r requirements/base.in
 django-solo==2.0.0
     # via -r requirements/base.in
@@ -67,7 +69,7 @@ edx-rest-api-client==5.5.0
     # via -r requirements/base.in
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==12.3.0
+faker==13.0.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -85,7 +87,7 @@ jmespath==0.10.0
     #   botocore
 kombu==4.6.11
     # via celery
-markupsafe==2.0.1
+markupsafe==2.1.0
     # via jinja2
 mock==4.0.3
     # via -r requirements/test.in
@@ -105,7 +107,7 @@ pyjwt==2.3.0
     # via edx-rest-api-client
 pyparsing==3.0.7
     # via packaging
-pytest==7.0.0
+pytest==7.0.1
     # via
     #   pytest-cov
     #   pytest-django
@@ -117,7 +119,7 @@ python-dateutil==2.8.2
     # via
     #   botocore
     #   faker
-python-slugify==5.0.2
+python-slugify==6.0.1
     # via code-annotations
 pytz==2021.3
     # via
@@ -142,6 +144,8 @@ six==1.16.0
     # via python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
+soupsieve==2.3.1
+    # via beautifulsoup4
 sqlparse==0.4.2
     # via django
 stevedore==3.5.0
