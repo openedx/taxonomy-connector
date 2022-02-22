@@ -14,6 +14,11 @@ Change Log
 Unreleased
 --------------------
 
+[1.15.2] - 2022-02-18
+---------------------
+
+* feat: Added Support for large size course description translation
+
 [1.15.1] - 2022-02-17
 ---------------------
 

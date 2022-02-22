@@ -343,7 +343,7 @@ class TestUtils(TaxonomyTestCase):
          if translate_text method returns None and does not create Translation object.
         """
         course_description = "abc def"
-        translate_text_mocked.return_value = None
+        translate_text_mocked.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
         expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
         translation_record = Translation.objects.filter(
             source_model_name='Course',
@@ -360,7 +360,7 @@ class TestUtils(TaxonomyTestCase):
         Validate that `get_translated_course_description` returns actual course_description
          if translate_text method returns None and does not update Translation object.
         """
-        translate_text_mocked.return_value = None
+        translate_text_mocked.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
         course_description = "abc def"
         new_course_description = "jhi qlm"
         translated_course_description = "different text"
@@ -431,3 +431,65 @@ class TestUtils(TaxonomyTestCase):
         assert translation_record.translated_text == expected_translated_description
         assert translation_record.source_text == course_description
         assert translate_text_mocked.call_count == 1
+
+    @mock.patch("taxonomy.utils.AMAZON_TRANSLATION_ALLOWED_SIZE", 5)
+    @mock.patch('taxonomy.utils.translate_text')
+    def test_get_translated_course_description_success_for_new_record_with_large_text(self, translate_text_mocked):
+        """
+        Validate that `get_translated_course_description` created Translation object if not already
+        exist with the translated course description.
+        """
+        course_description = "<p>abc</p><span>def</span><br/><p>ghi</p>"
+        translated_course_description = "<p>abc</p><span>def</span><br/><p>ghi</p>"
+        translate_text_mocked.return_value = {
+            'SourceLanguageCode': ENGLISH,
+            'TranslatedText': translated_course_description,
+        }
+        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
+        translation_record = Translation.objects.filter(
+            source_model_name='Course',
+            source_model_field='full_description',
+            source_record_identifier=COURSE_KEY
+        ).first()
+
+        assert translation_record.translated_text == expected_translated_description
+        assert translation_record.source_text == course_description
+        assert translate_text_mocked.call_count == 5
+
+    @mock.patch("taxonomy.utils.AMAZON_TRANSLATION_ALLOWED_SIZE", 5)
+    @mock.patch('taxonomy.utils.translate_text')
+    def test_get_translated_course_description_with_updated_description_and_large_text(self, translate_mocked):
+        """
+        Validate that `get_translated_course_description` updates Translation object if
+         course description changes. Also verify that if source language is ENGLISH,
+         than keep the original text in source and translated text field.
+        """
+        existing_course_description = "<span>abc</span>"
+        existing_translation = "<span>abc</span>"
+
+        new_course_description = "<p>abc</p><span>def</span>"
+        new_translation = "<p>abc</p><span>def</span>"
+        translate_mocked.return_value = {
+            'SourceLanguageCode': ENGLISH,
+            'TranslatedText': new_translation
+        }
+        factories.TranslationFactory(
+            source_record_identifier=COURSE_KEY,
+            source_model_field='full_description',
+            source_model_name='Course',
+            source_text=existing_course_description,
+            translated_text=existing_translation,
+            translated_text_language=ENGLISH,
+            source_language=ENGLISH,
+        )
+
+        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, new_course_description)
+        translation_record = Translation.objects.filter(
+            source_model_name='Course',
+            source_model_field='full_description',
+            source_record_identifier=COURSE_KEY
+        ).first()
+
+        assert new_course_description == expected_translated_description
+        assert translation_record.translated_text == new_course_description
+        assert translate_mocked.call_count == 3

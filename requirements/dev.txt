@@ -24,15 +24,17 @@ attrs==21.4.0
     # via
     #   -r requirements/test.txt
     #   pytest
+beautifulsoup4==4.10.0
+    # via -r requirements/test.txt
 billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.20.53
+boto3==1.21.2
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.23.53
+botocore==1.24.2
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -48,7 +50,7 @@ certifi==2021.10.8
     #   requests
 chardet==4.0.0
     # via diff-cover
-charset-normalizer==2.0.11
+charset-normalizer==2.0.12
     # via
     #   -r requirements/ci.txt
     #   -r requirements/test.txt
@@ -98,7 +100,7 @@ django-crum==0.7.9
     #   edx-django-utils
 django-model-utils==4.2.0
     # via -r requirements/test.txt
-django-ses==2.4.0
+django-ses==2.5.0
     # via -r requirements/test.txt
 django-solo==2.0.0
     # via -r requirements/test.txt
@@ -122,11 +124,11 @@ edx-rest-api-client==5.5.0
     # via -r requirements/test.txt
 factory-boy==3.2.1
     # via -r requirements/test.txt
-faker==12.3.0
+faker==13.0.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
-filelock==3.4.2
+filelock==3.6.0
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -164,7 +166,7 @@ kombu==4.6.11
     #   celery
 lazy-object-proxy==1.4.3
     # via astroid
-markupsafe==2.0.1
+markupsafe==2.1.0
     # via
     #   -r requirements/test.txt
     #   jinja2
@@ -248,7 +250,7 @@ pyparsing==3.0.7
     #   -r requirements/ci.txt
     #   -r requirements/test.txt
     #   packaging
-pytest==7.0.0
+pytest==7.0.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -262,7 +264,7 @@ python-dateutil==2.8.2
     #   -r requirements/test.txt
     #   botocore
     #   faker
-python-slugify==5.0.2
+python-slugify==6.0.1
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -308,6 +310,10 @@ slumber==0.7.1
     #   edx-rest-api-client
 snowballstemmer==2.2.0
     # via pydocstyle
+soupsieve==2.3.1
+    # via
+    #   -r requirements/test.txt
+    #   beautifulsoup4
 sqlparse==0.4.2
     # via
     #   -r requirements/test.txt
