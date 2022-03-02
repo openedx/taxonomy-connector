@@ -6,6 +6,7 @@ In a real-world use case, apps in this project are installed into other
 Django applications, so these settings will not be used.
 """
 
+import os
 from os.path import abspath, dirname, join
 
 from celery import Celery
