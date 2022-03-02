@@ -20,12 +20,12 @@ def root(*args):
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'default.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
+        'ENGINE': os.environ.get('DB_MIGRATION_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DB_MIGRATION_NAME', 'default.db'),
+        'USER': os.environ.get('DB_MIGRATION_USER', ''),
+        'PASSWORD': os.environ.get('DB_MIGRATION_PASSWORD', ''),
+        'HOST': os.environ.get('DB_MIGRATION_HOST', ''),
+        'PORT': os.environ.get('DB_MIGRATION_PORT', ''),
     }
 }
 
