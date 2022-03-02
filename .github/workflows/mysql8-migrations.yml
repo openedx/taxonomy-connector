@@ -47,8 +47,8 @@ jobs:
         mysql -V
     - name: Install Python dependencies
       run: |
-        pip install -r requirements/test.txt
         pip install -r requirements/dev.txt
+        pip install -r requirements/test.txt
         pip uninstall -y mysqlclient
         pip install --no-binary mysqlclient mysqlclient
         pip uninstall -y xmlsec
