@@ -267,7 +267,7 @@ def get_translated_course_description(course_key, course_description):
     ).first()
     if translation:
         if translation.source_text != course_description:
-            if (len(course_description)) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+            if (len(course_description.encode('utf-8'))) < AMAZON_TRANSLATION_ALLOWED_SIZE:
                 result = translate_text(course_key, course_description, AUTO, ENGLISH)
             else:
                 result = apply_batching_to_translate_large_text(course_key, course_description)
@@ -282,7 +282,7 @@ def get_translated_course_description(course_key, course_description):
             translation.source_language = result['SourceLanguageCode']
             translation.save()
         return translation.translated_text
-    if (len(course_description)) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+    if (len(course_description.encode('utf-8'))) < AMAZON_TRANSLATION_ALLOWED_SIZE:
         result = translate_text(course_key, course_description, AUTO, ENGLISH)
     else:
         result = apply_batching_to_translate_large_text(course_key, course_description)

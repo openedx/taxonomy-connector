@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 --------------------
+[1.15.3] - 2022-03-11
+---------------------
+
+* fix: Check the course description length after encoding
 
 [1.15.2] - 2022-02-18
 ---------------------
