@@ -10,6 +10,8 @@ from taxonomy.constants import ENGLISH
 from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
 from test_utils import factories
 from test_utils.constants import COURSE_KEY
+from test_utils.mocks import MockCourse
+from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE
 from test_utils.testcase import TaxonomyTestCase
 
 
@@ -493,3 +495,29 @@ class TestUtils(TaxonomyTestCase):
         assert new_course_description == expected_translated_description
         assert translation_record.translated_text == new_course_description
         assert translate_mocked.call_count == 3
+
+    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.utils.get_translated_course_description')
+    @mock.patch('time.sleep')
+    def test_refresh_course_skills_rate_limit_emsi_api_calls(
+            self,
+            time_sleep_mock,
+            get_translated_description_mock,
+            get_course_skills_mock
+    ):
+        """
+        Validate that `refresh_course_skills` rate limits API calls to EMSI.
+        """
+        get_course_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
+        get_translated_description_mock.return_value = None
+        time_sleep_mock.return_value = None
+
+        courses = []
+        for _ in range(11):
+            course = MockCourse()
+            courses.append(course)
+
+        utils.refresh_course_skills(courses, should_commit_to_db=False)
+
+        # it should be called after every 5 requests made to EMSI
+        assert time_sleep_mock.call_count == 2

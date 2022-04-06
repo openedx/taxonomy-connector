@@ -96,6 +96,7 @@ def get_job_posting_query_filter(jobs=None):
 
 
 AMAZON_TRANSLATION_ALLOWED_SIZE = 5000
+EMSI_API_RATE_LIMIT_PER_SEC = 5
 TRANSLATE_SERVICE = 'translate'
 ENGLISH = 'en'
 AUTO = 'auto'

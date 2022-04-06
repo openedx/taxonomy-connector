@@ -2,11 +2,18 @@
 Utils for taxonomy.
 """
 import logging
-
+import time
 import boto3
 
 from bs4 import BeautifulSoup
-from taxonomy.constants import AMAZON_TRANSLATION_ALLOWED_SIZE, AUTO, ENGLISH, REGION, TRANSLATE_SERVICE
+from taxonomy.constants import (
+    AMAZON_TRANSLATION_ALLOWED_SIZE,
+    AUTO,
+    ENGLISH,
+    REGION,
+    TRANSLATE_SERVICE,
+    EMSI_API_RATE_LIMIT_PER_SEC
+)
 from taxonomy.emsi_client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
@@ -93,12 +100,15 @@ def refresh_course_skills(courses, should_commit_to_db):
     skipped_courses_count = 0
 
     client = EMSISkillsApiClient()
-
-    for course in courses:
+    for index, course in enumerate(courses, start=1):
         course_description = course['full_description']
         if course_description:
             course_translated_description = get_translated_course_description(course['key'], course_description)
             try:
+                # EMSI only allows 5 requests/sec
+                # We need to add one sec delay after every 5 requests to prevent 429 errors
+                if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
+                    time.sleep(1)  # sleep for 1 second
                 course_skills = client.get_course_skills(course_translated_description)
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
