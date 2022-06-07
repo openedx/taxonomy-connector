@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.16.0] - 2022-06-08
+---------------------
+
+* Added category and subcategory for skill.
+
 [1.15.4] - 2022-04-06
 ---------------------
 

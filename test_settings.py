@@ -76,4 +76,3 @@ ALGOLIA = {
     'API_KEY': '',
     'TAXONOMY_INDEX_NAME': ''
 }
-

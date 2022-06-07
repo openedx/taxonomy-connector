@@ -10,14 +10,16 @@ import responses
 from pytest import raises
 from testfixtures import LogCapture
 
-from taxonomy.emsi_client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSIApiClient
+from taxonomy.emsi.client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSIApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from test_utils.decorators import mock_api_response
 from test_utils.sample_responses.job_lookup import JOB_LOOKUP, JOB_LOOKUP_FILTER
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
-from test_utils.sample_responses.skills import SKILL_TEXT_DATA, SKILLS_EMSI_CLIENT_RESPONSE, SKILLS_EMSI_RESPONSE
+from test_utils.sample_responses.skills import (
+    SKILL_TEXT_DATA, SKILLS_EMSI_CLIENT_RESPONSE, SKILLS_EMSI_RESPONSE, SKILL_ID, SKILL_DETAILS_EMSI_RESPONSE
+)
 from test_utils.testcase import TaxonomyTestCase
 
 
@@ -166,6 +168,32 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         with raises(TaxonomyAPIError, match='Error while fetching course skills.'):
             self.client.get_course_skills(SKILL_TEXT_DATA)
+
+    @mock_api_response(
+        method=responses.GET,
+        url=EMSISkillsApiClient.API_BASE_URL + f'/skills/{SKILL_ID}',
+        json=SKILL_DETAILS_EMSI_RESPONSE,
+    )
+    def test_get_skill_details(self):
+        """
+        Validate that the behavior of client while fetching course skills.
+        """
+        skills = self.client.get_skill_details(SKILL_ID)
+
+        assert skills == SKILL_DETAILS_EMSI_RESPONSE
+
+    @mock_api_response(
+        method=responses.GET,
+        url=EMSISkillsApiClient.API_BASE_URL + f'/skills/{SKILL_ID}',
+        json=SKILL_DETAILS_EMSI_RESPONSE,
+        status=400,
+    )
+    def test_get_skill_details_error(self):
+        """
+        Validate that the behavior of client when error occurs while fetching skill data.
+        """
+        with raises(TaxonomyAPIError, match='Error while fetching skill details.'):
+            self.client.get_skill_details(SKILL_ID)
 
 
 class TestEMSIJobsApiClient(TaxonomyTestCase):

@@ -6,10 +6,49 @@ import factory
 from faker import Factory as FakerFactory
 from faker import Faker
 
-from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill, Translation
+from taxonomy.models import (
+    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory,
+)
 
 FAKER = FakerFactory.create()
 FAKER_OBJECT = Faker()
+
+
+# pylint: disable=no-member, invalid-name
+class SkillCategoryFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for SkillCategory model.
+    """
+
+    class Meta:
+        """
+        Meta for ``SkillCategory``.
+        """
+
+        model = SkillCategory
+        django_get_or_create = ('id',)
+
+    id = factory.Sequence(lambda n: n)
+    name = factory.LazyAttribute(lambda x: FAKER.word())
+
+
+# pylint: disable=no-member, invalid-name
+class SkillSubCategoryFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for SkillSubCategory model.
+    """
+
+    class Meta:
+        """
+        Meta for ``SkillSubCategory``.
+        """
+
+        model = SkillSubCategory
+        django_get_or_create = ('id',)
+
+    id = factory.Sequence(lambda n: n)
+    name = factory.LazyAttribute(lambda x: FAKER.word())
+    category = factory.SubFactory(SkillCategoryFactory)
 
 
 # pylint: disable=no-member
@@ -32,6 +71,8 @@ class SkillFactory(factory.django.DjangoModelFactory):
     type_id = factory.LazyAttribute(lambda x: FAKER.slug())
     type_name = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=20))
     description = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
+    category = factory.SubFactory(SkillCategoryFactory)
+    subcategory = factory.SubFactory(SkillSubCategoryFactory)
 
 
 # pylint: disable=no-member

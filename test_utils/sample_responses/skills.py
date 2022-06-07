@@ -2,6 +2,7 @@
 """
 Sample responses for skills data from EMSI service. These will be used in tests.
 """
+SKILL_ID = 'SKILL-123ABC456DEF'
 
 SKILL_TEXT_DATA = 'Great candidates also have\n\n Experience with a particular JS MV* framework ' \
             '(we happen to use React)\n Experience working with databases\n Experience with AWS' \
@@ -308,4 +309,36 @@ TYPE_ERROR_SKILLS = {
             }
         }
     ]
+}
+
+SKILL_DETAILS_EMSI_RESPONSE = {
+    'attributions': [
+        {
+            'name': 'Wikipedia',
+            'text': 'Wikipedia extracts are distributed under the CC BY-SA license)'
+        }
+    ],
+    'data': {
+        'category': {'id': 0, 'name': 'NULL'},
+        'description': 'Test description',
+        'descriptionSource': 'https://en.wikipedia.org/wiki/Polynomial_regression',
+        'id': SKILL_ID,
+        'infoUrl': 'https://skills.emsidata.com/skills/KS127XV68VTJXFBGJ0T7',
+        'isLanguage': False,
+        'isSoftware': False,
+        'name': 'Polynomial Regression',
+        'removedDescription': None,
+        'subcategory': {'id': 100, 'name': 'NULL'},
+        'tags': [
+            {
+                'key': 'wikipediaUrl',
+                'value': 'Test description.'
+            },
+            {
+                'key': 'wikipediaUrl',
+                'value': 'https://en.wikipedia.org/wiki/Polynomial_regression'
+            }
+        ],
+        'type': {'id': 'ST1', 'name': 'Specialized Skill'}
+    }
 }

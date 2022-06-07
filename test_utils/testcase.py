@@ -8,7 +8,7 @@ import unittest
 
 import responses
 
-from taxonomy.emsi_client import JwtEMSIApiClient
+from taxonomy.emsi.client import JwtEMSIApiClient
 
 
 class TaxonomyTestCase(unittest.TestCase):
