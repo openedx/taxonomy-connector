@@ -14,7 +14,7 @@ from taxonomy.constants import (
     TRANSLATE_SERVICE,
     EMSI_API_RATE_LIMIT_PER_SEC
 )
-from taxonomy.emsi_client import EMSISkillsApiClient
+from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
 from taxonomy.serializers import SkillSerializer

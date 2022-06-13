@@ -6,6 +6,7 @@ Clients for communicating with the EMSI Service.
 import logging
 from functools import wraps
 from time import time
+from urllib.parse import urljoin
 
 import requests
 from edx_rest_api_client.client import EdxRestApiClient
@@ -15,6 +16,7 @@ from slumber.exceptions import SlumberBaseException
 from django.conf import settings
 
 from taxonomy.exceptions import TaxonomyAPIError
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -115,13 +117,39 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     Object builds an API client to make calls to get the skills from course text data.
     """
 
-    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/skills/versions/7.35'
+    API_BASE_URL = urljoin(JwtEMSIApiClient.API_BASE_URL, '/skills/versions/8.9')
 
     def __init__(self):
         """
         Initialize base class with `emsi_open` scope.
         """
         super(EMSISkillsApiClient, self).__init__(scope='emsi_open')
+
+    @JwtEMSIApiClient.refresh_token
+    def get_skill_details(self, skill_id):
+        """
+        Query the EMSI API to get details for a particular skill.
+
+        We will be using this method to populate skill category and subcategory.
+
+        Arguments:
+             skill_id (str): Skill external id, this is the id that comes from EMSI. example: 'KS124P772D5HNCJGGQ05'
+
+        Returns:
+            (dict): A dictionary containing the skill details.
+        """
+        path = 'skills/{skill_id}'.format(
+            skill_id=skill_id,
+        )
+        try:
+            endpoint = getattr(self.client, path)
+            return endpoint().get()
+        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            LOGGER.exception(
+                '[TAXONOMY] Exception raised while fetching skill details from EMSI. Skill ID: [%s]',
+                skill_id
+            )
+            raise TaxonomyAPIError('Error while fetching skill details.') from error
 
     @JwtEMSIApiClient.refresh_token
     def get_course_skills(self, course_text_data):
@@ -139,7 +167,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         }
         try:
             response = self.client.extract.post(data)
-            return self.traverse_data(response)
+            return self.traverse_course_skills_data(response)
         except (SlumberBaseException, ConnectionError, Timeout) as error:
             LOGGER.exception(
                 '[TAXONOMY] Exception raised while fetching skills data from EMSI. PostData: [%s]',
@@ -148,7 +176,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
             raise TaxonomyAPIError('Error while fetching course skills.') from error
 
     @staticmethod
-    def traverse_data(response):
+    def traverse_course_skills_data(response):
         """
         Transform data to a more useful format.
         """

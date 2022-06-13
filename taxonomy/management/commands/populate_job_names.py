@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError
 
 from taxonomy.constants import get_lookup_query_filter
-from taxonomy.emsi_client import EMSIJobsApiClient
+from taxonomy.emsi.client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job

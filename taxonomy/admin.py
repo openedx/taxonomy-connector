@@ -8,7 +8,9 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill, Translation
+from taxonomy.models import (
+    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory,
+)
 
 
 @admin.register(Skill)
@@ -17,8 +19,29 @@ class SkillAdmin(admin.ModelAdmin):
     Administrative view for Skills.
     """
 
-    list_display = ('id', 'external_id', 'name', 'created', 'modified')
-    search_fields = ('external_id', 'name')
+    list_display = ('id', 'external_id', 'name', 'created', 'modified', 'category', 'subcategory')
+    search_fields = ('external_id', 'name', 'category__name', 'subcategory__name')
+    list_filter = ('category', 'subcategory', )
+
+
+@admin.register(SkillCategory)
+class SkillCategoryAdmin(admin.ModelAdmin):
+    """
+    Administrative view for SkillCategory.
+    """
+
+    list_display = ('id', 'name', 'created', 'modified')
+    search_fields = ('id', 'name')
+
+
+@admin.register(SkillSubCategory)
+class SkillSubCategoryAdmin(admin.ModelAdmin):
+    """
+    Administrative view for SkillSubCategory.
+    """
+
+    list_display = ('id', 'name', 'category', 'created', 'modified')
+    search_fields = ('id', 'name', 'category')
 
 
 @admin.register(CourseSkills)

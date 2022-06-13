@@ -136,3 +136,41 @@ class TestTranslation(TestCase):
 
         assert expected_str == translation.__str__()
         assert expected_repr == translation.__repr__()
+
+
+@mark.django_db
+class TestSkillCategory(TestCase):
+    """
+    Tests for the ``SkillCategory`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the SkillCategory model.
+        """
+        skill_category = factories.SkillCategoryFactory()
+        expected_str = '<SkillCategory id="{}" name="{}">'.format(skill_category.id, skill_category.name)
+        expected_repr = expected_str
+
+        assert expected_str == skill_category.__str__()
+        assert expected_repr == skill_category.__repr__()
+
+
+@mark.django_db
+class TestSkillSubCategory(TestCase):
+    """
+    Tests for the ``SkillSubCategory`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the SkillSubCategory model.
+        """
+        skill_sub_category = factories.SkillSubCategoryFactory()
+        expected_str = '<SkillSubCategory id="{}" name="{}" category="{}">'.format(
+            skill_sub_category.id, skill_sub_category.name, skill_sub_category.category.name
+        )
+        expected_repr = '<SkillSubCategory id="{}" name="{}">'.format(skill_sub_category.id, skill_sub_category.name)
+
+        assert expected_str == skill_sub_category.__str__()
+        assert expected_repr == skill_sub_category.__repr__()

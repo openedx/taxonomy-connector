@@ -9,7 +9,7 @@ from edx_django_utils.db import chunked_queryset
 from django.core.management.base import BaseCommand, CommandError
 
 from taxonomy.constants import get_job_query_filter
-from taxonomy.emsi_client import EMSIJobsApiClient
+from taxonomy.emsi.client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Job, JobSkills, Skill

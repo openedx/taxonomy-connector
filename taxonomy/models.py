@@ -61,6 +61,22 @@ class Skill(TimeStampedModel):
             'The external type name for the skill received from API.'
         )
     )
+    category = models.ForeignKey(
+        'SkillCategory',
+        on_delete=models.deletion.SET_NULL,
+        null=True,
+        blank=True,
+        help_text=_('Category this skill belongs to.'),
+        related_query_name='skills',
+    )
+    subcategory = models.ForeignKey(
+        'SkillSubCategory',
+        on_delete=models.deletion.SET_NULL,
+        null=True,
+        blank=True,
+        help_text=_('Sub category this skill belongs to.'),
+        related_query_name='skills',
+    )
 
     def __str__(self):
         """
@@ -447,3 +463,90 @@ class Translation(TimeStampedModel):
                'source_text="{}" source_language="{}" translated_text="{}" translated_text_language="{}">'.format(
                    self.source_model_name, self.source_model_field, self.source_record_identifier, self.source_text,
                    self.source_language, self.translated_text, self.translated_text_language)
+
+
+class SkillCategory(TimeStampedModel):
+    """
+    Model to save category of a skill.
+
+    .. no_pii:
+    """
+
+    id = models.IntegerField(  # pylint: disable=invalid-name
+        primary_key=True,
+        help_text=_(
+            'Category id, this is the same id as received from EMSI API.'
+        )
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text=_(
+            'The name of the category.'
+        )
+    )
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<SkillCategory id="{}" name="{}">'.format(self.id, self.name)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return self.__str__()
+
+    class Meta:
+        """
+        Meta configuration for Skill model.
+        """
+
+        ordering = ('id', )
+        app_label = 'taxonomy'
+        verbose_name = 'Skill Category'
+        verbose_name_plural = 'Skill Categories'
+
+
+class SkillSubCategory(TimeStampedModel):
+    """
+    Model to save subcategory of a skill.
+
+    .. no_pii:
+    """
+
+    id = models.IntegerField(  # pylint: disable=invalid-name
+        primary_key=True,
+        help_text=_(
+            'Sub category id, this is the same id as received from EMSI API.'
+        )
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text=_(
+            'The name of the subcategory.'
+        )
+    )
+    category = models.ForeignKey(SkillCategory, on_delete=models.CASCADE, related_query_name='sub_categories')
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<SkillSubCategory id="{}" name="{}" category="{}">'.format(self.id, self.name, self.category.name)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<SkillSubCategory id="{}" name="{}">'.format(self.id, self.name)
+
+    class Meta:
+        """
+        Meta configuration for Skill model.
+        """
+
+        ordering = ('id', )
+        app_label = 'taxonomy'
+        verbose_name = 'Skill Subcategory'
+        verbose_name_plural = 'Skill Subcategories'
