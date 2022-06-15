@@ -19,9 +19,27 @@ class SkillAdmin(admin.ModelAdmin):
     Administrative view for Skills.
     """
 
-    list_display = ('id', 'external_id', 'name', 'created', 'modified', 'category', 'subcategory')
+    list_display = ('id', 'external_id', 'name', 'created', 'modified', 'category_name', 'subcategory_name')
     search_fields = ('external_id', 'name', 'category__name', 'subcategory__name')
     list_filter = ('category', 'subcategory', )
+
+    @admin.display(
+        description='Skill Category',
+    )
+    def category_name(self, obj):
+        """
+        Name of the skill category.
+        """
+        return obj.category and obj.category.name
+
+    @admin.display(
+        description='Skill Subcategory',
+    )
+    def subcategory_name(self, obj):
+        """
+        Name of the skill category.
+        """
+        return obj.subcategory and obj.subcategory.name
 
 
 @admin.register(SkillCategory)

@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.16.1] - 2022-06-15
+---------------------
+
+* Fixed API 429 error and updated admin list display for skills for better usability.
+
 [1.16.0] - 2022-06-08
 ---------------------
 

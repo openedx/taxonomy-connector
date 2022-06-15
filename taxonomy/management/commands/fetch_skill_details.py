@@ -3,6 +3,8 @@ Management command for fetching and populating skill details, specifically skill
 """
 
 import logging
+import time
+
 from edx_django_utils.db import chunked_queryset
 
 from django.db.models import Q
@@ -12,6 +14,8 @@ from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.emsi.parsers.skill_parsers import SkillDataParser
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Skill, SkillCategory, SkillSubCategory
+from taxonomy.constants import EMSI_API_RATE_LIMIT_PER_SEC
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -62,7 +66,12 @@ class Command(BaseCommand):
         try:
             skills = Skill.objects.filter(Q(category__isnull=True) | Q(subcategory__isnull=True))
             for chunked_skills in chunked_queryset(skills, chunk_size=100):
-                for skill in chunked_skills:
+                for index, skill in enumerate(chunked_skills, start=1):
+                    # EMSI only allows 5 requests/sec
+                    # We need to add one sec delay after every 5 requests to prevent 429 errors
+                    if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
+                        time.sleep(1)  # sleep for 1 second
+
                     response = client.get_skill_details(skill_id=skill.external_id)
                     skill_data_parser = SkillDataParser(response=response)
                     self._update_skill_category_and_sub_category(
