@@ -319,10 +319,11 @@ class JobPostings(TimeStampedModel):
     )
 
     median_salary = models.FloatField(
-        blank=False,
+        blank=True,
+        null=True,
         help_text=_(
             'The median annual salary (in USD) advertised on job postings for the job.'
-        )
+        ),
     )
 
     median_posting_duration = models.IntegerField(
@@ -334,14 +335,16 @@ class JobPostings(TimeStampedModel):
     )
 
     unique_postings = models.IntegerField(
-        blank=False,
+        blank=True,
+        null=True,
         help_text=_(
             'The number of unique monthly active job postings.'
         )
     )
 
     unique_companies = models.IntegerField(
-        blank=False,
+        blank=True,
+        null=True,
         help_text=_(
             'The number of unique companies represented in your filtered set of postings.'
         )
