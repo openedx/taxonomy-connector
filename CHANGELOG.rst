@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.16.2] - 2022-06-22
+---------------------
+
+* Fixed error causes by null values returned by EMSI API.
+
 [1.16.1] - 2022-06-15
 ---------------------
 
