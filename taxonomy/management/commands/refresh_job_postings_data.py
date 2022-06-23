@@ -62,8 +62,9 @@ class Command(BaseCommand):
                 for bucket in buckets:
                     try:
                         job_external_id = bucket['name']
+                        median_salary = bucket['median_salary']
                         job_posting_bucket_data = {
-                            'median_salary': str(bucket['median_salary']).strip('$'),
+                            'median_salary': str(median_salary).strip('$') if median_salary else None,
                             'median_posting_duration': bucket['median_posting_duration'],
                             'unique_postings': bucket['unique_postings'],
                             'unique_companies': bucket['unique_companies'],
