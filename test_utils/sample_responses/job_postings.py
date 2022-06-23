@@ -76,11 +76,11 @@ JOB_POSTINGS = {
                     'unique_companies': 960
                 },
                 {
-                    'median_salary': '$45000.34',
+                    'median_salary': None,
                     'median_posting_duration': None,
                     'name': 'Network Administrator',
-                    'unique_postings': 1400,
-                    'unique_companies': 960
+                    'unique_postings': None,
+                    'unique_companies': None
                 },
             ]
         }

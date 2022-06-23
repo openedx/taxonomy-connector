@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.16.3] - 2022-06-23
+---------------------
+
+* Added handling for None values for median salary from EMSI.
+
 [1.16.2] - 2022-06-22
 ---------------------
 
