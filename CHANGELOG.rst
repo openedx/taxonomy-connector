@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 --------------------
+[1.17.0] - 2022-07-15
+---------------------
+
+* refactor: Remove EdxRestApiClient usage in taxonomy-connector
+
 [1.16.3] - 2022-06-23
 ---------------------
 
