@@ -9,9 +9,8 @@ from time import time
 from urllib.parse import urljoin
 
 import requests
-from edx_rest_api_client.client import EdxRestApiClient
-from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
-from slumber.exceptions import SlumberBaseException
+from edx_rest_api_client.auth import BearerAuth
+from requests.exceptions import ConnectionError, RequestException, Timeout  # pylint: disable=redefined-builtin
 
 from django.conf import settings
 
@@ -44,12 +43,7 @@ class JwtEMSIApiClient:
         """
         self.scope = scope
         self.expires_at = 0
-
-        self.client = EdxRestApiClient(
-            self.API_BASE_URL,
-            append_slash=self.APPEND_SLASH,
-            oauth_access_token=self.oauth_access_token(),
-        )
+        self.client = None
 
     def oauth_access_token(self, grant_type='client_credentials'):
         """
@@ -61,7 +55,8 @@ class JwtEMSIApiClient:
         data = {
             'grant_type': grant_type,
             'client_id': self.client_id,
-            'client_secret': self.client_secret
+            'client_secret': self.client_secret,
+            'scope': self.scope,
         }
 
         response = requests.post(
@@ -84,11 +79,8 @@ class JwtEMSIApiClient:
         """
         Connect to the REST API, authenticating with a JWT for the current user.
         """
-        self.client = EdxRestApiClient(
-            self.API_BASE_URL,
-            append_slash=self.APPEND_SLASH,
-            oauth_access_token=self.oauth_access_token(),
-        )
+        self.client = requests.Session()
+        self.client.auth = BearerAuth(self.oauth_access_token())
 
     def is_token_expired(self):
         """
@@ -110,6 +102,18 @@ class JwtEMSIApiClient:
                 self.connect()
             return func(self, *args, **kwargs)
         return inner
+
+    def get_api_url(self, path):
+        """
+        Construct the full API URL using the API_BASE_URL and path.
+        Args:
+            path (str): API endpoint path.
+        """
+        path = path.strip('/')
+        if self.APPEND_SLASH:
+            path += '/'
+
+        return urljoin(f"{self.API_BASE_URL}/", path)
 
 
 class EMSISkillsApiClient(JwtEMSIApiClient):
@@ -138,13 +142,12 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         Returns:
             (dict): A dictionary containing the skill details.
         """
-        path = 'skills/{skill_id}'.format(
-            skill_id=skill_id,
-        )
         try:
-            endpoint = getattr(self.client, path)
-            return endpoint().get()
-        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            api_url = self.get_api_url(f'skills/{skill_id}')
+            response = self.client.get(api_url)
+            response.raise_for_status()
+            return response.json()
+        except (RequestException, ConnectionError, Timeout) as error:
             LOGGER.exception(
                 '[TAXONOMY] Exception raised while fetching skill details from EMSI. Skill ID: [%s]',
                 skill_id
@@ -166,9 +169,14 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
             'text': course_text_data
         }
         try:
-            response = self.client.extract.post(data)
-            return self.traverse_course_skills_data(response)
-        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            api_url = self.get_api_url('extract')
+            response = self.client.post(
+                api_url,
+                json=data,
+            )
+            response.raise_for_status()
+            return self.traverse_course_skills_data(response.json())
+        except (RequestException, ConnectionError, Timeout) as error:
             LOGGER.exception(
                 '[TAXONOMY] Exception raised while fetching skills data from EMSI. PostData: [%s]',
                 data
@@ -197,7 +205,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
     Object builds an API client to make calls to get the Jobs.
     """
 
-    API_BASE_URL = JwtEMSIApiClient.API_BASE_URL + '/jpa'
+    API_BASE_URL = urljoin(JwtEMSIApiClient.API_BASE_URL, '/jpa')
 
     def __init__(self):
         """
@@ -218,14 +226,15 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
             dict: A dictionary containing all the details for given facet.
 
         """
-        url = 'taxonomies/{facet}/lookup'.format(
-            facet=ranking_facet.value,
-        )
         try:
-            endpoint = getattr(self.client, url)
-            response = endpoint().post(query_filter)
-            return response
-        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            api_url = self.get_api_url(f'taxonomies/{ranking_facet.value}/lookup')
+            response = self.client.post(
+                api_url,
+                json=query_filter,
+            )
+            response.raise_for_status()
+            return response.json()
+        except (RequestException, ConnectionError, Timeout) as error:
             LOGGER.exception('[TAXONOMY] Exception raised while fetching data from EMSI')
             raise TaxonomyAPIError(
                 'Error while fetching lookup for {ranking_facet}'.format(ranking_facet=ranking_facet.value)
@@ -245,15 +254,15 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         Returns:
             dict: A dictionary containing details of all the jobs.
         """
-        url = 'rankings/{ranking_facet}/rankings/{nested_ranking_facet}'.format(
-            ranking_facet=ranking_facet.value,
-            nested_ranking_facet=nested_ranking_facet.value,
-        )
         try:
-            endpoint = getattr(self.client, url)
-            response = endpoint().post(query_filter)
-            return self.traverse_jobs_data(response)
-        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            api_url = self.get_api_url(f'rankings/{ranking_facet.value}/rankings/{nested_ranking_facet.value}')
+            response = self.client.post(
+                api_url,
+                json=query_filter,
+            )
+            response.raise_for_status()
+            return self.traverse_jobs_data(response.json())
+        except (RequestException, ConnectionError, Timeout) as error:
             LOGGER.exception('[TAXONOMY] Exception raised while fetching jobs data from EMSI')
             raise TaxonomyAPIError(
                 'Error while fetching job rankings for {ranking_facet}/{nested_ranking_facet}.'.format(
@@ -281,12 +290,15 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         Returns:
             dict: A dictionary containing job postings data.
         """
-        url = 'rankings/{ranking_facet}'.format(ranking_facet=ranking_facet.value)
         try:
-            endpoint = getattr(self.client, url)
-            response = endpoint().post(query_filter)
-            return self.traverse_job_postings_data(response)
-        except (SlumberBaseException, ConnectionError, Timeout) as error:
+            api_url = self.get_api_url(f'rankings/{ranking_facet.value}')
+            response = self.client.post(
+                api_url,
+                json=query_filter,
+            )
+            response.raise_for_status()
+            return self.traverse_job_postings_data(response.json())
+        except (RequestException, ConnectionError, Timeout) as error:
             LOGGER.exception('[TAXONOMY] Exception raised while fetching job posting data from EMSI')
             raise TaxonomyAPIError(
                 'Error while fetching job postings data ranked by {ranking_facet}.'.format(
