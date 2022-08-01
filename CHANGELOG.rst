@@ -12,7 +12,12 @@ Change Log
 .. There should always be an "Unreleased" section for changes pending release.
 
 Unreleased
---------------------
+---------------------
+[1.17.1] - 2022-07-29
+---------------------
+
+* feat: use program update signal to call EMSI API
+
 [1.17.0] - 2022-07-15
 ---------------------
 
