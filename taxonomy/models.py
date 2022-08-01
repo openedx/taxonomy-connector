@@ -4,6 +4,8 @@ ORM Models for the taxonomy application.
 """
 from __future__ import unicode_literals
 
+import uuid
+
 from solo.models import SingletonModel
 
 from django.db import models
@@ -152,6 +154,63 @@ class CourseSkills(TimeStampedModel):
         Create a unique string representation of the object.
         """
         return '<CourseSkills id="{0}" skill="{1!r}">'.format(self.id, self.skill)
+
+
+class ProgramSkill(TimeStampedModel):
+    """
+    Skills that will be learnt by taking the program.
+
+    .. no_pii:
+    """
+
+    program_uuid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        help_text=_('The uuid of the program whose title would be used for skill(s) extraction.')
+    )
+    skill = models.ForeignKey(
+        Skill,
+        blank=False,
+        null=False,
+        on_delete=models.deletion.CASCADE,
+        help_text=_(
+            'The ID of the skill extracted for the program.'
+        )
+    )
+    confidence = models.FloatField(
+        blank=False,
+        help_text=_(
+            'The extraction confidence threshold used for the skills extraction.'
+        )
+    )
+    is_blacklisted = models.BooleanField(
+        help_text=_('Blacklist this program skill, useful to handle false positives.'),
+        default=False,
+    )
+
+    class Meta:
+        """
+        Meta configuration for ProgramSkills model.
+        """
+
+        verbose_name = 'Program Skill'
+        verbose_name_plural = 'Program Skills'
+        ordering = ('created', )
+        app_label = 'taxonomy'
+        unique_together = ('program_uuid', 'skill')
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<ProgramSkill name="{}" program_uuid="{}">'.format(self.skill.name, self.program_uuid)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<ProgramSkill id="{0}" skill="{1!r}">'.format(self.id, self.skill)
 
 
 class RefreshCourseSkillsConfig(SingletonModel):
