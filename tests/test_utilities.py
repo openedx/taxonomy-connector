@@ -192,12 +192,20 @@ class TestUtils(TaxonomyTestCase):
         """
         Validate that `get_whitelisted_serialized_skills` returns serialized skills in expected format.
         """
-        factories.CourseSkillsFactory.create_batch(2, course_key=COURSE_KEY, is_blacklisted=False)
+        factories.CourseSkillsFactory.create_batch(
+            2,
+            course_key=COURSE_KEY,
+            is_blacklisted=False,
+            skill__category=None,
+            skill__subcategory=None
+        )
         expected_skills = utils.get_whitelisted_course_skills(course_key=COURSE_KEY)
         expected_serialized_skills = [
             {
                 'name': expected_skill.skill.name,
-                'description': expected_skill.skill.description
+                'description': expected_skill.skill.description,
+                'category': None,
+                'subcategory': None,
             } for expected_skill in expected_skills
         ]
 
@@ -521,3 +529,58 @@ class TestUtils(TaxonomyTestCase):
 
         # it should be called after every 5 requests made to EMSI
         assert time_sleep_mock.call_count == 2
+
+    def test_get_whitelisted_serialized_skills_with_category_details(self):
+        """
+        Validate that `get_whitelisted_serialized_skills` returns serialized skills with category
+        and subcategory information in expected format.
+        """
+        skill_category = factories.SkillCategoryFactory(name='Category 1')
+        skill_subcategory = factories.SkillSubCategoryFactory(
+            name='Subcategory 1',
+            category=skill_category
+        )
+        for count in range(3):
+            skill = factories.SkillFactory(
+                name=f'Skill {count + 1}',
+                description=f'Skill {count + 1}',
+                category=skill_category if count % 2 == 0 else None,  # do not add category for other skill
+                subcategory=skill_subcategory,
+            )
+            factories.CourseSkillsFactory(
+                skill=skill,
+                course_key=COURSE_KEY,
+                is_blacklisted=False
+            )
+        category_data = {
+            'category': {
+                'name': 'Category 1'
+            },
+            'subcategory': {
+                'name': 'Subcategory 1',
+                'category': {
+                    'name': 'Category 1'
+                },
+            }}
+        expected_data = [
+            {
+                'name': 'Skill 1',
+                'description': 'Skill 1',
+                **category_data
+            },
+            {
+                'name': 'Skill 2',
+                'description': 'Skill 2',
+                **category_data,
+                'category': None,
+            },
+            {
+                'name': 'Skill 3',
+                'description': 'Skill 3',
+                **category_data
+            },
+        ]
+        skill_details = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+
+        assert len(skill_details) == 3  # Skill 2 with missing category is not present in the results
+        assert skill_details == expected_data

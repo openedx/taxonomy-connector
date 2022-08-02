@@ -12,12 +12,12 @@ Change Log
 .. There should always be an "Unreleased" section for changes pending release.
 
 Unreleased
----------------------
+--------------------
 
-[1.18.0] - 2022-07-29
+[1.18.0] - 2022-08-01
 ---------------------
-
-* feat: feat: add program skill model
+* feat: add program skill model
+* feat: Update SkillSerializer to include Category and Subcategory details.
 
 [1.17.1] - 2022-07-29
 ---------------------
