@@ -58,6 +58,7 @@ EMSI_CLIENT_ID = 'test-client'
 EMSI_CLIENT_SECRET = 'test-secret'
 
 TAXONOMY_COURSE_METADATA_PROVIDER = 'test_utils.providers.DiscoveryCourseMetadataProvider'
+TAXONOMY_PROGRAM_PROVIDER = 'test_utils.providers.DiscoveryProgramProvider'
 
 ### CELERY
 

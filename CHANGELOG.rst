@@ -12,7 +12,10 @@ Change Log
 .. There should always be an "Unreleased" section for changes pending release.
 
 Unreleased
---------------------
+
+[1.19.0] - 2022-08-04
+---------------------
+* feat: add provider and validator for Programs
 
 [1.18.0] - 2022-08-01
 ---------------------

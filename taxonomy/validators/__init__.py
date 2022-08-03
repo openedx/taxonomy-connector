@@ -4,3 +4,4 @@ Expose all the validators.
 """
 
 from taxonomy.validators.course_metadata import CourseMetadataProviderValidator
+from taxonomy.validators.program import ProgramProviderValidator
