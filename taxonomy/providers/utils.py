@@ -22,11 +22,11 @@ def get_course_metadata_provider(*args, **kwargs):
     return import_string(settings.TAXONOMY_COURSE_METADATA_PROVIDER)(*args, **kwargs)
 
 
-def get_program_provider(*args, **kwargs):
+def get_program_metadata_provider(*args, **kwargs):
     """
-    Load and return an instance of program provider.
+    Load and return an instance of program metadata provider.
 
-    Load program provider class through `TAXONOMY_PROGRAM_PROVIDER`, instantiate it using
+    Load program provider class through `TAXONOMY_PROGRAM_METADATA_PROVIDER`, instantiate it using
     the `*args` and `**kwargs` provided in the function arguments and return the instance.
     """
-    return import_string(settings.TAXONOMY_PROGRAM_PROVIDER)(*args, **kwargs)
+    return import_string(settings.TAXONOMY_PROGRAM_METADATA_PROVIDER)(*args, **kwargs)

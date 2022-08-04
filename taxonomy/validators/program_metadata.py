@@ -4,28 +4,28 @@ Validator for course metadata provider.
 
 All host platform must run this validator to make sure providers are working as expected.
 """
-from taxonomy.providers.utils import get_program_provider
+from taxonomy.providers.utils import get_program_metadata_provider
 
 
-class ProgramProviderValidator:
+class ProgramMetadataProviderValidator:
     """
-    Validate that the interface requirement for program provider matches with the implementation.
+    Validate that the interface requirement for program metadata provider matches with the implementation.
     """
 
     def __init__(self, test_programs):
         """
-        Setup an instance of program provider.
+        Setup an instance of program metadata provider.
 
         Since, these tests will run inside host application, list of test courses will also provided by the host.
         Args:
             test_programs (list<str>): List of program UUIDs in the form of string.
         """
         self.test_programs = test_programs
-        self.program_provider = get_program_provider()
+        self.program_metadata_provider = get_program_metadata_provider()
 
     def validate(self):
         """
-        Validate ProgramProvider implements the interface as expected.
+        Validate ProgramMetadataProvider implements the interface as expected.
 
         Note: This is the only method that host platform will call,
         this method is responsible for calling the rest of the validation functions.
@@ -37,7 +37,7 @@ class ProgramProviderValidator:
         """
         Validate `get_programs` methods has the correct interface implemented.
         """
-        programs = self.program_provider.get_programs(self.test_programs)
+        programs = self.program_metadata_provider.get_programs(self.test_programs)
 
         assert len(programs) == len(self.test_programs)
 
@@ -51,7 +51,7 @@ class ProgramProviderValidator:
         """
         Validate `get_all_programs` methods has the correct interface implemented.
         """
-        programs = self.program_provider.get_all_programs()
+        programs = self.program_metadata_provider.get_all_programs()
 
         for program in programs:
             assert 'uuid' in program

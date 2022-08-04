@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Abstract base class for program providers.
+Abstract base class for program metadata providers.
 
 All host platform must implement this provider in order for taxonomy to work.
 """
 from abc import abstractmethod
 
 
-class ProgramProvider:
+class ProgramMetadataProvider:
     """
     Abstract base class for program providers.
 

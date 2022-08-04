@@ -3,7 +3,7 @@
 An implementation of providers to be used in tests.
 """
 
-from taxonomy.providers import CourseMetadataProvider, ProgramProvider
+from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider
 from test_utils.mocks import MockCourse, MockProgram
 
 
@@ -51,16 +51,16 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
             }
 
 
-class DiscoveryProgramProvider(ProgramProvider):
+class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
     """
-    Discovery program provider to be used in the tests.
+    Discovery program metadata provider to be used in the tests.
     """
 
     def __init__(self, mock_programs=None):
         """
         Initialize with mocked courses.
         """
-        super(DiscoveryProgramProvider, self).__init__()
+        super(DiscoveryProgramMetadataProvider, self).__init__()
         self.mock_programs = mock_programs
 
     def get_programs(self, program_ids):
