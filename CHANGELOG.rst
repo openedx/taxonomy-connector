@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.19.1] - 2022-08-05
+---------------------
+* fix: update version in taxonomy init
+
 [1.19.0] - 2022-08-04
 ---------------------
 * feat: add provider and validator for Programs
