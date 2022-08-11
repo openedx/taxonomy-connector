@@ -5,6 +5,8 @@ import ddt
 import mock
 from pytest import fixture, mark
 
+from edx_django_utils.cache import TieredCache
+
 from taxonomy import models, utils
 from taxonomy.constants import ENGLISH
 from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
@@ -29,6 +31,7 @@ class TestUtils(TaxonomyTestCase):
         """
         super(TestUtils, self).setUp()
         self.skill = factories.SkillFactory()
+        TieredCache.dangerous_clear_all_tiers()
 
     @fixture(autouse=True)
     def setup(self, django_assert_num_queries):
@@ -211,6 +214,25 @@ class TestUtils(TaxonomyTestCase):
 
         actual_serialized_skills = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
         assert actual_serialized_skills == expected_serialized_skills
+
+    def test_get_whitelisted_serialized_skills_cache_hit(self):
+        """
+        Validate that a cached result is returned on subsequent invocations of
+        `get_whitelisted_serialized_skills()`.
+        """
+        factories.CourseSkillsFactory.create_batch(
+            2,
+            course_key=COURSE_KEY,
+            is_blacklisted=False,
+            skill__category=None,
+            skill__subcategory=None
+        )
+        serialized_skills_first_result = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+
+        with mock.patch('taxonomy.utils.get_whitelisted_course_skills') as mock_get_course_skills:
+            serialized_skills_next_result = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+            self.assertEqual(serialized_skills_first_result, serialized_skills_next_result)
+            self.assertFalse(mock_get_course_skills.called)
 
     def test_get_course_jobs(self):
         """

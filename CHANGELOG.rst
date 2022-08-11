@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.20.0] - 2022-08-11
+---------------------
+* feat: add caching to ``utils.get_whitelisted_serialized_skills()``
+
 [1.19.0] - 2022-08-04
 ---------------------
 * feat: add provider and validator for Programs
