@@ -59,7 +59,7 @@ requirements: ## install development environment requirements
 	pip-sync requirements/dev.txt
 
 test: clean ## run tests in the current virtualenv
-	pytest
+	DJANGO_SETTINGS_MODULE=test_settings pytest
 
 diff_cover: test ## find diff lines that need test coverage
 	diff-cover coverage.xml

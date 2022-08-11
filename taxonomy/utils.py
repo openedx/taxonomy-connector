@@ -6,6 +6,8 @@ import time
 import boto3
 
 from bs4 import BeautifulSoup
+from edx_django_utils.cache import get_cache_key, TieredCache
+
 from taxonomy.constants import (
     AMAZON_TRANSLATION_ALLOWED_SIZE,
     AUTO,
@@ -20,6 +22,7 @@ from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
+CACHE_TIMEOUT_COURSE_SKILLS_SECONDS = 60 * 60
 
 
 def get_whitelisted_serialized_skills(course_key):
@@ -34,10 +37,20 @@ def get_whitelisted_serialized_skills(course_key):
             1.  name: 'Skill name'
             2. description: "Skill Description"
     """
+    cache_key = get_cache_key(domain='taxonomy', subdomain='course_skills', course_key=course_key)
+    cached_response = TieredCache.get_cached_response(cache_key)
+    if cached_response.is_found:
+        return cached_response.value
+
     course_skills = get_whitelisted_course_skills(course_key)
     skills = [course_skill.skill for course_skill in course_skills]
-    serializer = SkillSerializer(skills, many=True)
-    return serializer.data
+    skills_data = SkillSerializer(skills, many=True).data
+    TieredCache.set_all_tiers(
+        cache_key,
+        skills_data,
+        django_cache_timeout=CACHE_TIMEOUT_COURSE_SKILLS_SECONDS,
+    )
+    return skills_data
 
 
 def update_skills_data(course_key, skill_external_id, confidence, skill_data):
