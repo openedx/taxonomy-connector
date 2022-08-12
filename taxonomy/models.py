@@ -246,6 +246,40 @@ class RefreshCourseSkillsConfig(SingletonModel):
         return '<RefreshCourseSkillsConfig id="{}">'.format(self.id)
 
 
+class RefreshProgramSkillsConfig(SingletonModel):
+    """
+    Configuration for the refresh_program_skills management command.
+
+    .. no_pii:
+    """
+
+    class Meta:
+        """
+        Meta configuration for RefreshProgramSkillsConfig model.
+        """
+
+        app_label = 'taxonomy'
+        verbose_name = 'refresh_program_skills argument'
+
+    arguments = models.TextField(
+        blank=True,
+        help_text='Useful for manually running a Jenkins job. Specify like "--program=uuid --program=uuid".',
+        default='',
+    )
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<RefreshProgramSkillsConfig arguments="{}">'.format(self.arguments)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<RefreshProgramSkillsConfig id="{}">'.format(self.id)
+
+
 class Job(TimeStampedModel):
     """
     Jobs available.

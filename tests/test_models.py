@@ -177,14 +177,68 @@ class TestSkillCategory(TestCase):
 
 
 @mark.django_db
-class TestSkillSubCategory(TestCase):
+class TestRefreshProgramSkillConfig(TestCase):
+    """
+    Tests for the ``RefreshProgramSkillConfig`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the RefreshProgramSkillConfig model.
+        """
+        program_skill_config = factories.RefreshProgramSkillsConfigFactory()
+        expected_str = '<RefreshProgramSkillsConfig arguments="{}">'.format(program_skill_config.arguments)
+        expected_repr = '<RefreshProgramSkillsConfig id="{}">'.format(program_skill_config.id)
+
+        assert expected_str == program_skill_config.__str__()
+        assert expected_repr == program_skill_config.__repr__()
+
+
+@mark.django_db
+class TestRefreshCourseSkillConfig(TestCase):
+    """
+    Tests for the ``RefreshCourseSkillConfig`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the RefreshCourseSkillConfig model.
+        """
+        course_skill_config = factories.RefreshCourseSkillsConfigFactory()
+        expected_str = '<RefreshCourseSkillsConfig arguments="{}">'.format(course_skill_config.arguments)
+        expected_repr = '<RefreshCourseSkillsConfig id="{}">'.format(course_skill_config.id)
+
+        assert expected_str == course_skill_config.__str__()
+        assert expected_repr == course_skill_config.__repr__()
+
+
+@mark.django_db
+class TestJob(TestCase):
+    """
+    Tests for the ``Job`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the Job model.
+        """
+        job = factories.JobFactory()
+        expected_str = '<Job title={}>'.format(job.name)
+        expected_repr = '<Job id="{}" name="{}" external_id="{}" >'.format(job.id, job.name, job.external_id)
+
+        assert expected_str == job.__str__()
+        assert expected_repr == job.__repr__()
+
+
+@mark.django_db
+class TestSkillSubCategoryFactory(TestCase):
     """
     Tests for the ``SkillSubCategory`` model.
     """
 
     def test_string_representation(self):
         """
-        Test the string representation of the SkillSubCategory model.
+        Test the string representation of the Job model.
         """
         skill_sub_category = factories.SkillSubCategoryFactory()
         expected_str = '<SkillSubCategory id="{}" name="{}" category="{}">'.format(

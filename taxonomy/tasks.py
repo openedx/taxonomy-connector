@@ -24,7 +24,7 @@ def update_course_skills(course_uuids):
     LOGGER.info('[TAXONOMY] refresh_course_skills task triggered')
     courses = get_course_metadata_provider().get_courses(course_ids=course_uuids)
     if courses:
-        utils.refresh_course_skills(courses, should_commit_to_db=True)
+        utils.refresh_product_skills(courses, True, 'Course')
     else:
         LOGGER.warning('[TAXONOMY] No course found with uuids [%d] to update skills.', course_uuids)
 
@@ -40,6 +40,6 @@ def update_program_skills(program_uuids):
     LOGGER.info('[TAXONOMY] refresh_program_skills task triggered')
     programs = get_program_metadata_provider().get_programs(program_ids=program_uuids)
     if programs:
-        utils.refresh_program_skills(programs, should_commit_to_db=True)
+        utils.refresh_product_skills(programs, True, 'Program')
     else:
         LOGGER.warning('[TAXONOMY] No program found with uuids [%d] to update skills.', program_uuids)

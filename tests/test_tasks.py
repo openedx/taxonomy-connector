@@ -58,7 +58,7 @@ class TaxonomyTasksTests(unittest.TestCase):
     @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_product_skills')
     def test_update_course_skills_task_with_no_course_found(self, get_course_skills_mock, get_course_provider_mock):
         """
-        Verify that `update_course_skills` task work as expected.
+        Verify that `update_skills` task work as expected.
         """
         get_course_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([])

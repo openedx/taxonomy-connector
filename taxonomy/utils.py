@@ -18,7 +18,7 @@ from taxonomy.constants import (
 )
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, JobSkills, Skill, Translation, ProgramSkill
+from taxonomy.models import CourseSkills, ProgramSkill, JobSkills, Skill, Translation
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -53,51 +53,56 @@ def get_whitelisted_serialized_skills(course_key):
     return skills_data
 
 
-def update_course_skills_data(course_key, skill_external_id, confidence, skill_data):
+def get_product_identifier(product_type):
     """
-    Persist the course skills data in the database.
+    Return the identifier of a Product Model from Discovery.
+    """
+    identifier = None
+    if product_type == 'Program':
+        identifier = 'uuid'
+    elif product_type == 'Course':
+        identifier = 'key'
+
+    return identifier
+
+
+def get_product_skill_model_and_identifier(product_type):
+    """
+    Return the Skill Model along with its identifier based on product type.
+    """
+    return (ProgramSkill, 'program_uuid') if product_type == 'Program' else (CourseSkills, 'course_key')
+
+
+def update_skills_data(key_or_uuid, skill_external_id, confidence, skill_data, product_type):
+    """
+    Persist the skills data in the database either for Program or Course.
     """
     skill, __ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
-
-    if not is_course_skill_blacklisted(course_key, skill.id):
-        CourseSkills.objects.update_or_create(
-            course_key=course_key,
-            skill=skill,
-            defaults={
-                'confidence': confidence,
-            },
-        )
-
-
-def update_program_skills_data(program_uuid, skill_external_id, confidence, skill_data):
-    """
-    Persist the program skills data in the database.
-    """
-    skill, __ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
-
-    if not is_program_skill_blacklisted(program_uuid, skill.id):
-        _, created = ProgramSkill.objects.update_or_create(
-            program_uuid=program_uuid,
-            skill=skill,
-            defaults={
-                'confidence': confidence,
-            },
-        )
+    skill_model, identifier = get_product_skill_model_and_identifier(product_type)
+    kwargs = {
+        identifier: key_or_uuid,
+        'skill': skill,
+        'confidence': confidence
+    }
+    if not is_skill_blacklisted(key_or_uuid, skill.id, product_type):
+        _, created = skill_model.objects.update_or_create(**kwargs)
         action = 'created' if created else 'updated'
-        LOGGER.error(f'ProgramSkill {action} for program_uuid {program_uuid}')
+        LOGGER.error(f'{skill_model} {action} for key {key_or_uuid}')
 
 
-def process_course_skills_data(course, course_skills, should_commit_to_db):
+def process_skills_data(product, skills, should_commit_to_db, product_type):
     """
-    Process course skills data returned by the EMSI service and update databased.
+    Process skills data returned by the EMSI service and update databased.
 
     Arguments:
-        course (dict): Dictionary containing course data whose skills are being processed.
-        course_skills (dict): Course skills data returned by the EMSI API.
+        product (dict): Dictionary containing course or program data whose skills are being processed.
+        skills (dict): Course or Program skills data returned by the EMSI API.
         should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
+        product_type (str): String indicating about the product type.
     """
     failures = []
-    for record in course_skills['data']:
+    key_or_uuid = get_product_identifier(product_type)
+    for record in skills['data']:
         try:
             confidence = float(record['confidence'])
             skill = record['skill']
@@ -110,161 +115,85 @@ def process_course_skills_data(course, course_skills, should_commit_to_db):
                 'description': skill['description']
             }
             if should_commit_to_db:
-                update_course_skills_data(course['key'], skill_external_id, confidence, skill_data)
+                update_skills_data(
+                    product[key_or_uuid], skill_external_id, confidence, skill_data, product_type
+                )
         except KeyError:
-            message = f'[TAXONOMY] Missing keys in skills data for course_key: {course["key"]}'
+            message = f'[TAXONOMY] Missing keys in skills data for key: {product[key_or_uuid]}'
             LOGGER.error(message)
-            failures.append((course['uuid'], message))
+            failures.append((product['uuid'], message))
         except (ValueError, TypeError):
-            message = f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {course["key"]}'
+            message = f'[TAXONOMY] Invalid type for `confidence` in skills for key: {product[key_or_uuid]}'
             LOGGER.error(message)
-            failures.append((course['uuid'], message))
+            failures.append((product[key_or_uuid], message))
     return failures
 
 
-def process_program_skills_data(program, program_skills, should_commit_to_db):
+def get_translation_attr(product_type):
     """
-    Process program skills data returned by the EMSI service and update databased.
-
-    Arguments:
-        program (dict): Dictionary containing program data whose skills are being processed.
-        program_skills (dict): Program skills data returned by the EMSI API.
-        should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
+    Return properties based on product type.
     """
-    failures = []
-    for record in program_skills['data']:
-        try:
-            confidence = float(record['confidence'])
-            skill = record['skill']
-            skill_external_id = skill['id']
-            skill_data = {
-                'name': skill['name'],
-                'info_url': skill['infoUrl'],
-                'type_id': skill['type']['id'],
-                'type_name': skill['type']['name'],
-                'description': skill['description']
-            }
-            if should_commit_to_db:
-                update_program_skills_data(program['uuid'], skill_external_id, confidence, skill_data)
-        except KeyError:
-            message = f'[TAXONOMY] Missing keys in skills data for program_uuid: {program["uuid"]}'
-            LOGGER.error(message)
-            failures.append((program['uuid'], message))
-        except (ValueError, TypeError):
-            message = f'[TAXONOMY] Invalid type for `confidence` in program skills for program_uuid: {program["uuid"]}'
-            LOGGER.error(message)
-            failures.append((program['uuid'], message))
-    return failures
+    return 'overview' if product_type == 'Program' else 'full_description'
 
 
-def refresh_course_skills(courses, should_commit_to_db):
+def refresh_product_skills(products, should_commit_to_db, product_type):
     """
-    Refresh the skills associated with the provided courses.
+    Refresh the skills associated with the provided products.
     """
     all_failures = []
-    success_courses_count = 0
-    skipped_courses_count = 0
+    success_count = 0
+    skipped_count = 0
+    skill_extraction_attr, key_or_uuid = get_translation_attr(product_type), get_product_identifier(product_type)
 
-    for index, course in enumerate(courses, start=1):
-        course_description = course['full_description']
-        if course_description:
-            course_translated_description = get_translated_course_description(course['key'], course_description)
+    client = EMSISkillsApiClient()
+
+    for index, product in enumerate(products, start=1):
+        skill_attr_val = product[skill_extraction_attr]
+        if skill_attr_val:
+            translated_skill_attr = get_translated_skill_attribute_val(
+                product[key_or_uuid], skill_attr_val, product_type
+            )
             try:
-                course_skills = get_emsi_skills_data(course_translated_description, index)
+                # EMSI only allows 5 requests/sec
+                # We need to add one sec delay after every 5 requests to prevent 429 errors
+                if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
+                    time.sleep(1)  # sleep for 1 second
+                skills = client.get_product_skills(translated_skill_attr)
             except TaxonomyAPIError:
-                message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
+                message = f'[TAXONOMY] API Error for key: {product[key_or_uuid]}'
                 LOGGER.error(message)
-                all_failures.append((course['uuid'], message))
+                all_failures.append((product['uuid'], message))
                 continue
 
             try:
-                failures = process_course_skills_data(course, course_skills, should_commit_to_db)
+                failures = process_skills_data(product, skills, should_commit_to_db, product_type)
                 if failures:
-                    LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
+                    LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
                     all_failures += failures
                 else:
-                    success_courses_count += 1
+                    success_count += 1
             except Exception as ex:  # pylint: disable=broad-except
-                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
-                message = f'[TAXONOMY] Exception for course_key: {course["key"]} Error: {ex}'
+                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
+                message = f'[TAXONOMY] Exception for key: {product[key_or_uuid]} Error: {ex}'
                 LOGGER.error(message)
-                all_failures.append((course['uuid'], message))
+                all_failures.append((product[key_or_uuid], message))
         else:
-            skipped_courses_count += 1
+            skipped_count += 1
 
     LOGGER.info(
-        '[TAXONOMY] Refresh course skills process completed. \n'
+        '[TAXONOMY] Refresh %s skills process completed. \n'
         'Failures: %s \n'
-        'Total Courses Updated Successfully: %s \n'
-        'Total Courses Skipped: %s \n'
+        'Total %s Updated Successfully: %s \n'
+        'Total %s Skipped: %s \n'
         'Total Failures: %s \n',
+        product_type,
         all_failures,
-        success_courses_count,
-        skipped_courses_count,
+        product_type,
+        success_count,
+        product_type,
+        skipped_count,
         len(all_failures),
     )
-
-
-def refresh_program_skills(programs, should_commit_to_db):
-    """
-    Refresh the skills associated with the provided programs.
-    """
-    all_failures = []
-    success_programs_count = 0
-    skipped_programs_count = 0
-
-    for index, program in enumerate(programs, start=1):
-        program_overview = program['overview']
-        if program_overview:
-            try:
-                program_skills = get_emsi_skills_data(program_overview, index)
-            except TaxonomyAPIError:
-                message = f'[TAXONOMY] API Error for program uuid: {program["uuid"]}'
-                LOGGER.error(message)
-                all_failures.append((program['uuid'], message))
-                continue
-
-            try:
-                failures = process_program_skills_data(program, program_skills, should_commit_to_db)
-                if failures:
-                    LOGGER.info(f'[TAXONOMY] Skills data received from EMSI. Skills: [{program_skills}]')
-                    all_failures += failures
-                else:
-                    success_programs_count += 1
-            except Exception as ex:  # pylint: disable=broad-except
-                LOGGER.info(f'[TAXONOMY] Skills data received from EMSI. Skills: [{program_skills}]')
-                message = f'[TAXONOMY] Exception for program uuid: {program["uuid"]} Error: {ex}'
-                LOGGER.error(message)
-                all_failures.append((program["uuid"], message))
-        else:
-            skipped_programs_count += 1
-
-    LOGGER.info(
-        '[TAXONOMY] Refresh program skills process completed. \n'
-        f'Failures: {all_failures} \n'
-        f'Total Programs Updated Successfully: {success_programs_count} \n'
-        f'Total Programs Skipped: {skipped_programs_count} \n'
-        f'Total Failures: {len(all_failures)} \n',
-    )
-
-
-def get_emsi_skills_data(text_data, index):
-    """
-    Call EMSI api to retrieve skills related to the product through EMSISkillsApiClient.
-
-    Arguments:
-        text_data (str): Product data as text, this is usually description in case of a course
-        or overview in case of a program.
-
-    Returns:
-        dict: A dictionary containing details of all the skills.
-    """
-    client = EMSISkillsApiClient()
-    # EMSI only allows 5 requests/sec
-    # We need to add one sec delay after every 5 requests to prevent 429 errors
-    if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
-        time.sleep(1)  # sleep for 1 second
-    return client.get_product_skills(text_data)
 
 
 def blacklist_course_skill(course_key, skill_id):
@@ -295,40 +224,25 @@ def remove_course_skill_from_blacklist(course_key, skill_id):
     ).update(is_blacklisted=False)
 
 
-def is_course_skill_blacklisted(course_key, skill_id):
+def is_skill_blacklisted(key_or_uuid, skill_id, product_type):
     """
-    Return the black listed status of a course skill.
+    Return the black listed status of a course or program skill.
 
     Arguments:
-        course_key (CourseKey): CourseKey object pointing to the course whose skill need to be checked.
+        key_or_uuid: CourseKey or ProgramUUID object pointing to the course or program whose skill need to be checked.
         skill_id (int): Primary key identifier of the skill that need to be checked.
+        is_programs(bool): Boolean indicating which Skill Model would be selected.
 
     Returns:
-        (bool): True if course-skill (identified by the arguments) is black-listed, False otherwise.
+        (bool): True if skill (identified by the arguments) is black-listed, False otherwise.
     """
-    return CourseSkills.objects.filter(
-        course_key=course_key,
-        skill_id=skill_id,
-        is_blacklisted=True,
-    ).exists()
-
-
-def is_program_skill_blacklisted(program_uuid, skill_id):
-    """
-    Return the black listed status of a program skill.
-
-    Arguments:
-        program_uuid: uuid of the program whose skill need to be checked.
-        skill_id (int): Primary key identifier of the skill that need to be checked.
-
-    Returns:
-        (bool): True if program-skill (identified by the arguments) is black-listed, False otherwise.
-    """
-    return ProgramSkill.objects.filter(
-        program_uuid=program_uuid,
-        skill_id=skill_id,
-        is_blacklisted=True,
-    ).exists()
+    skill_model, identifier = get_product_skill_model_and_identifier(product_type)
+    kwargs = {
+        identifier: key_or_uuid,
+        'skill_id': skill_id,
+        'is_blacklisted': True
+    }
+    return skill_model.objects.filter(**kwargs).exists()
 
 
 def get_whitelisted_course_skills(course_key, prefetch_skills=True):
@@ -396,64 +310,67 @@ def get_course_jobs(course_key):
     return data
 
 
-def get_translated_course_description(course_key, course_description):
+def get_translated_skill_attribute_val(key_or_uuid, skill_attr_val, product_type):
     """
-    Return translated course description.
+    Return translated skill attribute value either for a course or a program.
 
-    Create translation for course description if translation object doesn't already exist.
-     OR update translation if course description changed from previous description in translation and
-      return the translated course description.
+    Create translation for provided skill attribute if translation object doesn't already exist.
+     OR update translation if skill attribute changed from previous description in translation and
+      return the translated skill attribute.
 
     Arguments:
-        course_key (str): Key of the course whose description needs to be translated.
-        course_description (str): Full course description of the course which needs to be translated.
+        key_or_uuid (str): Key or uuid of the course or program needs to be translated.
+        skill_attr_val (str): Value of the skill attribute that needs to be translated.
+        product_type (str):
 
     Returns:
-        str: Translated full course description.
+        str: Translated skill attribute value.
     """
+    source_model_name, source_model_field = product_type, get_translation_attr(product_type)
+
     translation = Translation.objects.filter(
-        source_model_name='Course',
-        source_model_field='full_description',
-        source_record_identifier=course_key
+        source_model_name=source_model_name,
+        source_model_field=source_model_field,
+        source_record_identifier=key_or_uuid
     ).first()
     if translation:
-        if translation.source_text != course_description:
-            if (len(course_description.encode('utf-8'))) < AMAZON_TRANSLATION_ALLOWED_SIZE:
-                result = translate_text(course_key, course_description, AUTO, ENGLISH)
+        if translation.source_text != skill_attr_val:
+            if (len(skill_attr_val.encode('utf-8'))) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+                result = translate_text(key_or_uuid, skill_attr_val, AUTO, ENGLISH)
             else:
-                result = apply_batching_to_translate_large_text(course_key, course_description)
+                result = apply_batching_to_translate_large_text(key_or_uuid, skill_attr_val)
             if not result['TranslatedText']:
-                return course_description
+                return skill_attr_val
             if result['SourceLanguageCode'] == ENGLISH:
-                translation.translated_text = course_description
+                translation.translated_text = skill_attr_val
             else:
                 translation.translated_text = result['TranslatedText']
-            LOGGER.info(f'[TAXONOMY] Translate course description updated for key: {course_key}')
-            translation.source_text = course_description
+            LOGGER.info(f'[TAXONOMY] Translate {product_type} updated for key: {key_or_uuid}')
+            translation.source_text = skill_attr_val
             translation.source_language = result['SourceLanguageCode']
             translation.save()
         return translation.translated_text
-    if (len(course_description.encode('utf-8'))) < AMAZON_TRANSLATION_ALLOWED_SIZE:
-        result = translate_text(course_key, course_description, AUTO, ENGLISH)
+    if (len(skill_attr_val.encode('utf-8'))) < AMAZON_TRANSLATION_ALLOWED_SIZE:
+        result = translate_text(key_or_uuid, skill_attr_val, AUTO, ENGLISH)
     else:
-        result = apply_batching_to_translate_large_text(course_key, course_description)
+        result = apply_batching_to_translate_large_text(key_or_uuid, skill_attr_val)
     if not result['TranslatedText']:
-        return course_description
+        return skill_attr_val
     if result['SourceLanguageCode'] == ENGLISH:
-        translated_text = course_description
+        translated_text = skill_attr_val
     else:
         translated_text = result['TranslatedText']
 
     translation = Translation.objects.create(
-        source_model_name='Course',
-        source_model_field='full_description',
-        source_record_identifier=course_key,
-        source_text=course_description,
+        source_model_name=source_model_name,
+        source_model_field=source_model_field,
+        source_record_identifier=key_or_uuid,
+        source_text=skill_attr_val,
         translated_text=translated_text,
         translated_text_language=ENGLISH,
         source_language=result['SourceLanguageCode'],
     )
-    LOGGER.info(f'[TAXONOMY] Translate course description created for key: {course_key}')
+    LOGGER.info(f'[TAXONOMY] Translate {product_type} created for key: {key_or_uuid}')
     return translation.translated_text
 
 
@@ -480,18 +397,18 @@ def translate_text(key, text, source_language, target_language):
             TargetLanguageCode=target_language,
         )
     except Exception as ex:  # pylint: disable=broad-except
-        message = f'[TAXONOMY] Translate course description exception for key: {key} Error: {ex}'
+        message = f'[TAXONOMY] Translate (course description or program overview) exception for key: {key} Error: {ex}'
         LOGGER.exception(message)
 
     return result
 
 
-def apply_batching_to_translate_large_text(course_key, source_text):
+def apply_batching_to_translate_large_text(key, source_text):
     """
     Apply batching if text to translate is large and then combine it again.
 
     Arguments:
-        course_key (str): Key or id of the object to uniquely identify.
+        key (str): Key or id of the object to uniquely identify.
         source_text (str): Text which needs to be translated.
 
     Returns:
@@ -504,7 +421,7 @@ def apply_batching_to_translate_large_text(course_key, source_text):
     source_text_chunk = ''
     result = {}
     source_language_code = ''
-    LOGGER.info(f'[TAXONOMY] Translate course description applying batching for key: {course_key}')
+    LOGGER.info(f'[TAXONOMY] Translate (course description or program overview) applying batching for key: {key}')
 
     for sentence in sentences:
         # Translate expects utf-8 encoded input to be no more than
@@ -513,14 +430,14 @@ def apply_batching_to_translate_large_text(course_key, source_text):
         if len(sentence.encode('utf-8')) + len(source_text_chunk.encode('utf-8')) < AMAZON_TRANSLATION_ALLOWED_SIZE:
             source_text_chunk = '%s%s' % (source_text_chunk, sentence)
         else:
-            translation_chunk = translate_text(course_key, source_text_chunk, AUTO, ENGLISH)
+            translation_chunk = translate_text(key, source_text_chunk, AUTO, ENGLISH)
             translated_text = translated_text + translation_chunk['TranslatedText']
             source_text_chunk = sentence
             source_language_code = translation_chunk['SourceLanguageCode']
 
     # Translate the final chunk of input text
     if source_text_chunk:
-        translation_chunk = translate_text(course_key, source_text_chunk, AUTO, ENGLISH)
+        translation_chunk = translate_text(key, source_text_chunk, AUTO, ENGLISH)
         translated_text = translated_text + translation_chunk['TranslatedText']
         source_language_code = translation_chunk['SourceLanguageCode']
     # bs4 adds /r/n which needs to be removed for consistency.

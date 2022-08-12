@@ -11,12 +11,48 @@ from faker import Faker
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
-    SkillsQuiz
+    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig,
 )
 from taxonomy.choices import UserGoal
 
 FAKER = FakerFactory.create()
 FAKER_OBJECT = Faker()
+
+
+# pylint: disable=no-member, invalid-name
+class RefreshProgramSkillsConfigFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for RefreshProgramSkillsConfig model.
+    """
+
+    class Meta:
+        """
+        Meta for ``RefreshProgramSkillsConfig``.
+        """
+
+        model = RefreshProgramSkillsConfig
+        django_get_or_create = ('id',)
+
+    id = factory.Sequence(lambda n: n)
+    arguments = factory.LazyAttribute(lambda x: FAKER.word())
+
+
+# pylint: disable=no-member, invalid-name
+class RefreshCourseSkillsConfigFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for RefreshCourseSkillsConfig model.
+    """
+
+    class Meta:
+        """
+        Meta for ``RefreshCourseSkillsConfig``.
+        """
+
+        model = RefreshCourseSkillsConfig
+        django_get_or_create = ('id',)
+
+    id = factory.Sequence(lambda n: n)
+    arguments = factory.LazyAttribute(lambda x: FAKER.word())
 
 
 # pylint: disable=no-member, invalid-name

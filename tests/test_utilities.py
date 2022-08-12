@@ -75,22 +75,24 @@ class TestUtils(TaxonomyTestCase):
         """
         # Create a Black listed course skill.
         factories.CourseSkillsFactory(course_key=COURSE_KEY, skill_id=self.skill.id, is_blacklisted=True)
+        product_type = 'Course'
 
-        assert utils.is_course_skill_blacklisted(COURSE_KEY, self.skill.id) is True
-        assert utils.is_course_skill_blacklisted(COURSE_KEY, 0) is not True
-        assert utils.is_course_skill_blacklisted('invalid+course-key', self.skill.id) is not True
+        assert utils.is_skill_blacklisted(COURSE_KEY, self.skill.id, product_type) is True
+        assert utils.is_skill_blacklisted(COURSE_KEY, 0, product_type) is not True
+        assert utils.is_skill_blacklisted('invalid+course-key', self.skill.id, product_type) is not True
 
         skill = factories.SkillFactory()
-        assert utils.is_course_skill_blacklisted(COURSE_KEY, skill.id) is not True
+        assert utils.is_skill_blacklisted(COURSE_KEY, skill.id, product_type) is not True
 
     def test_update_course_skills_data(self):
         """
-        Validate that update_course_skills_data works as expected.
+        Validate that update_product_skills_data works as expected.
         """
         black_listed_course_skill = factories.CourseSkillsFactory(course_key=COURSE_KEY, is_blacklisted=True)
         skills_count = Skill.objects.count()
-        utils.update_course_skills_data(
-            course_key=COURSE_KEY,
+        product_type = 'Course'
+        utils.update_skills_data(
+            key_or_uuid=COURSE_KEY,
             skill_external_id=black_listed_course_skill.skill.external_id,
             confidence=black_listed_course_skill.confidence,
             skill_data={
@@ -99,29 +101,35 @@ class TestUtils(TaxonomyTestCase):
                 'type_id': black_listed_course_skill.skill.type_id,
                 'type_name': black_listed_course_skill.skill.type_name,
                 'description': black_listed_course_skill.skill.description
-            }
+            },
+            product_type=product_type
         )
 
+        updated_name = 'new_name'
+        updated_info_url = 'new_url'
+        updated_type_id = '1'
+        updated_type_name = 'new_type'
+        updated_description = 'new description'
         skill_data = {
-            'name': 'new_name',
-            'info_url': 'new_url',
-            'type_id': '1',
-            'type_name': 'new_type',
-            'description': 'new description',
+            'name': updated_name,
+            'info_url': updated_info_url,
+            'type_id': updated_type_id,
+            'type_name': updated_type_name,
+            'description': updated_description
         }
-
-        utils.update_course_skills_data(
-            course_key=COURSE_KEY,
+        utils.update_skills_data(
+            key_or_uuid=COURSE_KEY,
             skill_external_id=self.skill.external_id,
             confidence=0.9,
-            skill_data=skill_data
+            skill_data=skill_data,
+            product_type=product_type
         )
 
         # make sure no new `Skill` object created.
         assert Skill.objects.count() == skills_count
 
         # Make sure `CourseSkills` is no removed from the blacklist.
-        assert utils.is_course_skill_blacklisted(COURSE_KEY, black_listed_course_skill.skill.id) is True
+        assert utils.is_skill_blacklisted(COURSE_KEY, black_listed_course_skill.skill.id, product_type) is True
         course_skill = models.CourseSkills.objects.get(
             course_key=COURSE_KEY,
             skill=black_listed_course_skill.skill,
@@ -129,7 +137,7 @@ class TestUtils(TaxonomyTestCase):
         assert course_skill.is_blacklisted is True
 
         # Make sure that skill that was not black listed is added with no issues.
-        assert utils.is_course_skill_blacklisted(COURSE_KEY, self.skill.id) is False
+        assert utils.is_skill_blacklisted(COURSE_KEY, self.skill.id, product_type) is False
         assert models.CourseSkills.objects.filter(
             course_key=COURSE_KEY,
             skill=self.skill,
@@ -150,8 +158,9 @@ class TestUtils(TaxonomyTestCase):
         """
         black_listed_program_skill = factories.ProgramSkillFactory(program_uuid=PROGRAM_UUID, is_blacklisted=True)
         skills_count = Skill.objects.count()
-        utils.update_program_skills_data(
-            program_uuid=PROGRAM_UUID,
+        product_type = 'Program'
+        utils.update_skills_data(
+            key_or_uuid=PROGRAM_UUID,
             skill_external_id=black_listed_program_skill.skill.external_id,
             confidence=black_listed_program_skill.confidence,
             skill_data={
@@ -160,7 +169,8 @@ class TestUtils(TaxonomyTestCase):
                 'type_id': black_listed_program_skill.skill.type_id,
                 'type_name': black_listed_program_skill.skill.type_name,
                 'description': black_listed_program_skill.skill.description
-            }
+            },
+            product_type=product_type
         )
 
         skill_data = {
@@ -170,18 +180,19 @@ class TestUtils(TaxonomyTestCase):
             'type_name': 'new_type',
             'description': 'new description'
         }
-        utils.update_program_skills_data(
-            program_uuid=PROGRAM_UUID,
+        utils.update_skills_data(
+            key_or_uuid=PROGRAM_UUID,
             skill_external_id=self.skill.external_id,
             confidence=0.9,
-            skill_data=skill_data
+            skill_data=skill_data,
+            product_type=product_type
         )
 
         # make sure no new `Skill` object created.
         assert Skill.objects.count() == skills_count
 
-        # Make sure `ProgramSkill` is no removed from the blacklist.
-        assert utils.is_program_skill_blacklisted(PROGRAM_UUID, black_listed_program_skill.skill.id) is True
+        # Make sure `ProgramSkill` is not removed from the blacklist.
+        assert utils.is_skill_blacklisted(PROGRAM_UUID, black_listed_program_skill.skill.id, product_type) is True
         program_skill = models.ProgramSkill.objects.get(
             program_uuid=PROGRAM_UUID,
             skill=black_listed_program_skill.skill,
@@ -189,7 +200,7 @@ class TestUtils(TaxonomyTestCase):
         assert program_skill.is_blacklisted is True
 
         # Make sure that skill that was not black listed is added with no issues.
-        assert utils.is_program_skill_blacklisted(PROGRAM_UUID, self.skill.id) is False
+        assert utils.is_skill_blacklisted(PROGRAM_UUID, self.skill.id, product_type) is False
         assert models.ProgramSkill.objects.filter(
             program_uuid=PROGRAM_UUID,
             skill=self.skill,
@@ -211,23 +222,25 @@ class TestUtils(TaxonomyTestCase):
         sample_skill_data = copy.deepcopy({'data': [SKILLS_EMSI_CLIENT_RESPONSE['data'][0]]})
         del sample_skill_data['data'][0]['skill']['id']
         program = {'uuid': 'test-uuid'}
+        product_type = 'Program'
 
-        failures = utils.process_program_skills_data(program, sample_skill_data, False)
+        failures = utils.process_skills_data(program, sample_skill_data, False, product_type)
         assert len(failures) == 1
-        assert failures[0] == ('test-uuid', '[TAXONOMY] Missing keys in skills data for program_uuid: test-uuid')
+        assert failures[0] == ('test-uuid', '[TAXONOMY] Missing keys in skills data for key: test-uuid')
 
     def test_process_program_skills_data_invalid_confidence(self):
         """
-        Validate that process_course_skills_data fails on having an invalid confidence field in ProgramSkills.
+        Validate that process_skills_data fails on having an invalid confidence field in ProgramSkills.
         """
         sample_skill_data = copy.deepcopy({'data': [SKILLS_EMSI_CLIENT_RESPONSE['data'][0]]})
         sample_skill_data['data'][0]['confidence'] = 'invalid-value'
         program = {'uuid': 'test-uuid'}
+        product_type = 'Program'
 
-        failures = utils.process_program_skills_data(program, sample_skill_data, False)
+        failures = utils.process_skills_data(program, sample_skill_data, False, product_type)
         assert len(failures) == 1
         assert failures[0] == ('test-uuid',
-                               '[TAXONOMY] Invalid type for `confidence` in program skills for program_uuid: test-uuid')
+                               '[TAXONOMY] Invalid type for `confidence` in skills for key: test-uuid')
 
     def test_get_course_skills(self):
         """
@@ -351,7 +364,7 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_with_updated_description_and_eng_lang(self, translate_mocked):
         """
-        Validate that `get_translated_course_description` updates Translation object if
+        Validate that `get_translated_skill_attribute_val` updates Translation object if
          course description changes. Also verify that if source language is ENGLISH,
          than keep the original text in source and translated text field.
         """
@@ -360,6 +373,7 @@ class TestUtils(TaxonomyTestCase):
 
         new_course_description = "ghi jkl"
         new_translation = "translated text new"
+        product_type = 'Course'
         translate_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
             'TranslatedText': new_translation
@@ -367,16 +381,18 @@ class TestUtils(TaxonomyTestCase):
         factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
             source_model_field='full_description',
-            source_model_name='Course',
+            source_model_name=product_type,
             source_text=existing_course_description,
             translated_text=existing_translation,
             translated_text_language=ENGLISH,
             source_language=ENGLISH,
         )
 
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, new_course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, new_course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -388,7 +404,7 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_with_updated_description_and_non_eng_lang(self, translate_text_mocked):
         """
-        Validate that `get_translated_course_description` updates Translation object if
+        Validate that `get_translated_skill_attribute_val` updates Translation object if
          course description changes. Also verify that if source language is NON-ENGLISH,
          than update the translated text field.
         """
@@ -397,6 +413,8 @@ class TestUtils(TaxonomyTestCase):
 
         new_course_description = "ghi jkl"
         new_translation = "translated text new"
+        product_type = 'Course'
+
         translate_text_mocked.return_value = {
             'SourceLanguageCode': 'AR',
             'TranslatedText': new_translation
@@ -404,15 +422,17 @@ class TestUtils(TaxonomyTestCase):
         factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
             source_model_field='full_description',
-            source_model_name='Course',
+            source_model_name=product_type,
             source_text=existing_course_description,
             translated_text=existing_translation,
             translated_text_language=ENGLISH,
             source_language=ENGLISH,
         )
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, new_course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, new_course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -428,6 +448,7 @@ class TestUtils(TaxonomyTestCase):
          and updates Translation object.
         """
         course_description = "abc def"
+        product_type = 'Course'
         translated_course_description = "different text"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
@@ -436,16 +457,18 @@ class TestUtils(TaxonomyTestCase):
         trans = factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
             source_model_field='full_description',
-            source_model_name='Course',
+            source_model_name=product_type,
             source_text=course_description,
             translated_text=translated_course_description,
             translated_text_language=ENGLISH,
             source_language=ENGLISH,
         )
 
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).exists()
@@ -457,12 +480,15 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_error_for_new_record(self, translate_text_mocked):
         """
-        Validate that `get_translated_course_description` returns actual course_description
+        Validate that `get_translated_skill_attribute_val` returns actual course_description
          if translate_text method returns None and does not create Translation object.
         """
         course_description = "abc def"
+        product_type = 'Course'
         translate_text_mocked.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, course_description, product_type
+        )
         translation_record = Translation.objects.filter(
             source_model_name='Course',
             source_model_field='full_description',
@@ -481,6 +507,7 @@ class TestUtils(TaxonomyTestCase):
         translate_text_mocked.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
         course_description = "abc def"
         new_course_description = "jhi qlm"
+        product_type = 'Course'
         translated_course_description = "different text"
         trans = factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
@@ -492,7 +519,9 @@ class TestUtils(TaxonomyTestCase):
             source_language=ENGLISH,
         )
 
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, new_course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, new_course_description, product_type
+        )
         translation_record = Translation.objects.filter(
             source_model_name='Course',
             source_model_field='full_description',
@@ -507,18 +536,21 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_success_for_new_record(self, translate_text_mocked):
         """
-        Validate that `get_translated_course_description` created Translation object if not already
+        Validate that `get_translated_skill_attribute_val` created Translation object if not already
         exist with the translated course description.
         """
         course_description = "abc def"
+        product_type = 'Course'
         translated_course_description = "different text"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
             'TranslatedText': translated_course_description,
         }
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -530,18 +562,21 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_success_for_new_record_and_non_eng_lang(self, translate_text_mocked):
         """
-        Validate that `get_translated_course_description` created Translation object if not already
+        Validate that `get_translated_skill_attribute_val` created Translation object if not already
         exist with the translated course description.
         """
         course_description = "abc def"
+        product_type = 'Course'
         translated_course_description = "different text"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': 'AR',
             'TranslatedText': translated_course_description,
         }
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -554,18 +589,21 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_success_for_new_record_with_large_text(self, translate_text_mocked):
         """
-        Validate that `get_translated_course_description` created Translation object if not already
+        Validate that `get_translated_skill_attribute_val` created Translation object if not already
         exist with the translated course description.
         """
         course_description = "<p>abc</p><span>def</span><br/><p>ghi</p>"
+        product_type = 'Course'
         translated_course_description = "<p>abc</p><span>def</span><br/><p>ghi</p>"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
             'TranslatedText': translated_course_description,
         }
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -578,7 +616,7 @@ class TestUtils(TaxonomyTestCase):
     @mock.patch('taxonomy.utils.translate_text')
     def test_get_translated_course_description_with_updated_description_and_large_text(self, translate_mocked):
         """
-        Validate that `get_translated_course_description` updates Translation object if
+        Validate that `get_translated_skill_attribute_val` updates Translation object if
          course description changes. Also verify that if source language is ENGLISH,
          than keep the original text in source and translated text field.
         """
@@ -587,6 +625,7 @@ class TestUtils(TaxonomyTestCase):
 
         new_course_description = "<p>abc</p><span>def</span>"
         new_translation = "<p>abc</p><span>def</span>"
+        product_type = 'Course'
         translate_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
             'TranslatedText': new_translation
@@ -594,16 +633,18 @@ class TestUtils(TaxonomyTestCase):
         factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
             source_model_field='full_description',
-            source_model_name='Course',
+            source_model_name=product_type,
             source_text=existing_course_description,
             translated_text=existing_translation,
             translated_text_language=ENGLISH,
             source_language=ENGLISH,
         )
 
-        expected_translated_description = utils.get_translated_course_description(COURSE_KEY, new_course_description)
+        expected_translated_description = utils.get_translated_skill_attribute_val(
+            COURSE_KEY, new_course_description, product_type
+        )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=product_type,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -613,7 +654,7 @@ class TestUtils(TaxonomyTestCase):
         assert translate_mocked.call_count == 3
 
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('taxonomy.utils.get_translated_course_description')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
     @mock.patch('time.sleep')
     def test_refresh_course_skills_rate_limit_emsi_api_calls(
             self,
@@ -622,78 +663,65 @@ class TestUtils(TaxonomyTestCase):
             get_course_skills_mock
     ):
         """
-        Validate that `refresh_course_skills` rate limits API calls to EMSI.
+        Validate that `refresh_product_skills` rate limits API calls to EMSI.
         """
         get_course_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         get_translated_description_mock.return_value = None
         time_sleep_mock.return_value = None
+        product_type = 'Course'
 
         courses = []
         for _ in range(11):
             course = MockCourse()
             courses.append(course)
 
-        utils.refresh_course_skills(courses, should_commit_to_db=False)
+        utils.refresh_product_skills(courses, False, product_type)
 
         # it should be called after every 5 requests made to EMSI
         assert time_sleep_mock.call_count == 2
 
     def test_refresh_program_skills_skipped(self):
         """
-        Validate that `refresh_program_skills` shows skipped_programs_count properly.
+        Validate that `refresh_skills` shows skipped_programs_count properly.
         """
         program = MockProgram()
         overview = {'overview': None, 'uuid': program.uuid}
         program.__getitem__.side_effect = overview.__getitem__
         assert program['overview'] is None
+        product_type = 'Program'
 
         with LogCapture(level=logging.INFO) as log_capture:
-            utils.refresh_program_skills([program], False)
+            utils.refresh_product_skills([program], False, product_type)
             messages = [record.msg for record in log_capture.records]
-            self.assertIn('Total Programs Skipped: 1', messages[0])
+            self.assertIn('Total %s Skipped: %s', messages[0])
 
-    @mock.patch('taxonomy.utils.get_emsi_skills_data')
+    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
     def test_refresh_program_skills_api_error(self, mock_emsi_skills_data):
         """
-        Validate that `refresh_program_skills` handles TaxonomyAPIError from get_emsi_skills_data.
+        Validate that `refresh_program_skills` handles TaxonomyAPIError
         """
         mock_emsi_skills_data.side_effect = TaxonomyAPIError
         program = MockProgram()
 
         with LogCapture(level=logging.INFO) as log_capture:
-            utils.refresh_program_skills([program], False)
+            utils.refresh_product_skills([program], False, True)
             messages = [record.msg for record in log_capture.records]
-            self.assertIn(f'[TAXONOMY] API Error for program uuid: {program["uuid"]}', messages)
+            self.assertIn(f'[TAXONOMY] API Error for key: {program["uuid"]}', messages)
 
-    @mock.patch('taxonomy.utils.process_program_skills_data',
-                return_value=['[TAXONOMY] Missing keys in skills data for program_uuid'])
-    @mock.patch('taxonomy.utils.get_emsi_skills_data')
-    def test_refresh_program_skills_failures(self, mock_emsi_skills_data, *args):  # pylint: disable=unused-argument
-        """
-        Validate that `refresh_program_skills` handles failures from process_program_skills_data.
-        """
-        mock_emsi_skills_data.return_value = SKILLS_EMSI_CLIENT_RESPONSE
-        program = MockProgram()
-
-        with LogCapture(level=logging.INFO) as log_capture:
-            utils.refresh_program_skills([program], False)
-            messages = [record.msg for record in log_capture.records]
-            self.assertIn('[TAXONOMY] Missing keys in skills data for program_uuid', messages[1])
-
-    @mock.patch('taxonomy.utils.process_program_skills_data')
-    @mock.patch('taxonomy.utils.get_emsi_skills_data')
+    @mock.patch('taxonomy.utils.process_skills_data')
+    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
     def test_refresh_program_skills_broad_exception(self, mock_emsi_skills_data, mock_skills_data):
         """
-        Validate that `refresh_program_skills` handles broad exception.
+        Validate that `refresh_skills` handles broad exception.
         """
         mock_emsi_skills_data.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         mock_skills_data.side_effect = Exception
         program = MockProgram()
 
         with LogCapture(level=logging.INFO) as log_capture:
-            utils.refresh_program_skills([program], False)
+            utils.refresh_product_skills([program], False, True)
             messages = [record.msg for record in log_capture.records]
-            self.assertIn(f'[TAXONOMY] Exception for program uuid: {program["uuid"]} Error: ', messages)
+            self.assertIn(f'[TAXONOMY] Exception for key: {program["uuid"]} Error: ', messages)
 
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
     @mock.patch('time.sleep')
@@ -713,7 +741,7 @@ class TestUtils(TaxonomyTestCase):
             program = MockProgram()
             programs.append(program)
 
-        utils.refresh_program_skills(programs, should_commit_to_db=False)
+        utils.refresh_product_skills(programs, False, True)
 
         # it should be called after every 5 requests made to EMSI
         assert time_sleep_mock.call_count == 2
