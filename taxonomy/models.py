@@ -164,7 +164,6 @@ class ProgramSkill(TimeStampedModel):
     """
 
     program_uuid = models.UUIDField(
-        primary_key=True,
         default=uuid.uuid4,
         editable=False,
         help_text=_('The uuid of the program whose title would be used for skill(s) extraction.')
@@ -179,7 +178,6 @@ class ProgramSkill(TimeStampedModel):
         )
     )
     confidence = models.FloatField(
-        blank=False,
         help_text=_(
             'The extraction confidence threshold used for the skills extraction.'
         )
@@ -191,7 +189,7 @@ class ProgramSkill(TimeStampedModel):
 
     class Meta:
         """
-        Meta configuration for ProgramSkills model.
+        Meta configuration for ProgramSkill model.
         """
 
         verbose_name = 'Program Skill'

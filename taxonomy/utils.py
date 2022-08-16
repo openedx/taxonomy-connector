@@ -18,7 +18,7 @@ from taxonomy.constants import (
 )
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
+from taxonomy.models import CourseSkills, JobSkills, Skill, Translation, ProgramSkill
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -53,9 +53,9 @@ def get_whitelisted_serialized_skills(course_key):
     return skills_data
 
 
-def update_skills_data(course_key, skill_external_id, confidence, skill_data):
+def update_course_skills_data(course_key, skill_external_id, confidence, skill_data):
     """
-    Persist the skills data in the database.
+    Persist the course skills data in the database.
     """
     skill, __ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
 
@@ -69,9 +69,27 @@ def update_skills_data(course_key, skill_external_id, confidence, skill_data):
         )
 
 
-def process_skills_data(course, course_skills, should_commit_to_db):
+def update_program_skills_data(program_uuid, skill_external_id, confidence, skill_data):
     """
-    Process skills data returned by the EMSI service and update databased.
+    Persist the program skills data in the database.
+    """
+    skill, __ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
+
+    if not is_program_skill_blacklisted(program_uuid, skill.id):
+        _, created = ProgramSkill.objects.update_or_create(
+            program_uuid=program_uuid,
+            skill=skill,
+            defaults={
+                'confidence': confidence,
+            },
+        )
+        action = 'created' if created else 'updated'
+        LOGGER.error(f'ProgramSkill {action} for program_uuid {program_uuid}')
+
+
+def process_course_skills_data(course, course_skills, should_commit_to_db):
+    """
+    Process course skills data returned by the EMSI service and update databased.
 
     Arguments:
         course (dict): Dictionary containing course data whose skills are being processed.
@@ -92,7 +110,7 @@ def process_skills_data(course, course_skills, should_commit_to_db):
                 'description': skill['description']
             }
             if should_commit_to_db:
-                update_skills_data(course['key'], skill_external_id, confidence, skill_data)
+                update_course_skills_data(course['key'], skill_external_id, confidence, skill_data)
         except KeyError:
             message = f'[TAXONOMY] Missing keys in skills data for course_key: {course["key"]}'
             LOGGER.error(message)
@@ -104,6 +122,41 @@ def process_skills_data(course, course_skills, should_commit_to_db):
     return failures
 
 
+def process_program_skills_data(program, program_skills, should_commit_to_db):
+    """
+    Process program skills data returned by the EMSI service and update databased.
+
+    Arguments:
+        program (dict): Dictionary containing program data whose skills are being processed.
+        program_skills (dict): Program skills data returned by the EMSI API.
+        should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
+    """
+    failures = []
+    for record in program_skills['data']:
+        try:
+            confidence = float(record['confidence'])
+            skill = record['skill']
+            skill_external_id = skill['id']
+            skill_data = {
+                'name': skill['name'],
+                'info_url': skill['infoUrl'],
+                'type_id': skill['type']['id'],
+                'type_name': skill['type']['name'],
+                'description': skill['description']
+            }
+            if should_commit_to_db:
+                update_program_skills_data(program['uuid'], skill_external_id, confidence, skill_data)
+        except KeyError:
+            message = f'[TAXONOMY] Missing keys in skills data for program_uuid: {program["uuid"]}'
+            LOGGER.error(message)
+            failures.append((program['uuid'], message))
+        except (ValueError, TypeError):
+            message = f'[TAXONOMY] Invalid type for `confidence` in program skills for program_uuid: {program["uuid"]}'
+            LOGGER.error(message)
+            failures.append((program['uuid'], message))
+    return failures
+
+
 def refresh_course_skills(courses, should_commit_to_db):
     """
     Refresh the skills associated with the provided courses.
@@ -112,17 +165,12 @@ def refresh_course_skills(courses, should_commit_to_db):
     success_courses_count = 0
     skipped_courses_count = 0
 
-    client = EMSISkillsApiClient()
     for index, course in enumerate(courses, start=1):
         course_description = course['full_description']
         if course_description:
             course_translated_description = get_translated_course_description(course['key'], course_description)
             try:
-                # EMSI only allows 5 requests/sec
-                # We need to add one sec delay after every 5 requests to prevent 429 errors
-                if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
-                    time.sleep(1)  # sleep for 1 second
-                course_skills = client.get_course_skills(course_translated_description)
+                course_skills = get_emsi_skills_data(course_translated_description, index)
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for course_key: {course["key"]}'
                 LOGGER.error(message)
@@ -130,7 +178,7 @@ def refresh_course_skills(courses, should_commit_to_db):
                 continue
 
             try:
-                failures = process_skills_data(course, course_skills, should_commit_to_db)
+                failures = process_course_skills_data(course, course_skills, should_commit_to_db)
                 if failures:
                     LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', course_skills)
                     all_failures += failures
@@ -155,6 +203,68 @@ def refresh_course_skills(courses, should_commit_to_db):
         skipped_courses_count,
         len(all_failures),
     )
+
+
+def refresh_program_skills(programs, should_commit_to_db):
+    """
+    Refresh the skills associated with the provided programs.
+    """
+    all_failures = []
+    success_programs_count = 0
+    skipped_programs_count = 0
+
+    for index, program in enumerate(programs, start=1):
+        program_overview = program['overview']
+        if program_overview:
+            try:
+                program_skills = get_emsi_skills_data(program_overview, index)
+            except TaxonomyAPIError:
+                message = f'[TAXONOMY] API Error for program uuid: {program["uuid"]}'
+                LOGGER.error(message)
+                all_failures.append((program['uuid'], message))
+                continue
+
+            try:
+                failures = process_program_skills_data(program, program_skills, should_commit_to_db)
+                if failures:
+                    LOGGER.info(f'[TAXONOMY] Skills data received from EMSI. Skills: [{program_skills}]')
+                    all_failures += failures
+                else:
+                    success_programs_count += 1
+            except Exception as ex:  # pylint: disable=broad-except
+                LOGGER.info(f'[TAXONOMY] Skills data received from EMSI. Skills: [{program_skills}]')
+                message = f'[TAXONOMY] Exception for program uuid: {program["uuid"]} Error: {ex}'
+                LOGGER.error(message)
+                all_failures.append((program["uuid"], message))
+        else:
+            skipped_programs_count += 1
+
+    LOGGER.info(
+        '[TAXONOMY] Refresh program skills process completed. \n'
+        f'Failures: {all_failures} \n'
+        f'Total Programs Updated Successfully: {success_programs_count} \n'
+        f'Total Programs Skipped: {skipped_programs_count} \n'
+        f'Total Failures: {len(all_failures)} \n',
+    )
+
+
+def get_emsi_skills_data(text_data, index):
+    """
+    Call EMSI api to retrieve skills related to the product through EMSISkillsApiClient.
+
+    Arguments:
+        text_data (str): Product data as text, this is usually description in case of a course
+        or overview in case of a program.
+
+    Returns:
+        dict: A dictionary containing details of all the skills.
+    """
+    client = EMSISkillsApiClient()
+    # EMSI only allows 5 requests/sec
+    # We need to add one sec delay after every 5 requests to prevent 429 errors
+    if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
+        time.sleep(1)  # sleep for 1 second
+    return client.get_product_skills(text_data)
 
 
 def blacklist_course_skill(course_key, skill_id):
@@ -198,6 +308,24 @@ def is_course_skill_blacklisted(course_key, skill_id):
     """
     return CourseSkills.objects.filter(
         course_key=course_key,
+        skill_id=skill_id,
+        is_blacklisted=True,
+    ).exists()
+
+
+def is_program_skill_blacklisted(program_uuid, skill_id):
+    """
+    Return the black listed status of a program skill.
+
+    Arguments:
+        program_uuid: uuid of the program whose skill need to be checked.
+        skill_id (int): Primary key identifier of the skill that need to be checked.
+
+    Returns:
+        (bool): True if program-skill (identified by the arguments) is black-listed, False otherwise.
+    """
+    return ProgramSkill.objects.filter(
+        program_uuid=program_uuid,
         skill_id=skill_id,
         is_blacklisted=True,
     ).exists()

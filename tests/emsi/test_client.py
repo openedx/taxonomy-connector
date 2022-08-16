@@ -135,12 +135,12 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         # Initialize once and call the API
         client = EMSISkillsApiClient()
-        skills = client.get_course_skills(SKILL_TEXT_DATA)
+        skills = client.get_product_skills(SKILL_TEXT_DATA)
         assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 
         # Initialize the client again to simulate error condition.
         client = EMSISkillsApiClient()
-        skills = client.get_course_skills(SKILL_TEXT_DATA)
+        skills = client.get_product_skills(SKILL_TEXT_DATA)
         assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 
     @mock_api_response(
@@ -148,11 +148,11 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         url=EMSISkillsApiClient.API_BASE_URL + '/extract',
         json=SKILLS_EMSI_RESPONSE,
     )
-    def test_get_course_skills(self):
+    def test_get_product_skills(self):
         """
-        Validate that the behavior of client while fetching course skills.
+        Validate that the behavior of client while fetching product skills.
         """
-        skills = self.client.get_course_skills(SKILL_TEXT_DATA)
+        skills = self.client.get_product_skills(SKILL_TEXT_DATA)
 
         assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 
@@ -162,12 +162,12 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         json=SKILLS_EMSI_RESPONSE,
         status=400,
     )
-    def test_get_course_skills_error(self):
+    def test_get_product_skills_error(self):
         """
         Validate that the behavior of client when error occurs while fetching skill data.
         """
-        with raises(TaxonomyAPIError, match='Error while fetching course skills.'):
-            self.client.get_course_skills(SKILL_TEXT_DATA)
+        with raises(TaxonomyAPIError, match='Error while fetching product skills.'):
+            self.client.get_product_skills(SKILL_TEXT_DATA)
 
     @mock_api_response(
         method=responses.GET,
@@ -176,7 +176,7 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
     )
     def test_get_skill_details(self):
         """
-        Validate that the behavior of client while fetching course skills.
+        Validate that the behavior of client while fetching product skills.
         """
         skills = self.client.get_skill_details(SKILL_ID)
 

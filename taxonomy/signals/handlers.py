@@ -6,7 +6,7 @@ import logging
 
 from django.dispatch import receiver
 
-from taxonomy.tasks import update_course_skills
+from taxonomy.tasks import update_course_skills, update_program_skills
 
 from .signals import UPDATE_COURSE_SKILLS, UPDATE_PROGRAM_SKILLS
 
@@ -27,4 +27,5 @@ def handle_update_program_skills(sender, program_uuid, **kwargs):  # pylint: dis
     """
     Handle signal and trigger task to update program skills.
     """
-    # TODO: to be added in https://2u-internal.atlassian.net/browse/PROD-2904
+    LOGGER.info('[TAXONOMY] UPDATE_PROGRAM_SKILLS signal received')
+    update_program_skills.delay([program_uuid])

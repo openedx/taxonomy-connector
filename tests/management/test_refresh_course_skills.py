@@ -111,12 +111,12 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(course_skill.count(), 0)
 
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
-    def test_course_skill_saved(self, get_course_skills_mock, get_course_provider_mock):
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_skill_saved(self, get_product_skills_mock, get_course_provider_mock):
         """
         Test that the command creates a Skill and many CourseSkills records.
         """
-        get_course_skills_mock.return_value = self.skills_emsi_client_response
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2]
         )
@@ -144,12 +144,12 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.assertEqual(course_skill.count(), 12)
 
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
-    def test_course_skill_saved_with_all_param(self, get_course_skills_mock, get_course_provider_mock):
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_skill_saved_with_all_param(self, get_product_skills_mock, get_course_provider_mock):
         """
         Test that the command creates a Skill and many CourseSkills records using --all param.
         """
-        get_course_skills_mock.return_value = self.skills_emsi_client_response
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2, self.course_3]
         )
@@ -165,17 +165,17 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
     @mock.patch('taxonomy.utils.get_translated_course_description')
     def test_course_skill_not_saved_upon_exception(self,
                                                    mock_course_description,
-                                                   get_course_skills_mock,
+                                                   get_product_skills_mock,
                                                    get_course_provider_mock):
         """
         Test that the command does not create any records when the API throws an exception.
         """
         mock_course_description.return_value = 'course description translation'
-        get_course_skills_mock.side_effect = TaxonomyAPIError()
+        get_product_skills_mock.side_effect = TaxonomyAPIError()
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2]
         )
@@ -209,15 +209,15 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
-    def test_args_from_database_config(self, get_course_skills_mock, get_course_provider_mock):
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_args_from_database_config(self, get_product_skills_mock, get_course_provider_mock):
         """
         Test that the command works via args from database config.
         """
         config = RefreshCourseSkillsConfig.get_solo()
         config.arguments = ' --course {} --course {} --commit '.format(self.course_1.uuid, self.course_2.uuid)
         config.save()
-        get_course_skills_mock.return_value = self.skills_emsi_client_response
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2],
         )
@@ -241,19 +241,19 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
     @mock.patch('taxonomy.utils.get_translated_course_description')
     def test_course_skill_not_saved_for_key_error(
             self,
             mock_course_description,
-            get_course_skills_mock,
+            get_product_skills_mock,
             get_course_provider_mock
     ):
         """
         Test that the command does not create any records when a Skill key error occurs.
         """
         mock_course_description.return_value = 'course description translation'
-        get_course_skills_mock.return_value = self.missing_skills
+        get_product_skills_mock.return_value = self.missing_skills
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2],
         )
@@ -289,19 +289,19 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
     @mock.patch('taxonomy.utils.get_translated_course_description')
     def test_course_skill_not_saved_for_type_error(
             self,
             mock_course_description,
-            get_course_skills_mock,
+            get_product_skills_mock,
             get_course_provider_mock
     ):
         """
         Test that the command does not create any records when a record value error occurs.
         """
         mock_course_description.return_value = 'course description translation'
-        get_course_skills_mock.return_value = self.type_error_skills
+        get_product_skills_mock.return_value = self.type_error_skills
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
             [self.course_1, self.course_2],
         )
@@ -337,14 +337,14 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_course_skills')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.process_skills_data')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.process_course_skills_data')
     @mock.patch('taxonomy.utils.get_translated_course_description')
     def test_course_skill_not_saved_for_exception(
             self,
             mock_course_description,
-            mock_process_skills_data,
-            get_course_skills_mock,
+            mock_process_course_skills_data,
+            get_product_skills_mock,
             get_course_provider_mock,
 
     ):
@@ -352,9 +352,9 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         Test that the command does not create any records when a record value error occurs.
         """
         mock_course_description.return_value = 'course description translation'
-        get_course_skills_mock.return_value = self.skills_emsi_client_response
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course_1])
-        mock_process_skills_data.side_effect = Exception("UNKNOWN ERROR.")
+        mock_process_course_skills_data.side_effect = Exception("UNKNOWN ERROR.")
         skill = Skill.objects.all()
         course_skill = CourseSkills.objects.all()
         self.assertEqual(skill.count(), 0)

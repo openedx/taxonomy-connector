@@ -24,7 +24,7 @@ class MockCourse(MagicMock):
         """
         Initialize course related attributes.
         """
-        super(MockCourse, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.uuid = uuid if uuid is not DEFAULT else uuid4()
         self.key = key if key is not DEFAULT else 'course-id/{}'.format(FAKER.slug())

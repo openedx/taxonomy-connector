@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.21.0] - 2022-08-16
+---------------------
+* feat: add task to update program skills through EMSI api
+
 [1.20.0] - 2022-08-11
 ---------------------
 * feat: add caching to ``utils.get_whitelisted_serialized_skills()``

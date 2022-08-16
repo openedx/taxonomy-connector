@@ -112,6 +112,26 @@ class TestJobSkills(TestCase):
 
 
 @mark.django_db
+class TestProgramSkill(TestCase):
+    """
+    Tests for the ``ProgramSkill`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the ProgramSkill model.
+        """
+        program_skill = factories.ProgramSkillFactory()
+        expected_str = '<ProgramSkill name="{}" program_uuid="{}">'.format(
+            program_skill.skill.name, program_skill.program_uuid
+        )
+        expected_repr = '<ProgramSkill id="{0}" skill="{1!r}">'.format(program_skill.id, program_skill.skill)
+
+        assert expected_str == str(program_skill)
+        assert expected_repr == repr(program_skill)
+
+
+@mark.django_db
 class TestTranslation(TestCase):
     """
     Tests for the ``Translation`` model.
