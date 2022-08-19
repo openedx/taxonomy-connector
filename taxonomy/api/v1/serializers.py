@@ -3,7 +3,7 @@ Taxonomy API serializers.
 """
 from rest_framework.serializers import ModelSerializer
 
-from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill
+from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill, SkillsQuiz
 
 
 class JobSerializer(ModelSerializer):
@@ -59,3 +59,10 @@ class JobPostingsSerializer(ModelSerializer):
     class Meta:
         model = JobPostings
         fields = '__all__'
+
+
+class SkillsQuizSerializer(ModelSerializer):
+    class Meta:
+        model = SkillsQuiz
+        fields = '__all__'
+        read_only_fields = ('username', )

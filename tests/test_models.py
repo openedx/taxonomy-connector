@@ -194,3 +194,23 @@ class TestSkillSubCategory(TestCase):
 
         assert expected_str == skill_sub_category.__str__()
         assert expected_repr == skill_sub_category.__repr__()
+
+
+@mark.django_db
+class TestSkillsQuiz(TestCase):
+    """
+    Tests for the ``SkillsQuiz`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the SkillsQuiz model.
+        """
+        skill_quiz = factories.SkillsQuizFactory()
+        expected_str = '<SkillsQuiz id="{}" user="{}">'.format(
+            skill_quiz.id, skill_quiz.username
+        )
+        expected_repr = '<SkillsQuiz id="{}" user="{}">'.format(skill_quiz.id, skill_quiz.username)
+
+        assert expected_str == skill_quiz.__str__()
+        assert expected_repr == skill_quiz.__repr__()

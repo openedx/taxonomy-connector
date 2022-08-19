@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.22.0] - 2022-08-22
+---------------------
+* Added a new model for storing user response for skills quiz.
+* Added new REST endpoints for performing CRUD operations on skills quiz.
+
 [1.21.0] - 2022-08-16
 ---------------------
 * feat: add task to update program skills through EMSI api

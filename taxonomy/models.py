@@ -12,6 +12,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from model_utils.models import TimeStampedModel
+from taxonomy.choices import UserGoal
 
 
 class Skill(TimeStampedModel):
@@ -610,3 +611,41 @@ class SkillSubCategory(TimeStampedModel):
         app_label = 'taxonomy'
         verbose_name = 'Skill Subcategory'
         verbose_name_plural = 'Skill Subcategories'
+
+
+class SkillsQuiz(TimeStampedModel):
+    """
+    Model for storing skills quiz information filled out by a user.
+
+    .. no_pii:
+    """
+
+    username = models.CharField(_("username"), max_length=150)
+    skills = models.ManyToManyField(Skill)
+    current_job = models.ForeignKey(
+        Job, on_delete=models.SET_NULL, related_name='current_job_skills_quiz', null=True, blank=True
+    )
+    future_jobs = models.ManyToManyField(Job, related_name='future_jobs_skills_quiz', blank=True)
+    goal = models.CharField(max_length=64, choices=UserGoal.choices)
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<SkillsQuiz id="{}" user="{}">'.format(self.id, self.username)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<SkillsQuiz id="{}" user="{}">'.format(self.id, self.username)
+
+    class Meta:
+        """
+        Meta configuration for Skill model.
+        """
+
+        ordering = ('id', )
+        app_label = 'taxonomy'
+        verbose_name = 'Skill Quiz'
+        verbose_name_plural = 'Skill Quizzes'
