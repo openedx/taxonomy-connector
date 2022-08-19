@@ -2,12 +2,14 @@
 """
 Model Factories for the taxonomy tests.
 """
+from uuid import uuid4
+
 import factory
 from faker import Factory as FakerFactory
 from faker import Faker
 
 from taxonomy.models import (
-    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory,
+    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
 )
 
 FAKER = FakerFactory.create()
@@ -90,6 +92,25 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('course_key', 'skill')
 
     course_key = factory.LazyAttribute(lambda x: FAKER.slug())
+    skill = factory.SubFactory(SkillFactory)
+    confidence = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=1))
+    is_blacklisted = False
+
+
+class ProgramSkillFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for ProgramSkill model.
+    """
+
+    class Meta:
+        """
+        Meta for ``ProgramSkillFactory``.
+        """
+
+        model = ProgramSkill
+        django_get_or_create = ('program_uuid', 'skill')
+
+    program_uuid = factory.LazyFunction(uuid4)
     skill = factory.SubFactory(SkillFactory)
     confidence = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=1))
     is_blacklisted = False

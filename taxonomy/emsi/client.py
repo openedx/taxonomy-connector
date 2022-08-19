@@ -155,18 +155,19 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
             raise TaxonomyAPIError('Error while fetching skill details.') from error
 
     @JwtEMSIApiClient.refresh_token
-    def get_course_skills(self, course_text_data):
+    def get_product_skills(self, text_data):
         """
-        Query the EMSI API for the skills of the given course text data.
+        Query the EMSI API for the skills of the given product text data.
 
         Arguments:
-            course_text_data (str): Course data as text, this is usually the course description.
+            text_data (str): Product data as text, this is usually description in case of a course
+            or overview in case of a program.
 
         Returns:
             dict: A dictionary containing details of all the skills.
         """
         data = {
-            'text': course_text_data
+            'text': text_data
         }
         try:
             api_url = self.get_api_url('extract')
@@ -175,16 +176,16 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
                 json=data,
             )
             response.raise_for_status()
-            return self.traverse_course_skills_data(response.json())
+            return self.traverse_skills_data(response.json())
         except (RequestException, ConnectionError, Timeout) as error:
             LOGGER.exception(
                 '[TAXONOMY] Exception raised while fetching skills data from EMSI. PostData: [%s]',
                 data
             )
-            raise TaxonomyAPIError('Error while fetching course skills.') from error
+            raise TaxonomyAPIError('Error while fetching product skills.') from error
 
     @staticmethod
-    def traverse_course_skills_data(response):
+    def traverse_skills_data(response):
         """
         Transform data to a more useful format.
         """

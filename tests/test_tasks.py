@@ -8,10 +8,10 @@ import mock
 from pytest import mark
 from testfixtures import LogCapture
 
-from taxonomy.models import CourseSkills, Skill
-from taxonomy.tasks import update_course_skills
-from test_utils.mocks import MockCourse
-from test_utils.providers import DiscoveryCourseMetadataProvider
+from taxonomy.models import CourseSkills, Skill, ProgramSkill
+from taxonomy.tasks import update_course_skills, update_program_skills
+from test_utils.mocks import MockCourse, MockProgram
+from test_utils.providers import DiscoveryCourseMetadataProvider, DiscoveryProgramMetadataProvider
 from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE
 
 
@@ -24,10 +24,22 @@ class TaxonomyTasksTests(unittest.TestCase):
     def setUp(self):
         self.skills_emsi_client_response = SKILLS_EMSI_CLIENT_RESPONSE
         self.course = MockCourse()
+        self.program = MockProgram()
         super().setUp()
 
+    def check_empty_skill_models(self, product_skill_model):
+        """
+        verify that no Skill and CourseSkills/ProgramSkill records exist before executing the task
+        """
+        skill = Skill.objects.all()
+        product_skill = product_skill_model.objects.all()
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(product_skill.count(), 0)
+
+        return skill, product_skill
+
     @mock.patch('taxonomy.tasks.get_course_metadata_provider')
-    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_product_skills')
     def test_update_course_skills_task(self, get_course_skills_mock, get_course_provider_mock):
         """
         Verify that `update_course_skills` task work as expected.
@@ -35,11 +47,7 @@ class TaxonomyTasksTests(unittest.TestCase):
         get_course_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course])
 
-        # verify that no `Skill` and `CourseSkills` records exist before executing the task
-        skill = Skill.objects.all()
-        course_skill = CourseSkills.objects.all()
-        self.assertEqual(skill.count(), 0)
-        self.assertEqual(course_skill.count(), 0)
+        skill, course_skill = self.check_empty_skill_models(CourseSkills)
 
         update_course_skills.delay([self.course.uuid])
 
@@ -47,7 +55,7 @@ class TaxonomyTasksTests(unittest.TestCase):
         self.assertEqual(course_skill.count(), 4)
 
     @mock.patch('taxonomy.tasks.get_course_metadata_provider')
-    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_course_skills')
+    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_product_skills')
     def test_update_course_skills_task_with_no_course_found(self, get_course_skills_mock, get_course_provider_mock):
         """
         Verify that `update_course_skills` task work as expected.
@@ -55,11 +63,7 @@ class TaxonomyTasksTests(unittest.TestCase):
         get_course_skills_mock.return_value = self.skills_emsi_client_response
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([])
 
-        # verify that no `Skill` and `CourseSkills` records exist before executing the task
-        skill = Skill.objects.all()
-        course_skill = CourseSkills.objects.all()
-        self.assertEqual(skill.count(), 0)
-        self.assertEqual(course_skill.count(), 0)
+        skill, course_skill = self.check_empty_skill_models(CourseSkills)
 
         with LogCapture(level=logging.INFO) as log_capture:
             update_course_skills.delay([self.course.uuid])
@@ -75,3 +79,46 @@ class TaxonomyTasksTests(unittest.TestCase):
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
+
+    @mock.patch('taxonomy.tasks.get_program_metadata_provider')
+    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_product_skills')
+    def test_update_program_skills_task(self, get_program_skills_mock, mock_get_provider):
+        """
+        Verify that `update_program_skills` task work as expected.
+        """
+        get_program_skills_mock.return_value = self.skills_emsi_client_response
+        mock_get_provider.return_value = DiscoveryProgramMetadataProvider([self.program])
+
+        skill, program_skill = self.check_empty_skill_models(ProgramSkill)
+
+        update_program_skills.delay([self.program.uuid])
+
+        self.assertEqual(skill.count(), 4)
+        self.assertEqual(program_skill.count(), 4)
+
+    @mock.patch('taxonomy.tasks.get_program_metadata_provider')
+    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_product_skills')
+    def test_update_program_skills_task_with_no_program_found(
+            self, get_program_skills_mock, mock_get_provider):
+        """
+        Verify that `update_program_skills` task work as expected.
+        """
+        get_program_skills_mock.return_value = self.skills_emsi_client_response
+        mock_get_provider.return_value = DiscoveryProgramMetadataProvider([])
+
+        skill, program_skill = self.check_empty_skill_models(ProgramSkill)
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            update_program_skills.delay([self.program.uuid])
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(
+                messages,
+                [
+                    '[TAXONOMY] refresh_program_skills task triggered',
+                    '[TAXONOMY] No program found with uuids [%d] to update skills.',
+                    'Task %(name)s[%(id)s] succeeded in %(runtime)ss: %(return_value)s'
+                ]
+            )
+
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(program_skill.count(), 0)
