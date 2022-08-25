@@ -2,6 +2,7 @@
 """
 Model Factories for the taxonomy tests.
 """
+import random
 from uuid import uuid4
 
 import factory
@@ -10,7 +11,9 @@ from faker import Faker
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
+    SkillsQuiz
 )
+from taxonomy.choices import UserGoal
 
 FAKER = FakerFactory.create()
 FAKER_OBJECT = Faker()
@@ -180,3 +183,47 @@ class TranslationFactory(factory.django.DjangoModelFactory):
     source_language = factory.LazyAttribute(lambda x: FAKER.language_code())
     translated_text = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
     translated_text_language = factory.LazyAttribute(lambda x: FAKER.language_code())
+
+
+class SkillsQuizFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for SkillsQuiz model.
+    """
+    class Meta:
+        model = SkillsQuiz
+
+    username = factory.Sequence(lambda n: 'user_%d' % n)
+    current_job = factory.SubFactory(JobFactory)
+    goal = factory.LazyFunction(lambda: random.choice(UserGoal.choices)[0])
+
+    @factory.post_generation
+    def skills(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
+        """
+        Post generation hook to add skills to skills quiz model instance.
+        """
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for skill in extracted:
+                self.skills.add(skill)
+        else:
+            self.skills.add(SkillFactory.create())
+
+    @factory.post_generation
+    def future_jobs(self, create, extracted, **kwargs):  # pylint: disable=unused-argument
+        """
+        Post generation hook to add future jobs to skills quiz model instance.
+        """
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for future_job in extracted:
+                self.future_jobs.add(future_job)
+        else:
+            self.future_jobs.add(JobFactory.create())
