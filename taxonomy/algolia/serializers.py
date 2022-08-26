@@ -40,7 +40,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ('external_id', 'name', 'skills', 'job_postings', 'objectID')
+        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID')
         read_only_fields = fields
 
     def get_objectID(self, obj):  # pylint: disable=invalid-name
