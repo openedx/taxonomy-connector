@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.22.1] - 2022-08-26
+---------------------
+* Added id field in JobSerializer for Algolia.
+
 [1.22.0] - 2022-08-22
 ---------------------
 * Added a new model for storing user response for skills quiz.
