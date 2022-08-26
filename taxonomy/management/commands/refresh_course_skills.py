@@ -28,6 +28,7 @@ class Command(BaseCommand):
         $ ./manage.py refresh_course_skills --all --commit
     """
     help = 'Refreshes the skills associated with courses.'
+    product_type = 'Course'
 
     def add_arguments(self, parser):
         """
@@ -90,4 +91,4 @@ class Command(BaseCommand):
             raise InvalidCommandOptionsError('Either course or all argument must be provided.')
 
         LOGGER.info('[TAXONOMY] Refresh course skills process started.')
-        utils.refresh_course_skills(courses, options['commit'])
+        utils.refresh_product_skills(courses, options['commit'], self.product_type)

@@ -99,10 +99,10 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
-                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    '[TAXONOMY] Refresh %s skills process completed. \n'
                     'Failures: %s \n'
-                    'Total Courses Updated Successfully: %s \n'
-                    'Total Courses Skipped: %s \n'
+                    'Total %s Updated Successfully: %s \n'
+                    'Total %s Skipped: %s \n'
                     'Total Failures: %s \n'
                 ]
             )
@@ -166,7 +166,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('taxonomy.utils.get_translated_course_description')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
     def test_course_skill_not_saved_upon_exception(self,
                                                    mock_course_description,
                                                    get_product_skills_mock,
@@ -194,12 +194,12 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
-                    f'[TAXONOMY] API Error for course_key: {self.course_1.key}',
-                    f'[TAXONOMY] API Error for course_key: {self.course_2.key}',
-                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    '[TAXONOMY] API Error for key: {}'.format(self.course_1.key),
+                    f'[TAXONOMY] API Error for key: {self.course_2.key}',
+                    '[TAXONOMY] Refresh %s skills process completed. \n'
                     'Failures: %s \n'
-                    'Total Courses Updated Successfully: %s \n'
-                    'Total Courses Skipped: %s \n'
+                    'Total %s Updated Successfully: %s \n'
+                    'Total %s Skipped: %s \n'
                     'Total Failures: %s \n'
                 ]
             )
@@ -242,7 +242,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('taxonomy.utils.get_translated_course_description')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
     def test_course_skill_not_saved_for_key_error(
             self,
             mock_course_description,
@@ -272,14 +272,14 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
-                    f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_1.key}',
+                    f'[TAXONOMY] Missing keys in skills data for key: {self.course_1.key}',
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
-                    f'[TAXONOMY] Missing keys in skills data for course_key: {self.course_2.key}',
+                    f'[TAXONOMY] Missing keys in skills data for key: {self.course_2.key}',
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
-                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    '[TAXONOMY] Refresh %s skills process completed. \n'
                     'Failures: %s \n'
-                    'Total Courses Updated Successfully: %s \n'
-                    'Total Courses Skipped: %s \n'
+                    'Total %s Updated Successfully: %s \n'
+                    'Total %s Skipped: %s \n'
                     'Total Failures: %s \n'
                 ]
             )
@@ -290,7 +290,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('taxonomy.utils.get_translated_course_description')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
     def test_course_skill_not_saved_for_type_error(
             self,
             mock_course_description,
@@ -320,14 +320,14 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 [
                     '[TAXONOMY] Refresh Course Skills. Options: [%s]',
                     '[TAXONOMY] Refresh course skills process started.',
-                    f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_1.key}',
+                    f'[TAXONOMY] Invalid type for `confidence` in skills for key: {self.course_1.key}',
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
-                    f'[TAXONOMY] Invalid type for `confidence` in course skills for course_key: {self.course_2.key}',
+                    f'[TAXONOMY] Invalid type for `confidence` in skills for key: {self.course_2.key}',
                     '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
-                    '[TAXONOMY] Refresh course skills process completed. \n'
+                    '[TAXONOMY] Refresh %s skills process completed. \n'
                     'Failures: %s \n'
-                    'Total Courses Updated Successfully: %s \n'
-                    'Total Courses Skipped: %s \n'
+                    'Total %s Updated Successfully: %s \n'
+                    'Total %s Skipped: %s \n'
                     'Total Failures: %s \n'
                 ]
             )
@@ -338,8 +338,8 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.process_course_skills_data')
-    @mock.patch('taxonomy.utils.get_translated_course_description')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.process_skills_data')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
     def test_course_skill_not_saved_for_exception(
             self,
             mock_course_description,
@@ -370,11 +370,11 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
                 ['[TAXONOMY] Refresh Course Skills. Options: [%s]',
                  '[TAXONOMY] Refresh course skills process started.',
                  '[TAXONOMY] Skills data received from EMSI. Skills: [%s]',
-                 f'[TAXONOMY] Exception for course_key: {self.course_1.key} Error: UNKNOWN ERROR.',
-                 '[TAXONOMY] Refresh course skills process completed. \n'
+                 f'[TAXONOMY] Exception for key: {self.course_1.key} Error: UNKNOWN ERROR.',
+                 '[TAXONOMY] Refresh %s skills process completed. \n'
                  'Failures: %s \n'
-                 'Total Courses Updated Successfully: %s \n'
-                 'Total Courses Skipped: %s \n'
+                 'Total %s Updated Successfully: %s \n'
+                 'Total %s Skipped: %s \n'
                  'Total Failures: %s \n']
             )
 
