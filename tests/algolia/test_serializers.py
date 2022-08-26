@@ -32,6 +32,9 @@ class TestJobSerializer(TaxonomyTestCase):
         # Assert all jobs are included in the data returned by the serializer
         assert len(jobs_data) == 15
 
+        # Assert ID is present
+        assert all('id' in job_data for job_data in jobs_data)
+
         # Assert Object ID is present
         assert all('objectID' in job_data for job_data in jobs_data)
 
