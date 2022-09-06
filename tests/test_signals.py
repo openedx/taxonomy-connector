@@ -6,7 +6,7 @@ import unittest
 import mock
 from pytest import mark
 
-from taxonomy.models import CourseSkills, Skill, ProgramSkill
+from taxonomy.models import CourseSkills, ProgramSkill, Skill
 from taxonomy.signals.signals import UPDATE_COURSE_SKILLS, UPDATE_PROGRAM_SKILLS
 from test_utils.mocks import MockCourse, MockProgram
 from test_utils.providers import DiscoveryCourseMetadataProvider, DiscoveryProgramMetadataProvider

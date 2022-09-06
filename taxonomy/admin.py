@@ -9,7 +9,15 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from taxonomy.models import (
-    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, SkillsQuiz
+    CourseSkills,
+    Job,
+    JobPostings,
+    JobSkills,
+    Skill,
+    SkillCategory,
+    SkillsQuiz,
+    SkillSubCategory,
+    Translation,
 )
 
 

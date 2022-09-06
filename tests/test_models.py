@@ -7,7 +7,7 @@ from pytest import mark
 
 from django.test import TestCase
 
-from taxonomy.models import Job, JobPostings
+from taxonomy.models import Job, JobPostings, Skill
 from test_utils import factories
 
 
@@ -67,6 +67,16 @@ class TestSkill(TestCase):
 
         assert expected_str == skill.__str__()
         assert expected_repr == skill.__repr__()
+
+    def test_get_skill_ids_by_name(self):
+        """
+        Test the ``get_skill_ids_by_name`` Return correct IDs.
+        """
+        skill_a = factories.SkillFactory()
+        skill_b = factories.SkillFactory()
+        skill_c = factories.SkillFactory()  # pylint: disable=unused-variable
+        skill_ids = Skill.get_skill_ids_by_name([skill_a.name, skill_b.name])
+        assert skill_ids == [skill_a.id, skill_b.id]
 
 
 @mark.django_db

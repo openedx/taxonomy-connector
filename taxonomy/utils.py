@@ -3,22 +3,22 @@ Utils for taxonomy.
 """
 import logging
 import time
-import boto3
 
+import boto3
 from bs4 import BeautifulSoup
-from edx_django_utils.cache import get_cache_key, TieredCache
+from edx_django_utils.cache import TieredCache, get_cache_key
 
 from taxonomy.constants import (
     AMAZON_TRANSLATION_ALLOWED_SIZE,
     AUTO,
+    EMSI_API_RATE_LIMIT_PER_SEC,
     ENGLISH,
     REGION,
     TRANSLATE_SERVICE,
-    EMSI_API_RATE_LIMIT_PER_SEC
 )
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, ProgramSkill, JobSkills, Skill, Translation
+from taxonomy.models import CourseSkills, JobSkills, ProgramSkill, Skill, Translation
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)

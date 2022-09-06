@@ -5,6 +5,7 @@ ORM Models for the taxonomy application.
 from __future__ import unicode_literals
 
 import uuid
+from typing import List
 
 from solo.models import SingletonModel
 
@@ -12,6 +13,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from model_utils.models import TimeStampedModel
+
 from taxonomy.choices import UserGoal
 
 
@@ -92,6 +94,13 @@ class Skill(TimeStampedModel):
         Create a unique string representation of the object.
         """
         return '<Skill id="{}" name="{}">'.format(self.id, self.name)
+
+    @classmethod
+    def get_skill_ids_by_name(cls, skill_names: List[str]) -> List[int]:
+        """
+        Return all the matching skill IDs from given skill names.
+        """
+        return list(cls.objects.filter(name__in=skill_names).values_list('id', flat=True))
 
     class Meta:
         """
