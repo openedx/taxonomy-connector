@@ -9,7 +9,8 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from taxonomy.models import (
-    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, SkillsQuiz
+    CourseSkills, Job, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
+    SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig
 )
 
 
@@ -120,3 +121,20 @@ class SkillsQuizAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'username', 'current_job',)
     search_fields = ('username',)
+
+
+@admin.register(ProgramSkill)
+class ProgramSkillAdmin(admin.ModelAdmin):
+    """
+    Admin view for ProgramSkill model.
+    """
+
+    list_display = ('program_uuid', 'skill', 'created', 'modified', 'is_blacklisted')
+    search_fields = ('program_uuid', 'skill__name')
+
+
+@admin.register(RefreshProgramSkillsConfig)
+class RefreshProgramSkillsConfigAdmin(admin.ModelAdmin):
+    """
+    RefreshProgramSkillsConfig admin view.
+    """

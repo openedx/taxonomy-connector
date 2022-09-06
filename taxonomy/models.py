@@ -259,7 +259,7 @@ class RefreshProgramSkillsConfig(SingletonModel):
         """
 
         app_label = 'taxonomy'
-        verbose_name = 'refresh_program_skills argument'
+        verbose_name = 'Refresh Program Skills Configuration'
 
     arguments = models.TextField(
         blank=True,
