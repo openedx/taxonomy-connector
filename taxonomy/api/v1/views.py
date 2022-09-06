@@ -1,18 +1,23 @@
 """
 Taxonomy API views.
 """
-from rest_framework import permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, status
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Prefetch
 
+from taxonomy.api.permissions import IsOwner
 from taxonomy.api.v1.serializers import (
-    JobPostingsSerializer, JobsListSerializer, SkillListSerializer, SkillsQuizSerializer
+    JobPostingsSerializer,
+    JobsListSerializer,
+    SkillListSerializer,
+    SkillsQuizSerializer,
+    SkillsQuizBySkillNameSerializer,
 )
 from taxonomy.models import CourseSkills, Job, JobPostings, Skill, SkillsQuiz
-from taxonomy.api.permissions import IsOwner
 
 
 class TaxonomyAPIViewSetMixin:
@@ -76,7 +81,6 @@ class SkillsQuizViewSet(TaxonomyAPIViewSetMixin, ModelViewSet):
     """
     ViewSet to list and retrieve all JobPostings in the system.
     """
-    serializer_class = SkillsQuizSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwner | permissions.IsAdminUser, )
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('username', )
@@ -99,3 +103,8 @@ class SkillsQuizViewSet(TaxonomyAPIViewSetMixin, ModelViewSet):
             queryset = queryset.filter(username=self.request.user.username)
 
         return queryset.all().select_related('current_job').prefetch_related('skills', 'future_jobs')
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return SkillsQuizBySkillNameSerializer
+        return SkillsQuizSerializer

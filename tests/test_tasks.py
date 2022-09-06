@@ -8,7 +8,7 @@ import mock
 from pytest import mark
 from testfixtures import LogCapture
 
-from taxonomy.models import CourseSkills, Skill, ProgramSkill
+from taxonomy.models import CourseSkills, ProgramSkill, Skill
 from taxonomy.tasks import update_course_skills, update_program_skills
 from test_utils.mocks import MockCourse, MockProgram
 from test_utils.providers import DiscoveryCourseMetadataProvider, DiscoveryProgramMetadataProvider
