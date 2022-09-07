@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.22.2] - 2022-09-06
+---------------------
+* Register Program associated models on Admin.
+* Change verbose name for RefreshProgramSkillsConfig model
+
 [1.22.1] - 2022-08-26
 ---------------------
 * Added id field in JobSerializer for Algolia.
