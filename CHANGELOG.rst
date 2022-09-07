@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.22.3] - 2022-09-07
+---------------------
+* Added support to filter Skills by names.
+
 [1.22.2] - 2022-09-06
 ---------------------
 * Register Program associated models on Admin.
