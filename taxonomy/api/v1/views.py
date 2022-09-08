@@ -1,18 +1,22 @@
 """
 Taxonomy API views.
 """
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Prefetch
 
+from taxonomy.api.filters import SkillNameFilter
+from taxonomy.api.permissions import IsOwner
 from taxonomy.api.v1.serializers import (
-    JobPostingsSerializer, JobsListSerializer, SkillListSerializer, SkillsQuizSerializer
+    JobPostingsSerializer,
+    JobsListSerializer,
+    SkillListSerializer,
+    SkillsQuizSerializer,
 )
 from taxonomy.models import CourseSkills, Job, JobPostings, Skill, SkillsQuiz
-from taxonomy.api.permissions import IsOwner
 
 
 class TaxonomyAPIViewSetMixin:
@@ -29,6 +33,8 @@ class SkillViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, 
     """
 
     serializer_class = SkillListSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = SkillNameFilter
 
     def get_queryset(self):
         """
