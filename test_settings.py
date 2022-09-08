@@ -42,10 +42,16 @@ LOCALE_PATHS = [
     root('taxonomy', 'conf', 'locale'),
 ]
 
-# ROOT_URLCONF = 'taxonomy.urls'
+ROOT_URLCONF = 'taxonomy.urls'
 
 SECRET_KEY = 'insecure-secret-key'
 
+MIDDLEWARE = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
+)
 
 # Settings related to to EMSI client
 # API URLs are altered to avoid accidentally calling the API in tests

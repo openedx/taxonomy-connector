@@ -9,7 +9,7 @@ from taxonomy.models import Skill
 
 class SkillNameFilter(filters.FilterSet):
     """
-    Filter skills by name. Supports filtering by comma-delimited list of names.
+    Filter skills by name. Supports filtering by comma-delimited string of names.
     """
     name = filters.CharFilter(method='filter_by_name')
 
