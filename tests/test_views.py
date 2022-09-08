@@ -9,7 +9,7 @@ from pytest import mark
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
-from test_utils.factories import JobFactory, SkillFactory, SkillsQuizFactory
+from test_utils.factories import JobFactory, JobPostingsFactory, JobSkillFactory, SkillFactory, SkillsQuizFactory
 
 User = get_user_model()  # pylint: disable=invalid-name
 USER_PASSWORD = 'QWERTY'
@@ -67,6 +67,91 @@ class TestSkillsViewSet(TestCase):
 
 
 @mark.django_db
+class TestJobsViewSet(TestCase):
+    """
+    Tests for ``JobsViewSet`` view set.
+    """
+
+    def setUp(self) -> None:
+        super(TestJobsViewSet, self).setUp()
+        self.job_a = JobFactory()
+        self.job_b = JobFactory()
+        self.job_skill_a = JobSkillFactory(job=self.job_a)
+        self.job_skill_b = JobSkillFactory(job=self.job_b)
+        self.job_skill_c = JobSkillFactory(job=self.job_b)
+        self.user = User.objects.create(username="rocky")
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.view_url = r'/api/v1/jobs/'
+
+    def test_jobs_api(self):
+        """
+        Verify that jobs API returns the expected response.
+        """
+        api_response = self.client.get(self.view_url)
+        api_response = api_response.json()
+        assert len(api_response) == 2
+        job_a_response = api_response[0]
+        job_b_response = api_response[1]
+
+        # verify response for job a contains correct data
+        assert job_a_response['id'] == self.job_a.id
+        assert job_a_response['name'] == self.job_a.name
+        assert job_a_response['external_id'] == self.job_a.external_id
+        assert len(job_a_response['skills']) == 1
+        assert job_a_response['skills'][0]['skill']['id'] == self.job_skill_a.skill.id
+        assert job_a_response['skills'][0]['skill']['name'] == self.job_skill_a.skill.name
+
+        # verify response for job b contains correct data
+        assert job_b_response['id'] == self.job_b.id
+        assert job_b_response['name'] == self.job_b.name
+        assert job_b_response['external_id'] == self.job_b.external_id
+        assert len(job_b_response['skills']) == 2
+        assert job_b_response['skills'][0]['skill']['id'] == self.job_skill_b.skill.id
+        assert job_b_response['skills'][0]['skill']['name'] == self.job_skill_b.skill.name
+        assert job_b_response['skills'][1]['skill']['id'] == self.job_skill_c.skill.id
+        assert job_b_response['skills'][1]['skill']['name'] == self.job_skill_c.skill.name
+
+
+@mark.django_db
+class TestJobPostingsViewSet(TestCase):
+    """
+    Tests for ``JobPostingsViewSet`` view set.
+    """
+
+    def setUp(self) -> None:
+        super(TestJobPostingsViewSet, self).setUp()
+        self.job = JobFactory()
+        self.job_posting = JobPostingsFactory(job=self.job)
+        self.user = User.objects.create(username="rocky")
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.view_url = r'/api/v1/jobpostings/'
+
+    def test_job_postings_api(self):
+        """
+        Verify that job postings API returns the expected response.
+        """
+        api_response = self.client.get(self.view_url)
+        api_response = api_response.json()
+        assert len(api_response) == 1
+        job_posting_response = api_response[0]
+
+        # verify response for job a contains correct data
+        assert job_posting_response['id'] == self.job_posting.id
+        assert job_posting_response['median_salary'] == self.job_posting.median_salary
+        assert job_posting_response['median_posting_duration'] == self.job_posting.median_posting_duration
+        assert job_posting_response['unique_postings'] == self.job_posting.unique_postings
+        assert job_posting_response['unique_companies'] == self.job_posting.unique_companies
+        assert job_posting_response['job']['id'] == self.job_posting.job.id
+        assert job_posting_response['job']['name'] == self.job_posting.job.name
+
+
+@mark.django_db
 class TestSkillsQuizViewSet(TestCase):
     """
     Tests for ``SkillsQuizViewSet`` view set.
@@ -107,6 +192,18 @@ class TestSkillsQuizViewSet(TestCase):
         """
         api_response = self.client.get(self.view_url)
         self._verify_skills_quiz_data(api_response, [self.skills_quiz_a, self.skills_quiz_b])
+
+    def test_skills_quiz_api_get_for_staff_user(self):
+        """
+        Verify that skills quiz API returns all quiz for staff user.
+        """
+        user = User.objects.create(username="rocky-staff", is_staff=True)
+        user.set_password(USER_PASSWORD)
+        user.save()
+        client = Client()
+        client.login(username=user.username, password=USER_PASSWORD)
+        api_response = client.get(self.view_url)
+        self._verify_skills_quiz_data(api_response, [self.skills_quiz_a, self.skills_quiz_b, self.skills_quiz_c])
 
     def test_skills_quiz_api_post(self):
         """
