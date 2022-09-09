@@ -254,14 +254,16 @@ class TestUtils(TaxonomyTestCase):
 
         # 1 query for fetching all 5 course skills and its associated skill.
         with self.django_assert_num_queries(1):
-            course_skills = utils.get_whitelisted_course_skills(course_key=COURSE_KEY)
+            course_skills = utils.get_whitelisted_product_skills(key_or_uuid=COURSE_KEY, product_type='Course')
             skill_ids = [course_skill.skill.id for course_skill in course_skills]
             assert len(skill_ids) == 5
 
         # 1 query for fetching all 5 course skills and then 5 subsequent queries for fetching skill associated with
         # each of the 5 course skills.
         with self.django_assert_num_queries(6):
-            course_skills = utils.get_whitelisted_course_skills(course_key=COURSE_KEY, prefetch_skills=False)
+            course_skills = utils.get_whitelisted_product_skills(
+                key_or_uuid=COURSE_KEY, product_type='Course', prefetch_skills=False
+            )
             skill_ids = [course_skill.skill.id for course_skill in course_skills]
             assert len(skill_ids) == 5
 
@@ -301,7 +303,7 @@ class TestUtils(TaxonomyTestCase):
             skill__category=None,
             skill__subcategory=None
         )
-        expected_skills = utils.get_whitelisted_course_skills(course_key=COURSE_KEY)
+        expected_skills = utils.get_whitelisted_product_skills(key_or_uuid=COURSE_KEY, product_type='Course')
         expected_serialized_skills = [
             {
                 'name': expected_skill.skill.name,
@@ -311,7 +313,31 @@ class TestUtils(TaxonomyTestCase):
             } for expected_skill in expected_skills
         ]
 
-        actual_serialized_skills = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+        actual_serialized_skills = utils.get_whitelisted_serialized_skills(
+            key_or_uuid=COURSE_KEY, product_type='Course'
+        )
+        assert actual_serialized_skills == expected_serialized_skills
+
+        factories.ProgramSkillFactory.create_batch(
+            2,
+            program_uuid=PROGRAM_UUID,
+            is_blacklisted=False,
+            skill__category=None,
+            skill__subcategory=None
+        )
+        expected_skills = utils.get_whitelisted_product_skills(key_or_uuid=PROGRAM_UUID, product_type='Program')
+        expected_serialized_skills = [
+            {
+                'name': expected_skill.skill.name,
+                'description': expected_skill.skill.description,
+                'category': None,
+                'subcategory': None,
+            } for expected_skill in expected_skills
+        ]
+
+        actual_serialized_skills = utils.get_whitelisted_serialized_skills(
+            key_or_uuid=PROGRAM_UUID, product_type='Program'
+        )
         assert actual_serialized_skills == expected_serialized_skills
 
     def test_get_whitelisted_serialized_skills_cache_hit(self):
@@ -326,10 +352,14 @@ class TestUtils(TaxonomyTestCase):
             skill__category=None,
             skill__subcategory=None
         )
-        serialized_skills_first_result = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+        serialized_skills_first_result = utils.get_whitelisted_serialized_skills(
+            key_or_uuid=COURSE_KEY, product_type='Course'
+        )
 
-        with mock.patch('taxonomy.utils.get_whitelisted_course_skills') as mock_get_course_skills:
-            serialized_skills_next_result = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+        with mock.patch('taxonomy.utils.get_whitelisted_product_skills') as mock_get_course_skills:
+            serialized_skills_next_result = utils.get_whitelisted_serialized_skills(
+                key_or_uuid=COURSE_KEY, product_type='Course'
+            )
             self.assertEqual(serialized_skills_first_result, serialized_skills_next_result)
             self.assertFalse(mock_get_course_skills.called)
 
@@ -342,7 +372,7 @@ class TestUtils(TaxonomyTestCase):
         for jobskill in jobskills:
             factories.JobPostingsFactory(job=jobskill.job)
 
-        expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY)
+        expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY, product_type='Course')
 
         # course jobs should not be empty
         assert expected_course_jobs
@@ -796,7 +826,7 @@ class TestUtils(TaxonomyTestCase):
                 **category_data
             },
         ]
-        skill_details = utils.get_whitelisted_serialized_skills(course_key=COURSE_KEY)
+        skill_details = utils.get_whitelisted_serialized_skills(key_or_uuid=COURSE_KEY, product_type='Course')
 
         assert len(skill_details) == 3  # Skill 2 with missing category is not present in the results
         assert skill_details == expected_data

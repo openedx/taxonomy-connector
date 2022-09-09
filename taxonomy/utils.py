@@ -25,25 +25,33 @@ LOGGER = logging.getLogger(__name__)
 CACHE_TIMEOUT_COURSE_SKILLS_SECONDS = 60 * 60
 
 
-def get_whitelisted_serialized_skills(course_key):
+def get_whitelisted_serialized_skills(key_or_uuid, product_type):
     """
     Get a list of serialized course skills.
 
     Arguments:
-        course_key (str): Key of the course whose course skills need to be returned.
+        key_or_uuid (str): Key or uuid of the product whose skills need to be returned.
+        product_type (str): String indicating about the product type.
 
     Returns:
         (dict): A dictionary containing the following key-value pairs
             1.  name: 'Skill name'
             2. description: "Skill Description"
     """
-    cache_key = get_cache_key(domain='taxonomy', subdomain='course_skills', course_key=course_key)
+    subdomain, identifier = \
+        ('course_skills', 'course_key') if product_type == 'Course' else ('program_skills', 'program_uuid')
+    kwargs = {
+        'domain': 'taxonomy',
+        'subdomain': subdomain,
+        identifier: key_or_uuid
+    }
+    cache_key = get_cache_key(**kwargs)
     cached_response = TieredCache.get_cached_response(cache_key)
     if cached_response.is_found:
         return cached_response.value
 
-    course_skills = get_whitelisted_course_skills(course_key)
-    skills = [course_skill.skill for course_skill in course_skills]
+    product_skills = get_whitelisted_product_skills(key_or_uuid, product_type)
+    skills = [product_skill.skill for product_skill in product_skills]
     skills_data = SkillSerializer(skills, many=True).data
     TieredCache.set_all_tiers(
         cache_key,
@@ -245,18 +253,23 @@ def is_skill_blacklisted(key_or_uuid, skill_id, product_type):
     return skill_model.objects.filter(**kwargs).exists()
 
 
-def get_whitelisted_course_skills(course_key, prefetch_skills=True):
+def get_whitelisted_product_skills(key_or_uuid, product_type, prefetch_skills=True):
     """
-    Get all the course skills that are not blacklisted.
+    Get all the product skills that are not blacklisted.
 
     Arguments:
-        course_key (str): Key of the course whose course skills need to be returned.
+        key_or_uuid (str): Key or uuid of the product whose skills need to be returned.
         prefetch_skills (bool): If True, Prefetch related skills in a single query using Django's select_related.
 
     Returns:
-        (list<CourseSkills>): A list of all the course skills that are not blacklisted.
+        (list<CourseSkills/ProgramSkills>): A list of all the product skills that are not blacklisted.
     """
-    qs = CourseSkills.objects.filter(course_key=course_key, is_blacklisted=False)
+    skill_model, identifier = get_product_skill_model_and_identifier(product_type)
+    kwargs = {
+        identifier: key_or_uuid,
+        'is_blacklisted': False
+    }
+    qs = skill_model.objects.filter(**kwargs)
     if prefetch_skills:
         qs = qs.select_related('skill')
     return qs.all()
@@ -279,7 +292,7 @@ def get_blacklisted_course_skills(course_key, prefetch_skills=True):
     return qs.all()
 
 
-def get_course_jobs(course_key):
+def get_course_jobs(course_key, product_type):
     """
     Get data for all course jobs.
 
@@ -289,7 +302,7 @@ def get_course_jobs(course_key):
     Returns:
         list: A list of dicts where each dict contain information about a particular job.
     """
-    course_skills = get_whitelisted_course_skills(course_key)
+    course_skills = get_whitelisted_product_skills(course_key, product_type)
     job_skills = JobSkills.objects.select_related(
         'skill',
         'job',
