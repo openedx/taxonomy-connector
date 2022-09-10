@@ -5,12 +5,12 @@ Taxonomy
     :target: https://pypi.org/project/taxonomy-connector/
     :alt: PyPI
 
-.. image:: http://codecov.io/github/edx/taxonomy-connector/coverage.svg?branch=master
-    :target: http://codecov.io/github/edx/taxonomy-connector?branch=master
+.. image:: http://codecov.io/github/openedx/taxonomy-connector/coverage.svg?branch=master
+    :target: http://codecov.io/github/openedx/taxonomy-connector?branch=master
     :alt: Codecov
-
-.. image:: https://github.com/edx/taxonomy-connector/workflows/Python%20CI/badge.svg?branch=master
-    :target: https://github.com/edx/taxonomy-connector/actions?query=workflow%3A%22Python+CI%22
+    
+.. image:: https://github.com/openedx/taxonomy-connector/workflows/Python%20CI/badge.svg?branch=master
+    :target: https://github.com/openedx/taxonomy-connector/actions?query=workflow%3A%22Python+CI%22
     :alt: CI
 
 The taxonomy service is a library that can be installed in other edX components
