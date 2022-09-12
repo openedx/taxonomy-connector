@@ -107,7 +107,7 @@ class SkillFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('external_id', )
 
     external_id = factory.Sequence('SKILL-{}'.format)
-    name = factory.LazyAttribute(lambda x: FAKER.job())
+    name = factory.Sequence('SKILL-{}'.format)
     info_url = factory.LazyAttribute(lambda x: FAKER.uri())
     type_id = factory.LazyAttribute(lambda x: FAKER.slug())
     type_name = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=20))
