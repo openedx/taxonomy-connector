@@ -8,6 +8,7 @@ import boto3
 from bs4 import BeautifulSoup
 from edx_django_utils.cache import get_cache_key, TieredCache
 
+from taxonomy.choices import ProductTypes
 from taxonomy.constants import (
     AMAZON_TRANSLATION_ALLOWED_SIZE,
     AUTO,
@@ -25,7 +26,7 @@ LOGGER = logging.getLogger(__name__)
 CACHE_TIMEOUT_COURSE_SKILLS_SECONDS = 60 * 60
 
 
-def get_whitelisted_serialized_skills(key_or_uuid, product_type):
+def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Course):
     """
     Get a list of serialized course skills.
 
@@ -253,12 +254,13 @@ def is_skill_blacklisted(key_or_uuid, skill_id, product_type):
     return skill_model.objects.filter(**kwargs).exists()
 
 
-def get_whitelisted_product_skills(key_or_uuid, product_type, prefetch_skills=True):
+def get_whitelisted_product_skills(key_or_uuid, product_type=ProductTypes.Course, prefetch_skills=True):
     """
     Get all the product skills that are not blacklisted.
 
     Arguments:
         key_or_uuid (str): Key or uuid of the product whose skills need to be returned.
+        product_type (str): String indicating about the product type.
         prefetch_skills (bool): If True, Prefetch related skills in a single query using Django's select_related.
 
     Returns:
@@ -292,12 +294,13 @@ def get_blacklisted_course_skills(course_key, prefetch_skills=True):
     return qs.all()
 
 
-def get_course_jobs(course_key, product_type):
+def get_course_jobs(course_key, product_type=ProductTypes.Course):
     """
     Get data for all course jobs.
 
     Arguments:
         course_key (str): Key of the course whose course skills need to be returned.
+        product_type (str): String indicating about the product type.
 
     Returns:
         list: A list of dicts where each dict contain information about a particular job.
