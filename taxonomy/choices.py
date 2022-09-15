@@ -13,3 +13,12 @@ class UserGoal(DjangoChoices):
     GetPromoted = ChoiceItem('get_promoted', 'I want to get promoted')
     ImproveCurrentRole = ChoiceItem('improve_current_role', 'I want to improve at my current role')
     Other = ChoiceItem('other', 'Other')
+
+
+class ProductTypes(DjangoChoices):
+    """
+    Product types to be used in retrieving skills.
+    """
+
+    Course = ChoiceItem('course', 'Course')
+    Program = ChoiceItem('program', 'Program')

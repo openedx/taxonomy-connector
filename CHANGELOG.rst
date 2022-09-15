@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.22.4] - 2022-09-14
+---------------------
+* Updated utils to support program skills.
+
 [1.22.3] - 2022-09-07
 ---------------------
 * Added support to filter Skills by names.
