@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.22.5] - 2022-09-16
+---------------------
+* Fixes product type issue by using ProductTypes choices.
+
 [1.22.4] - 2022-09-14
 ---------------------
 * Updated utils to support program skills.

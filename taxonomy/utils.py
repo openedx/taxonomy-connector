@@ -40,7 +40,7 @@ def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Cou
             2. description: "Skill Description"
     """
     subdomain, identifier = \
-        ('course_skills', 'course_key') if product_type == 'Course' else ('program_skills', 'program_uuid')
+        ('course_skills', 'course_key') if product_type == ProductTypes.Course else ('program_skills', 'program_uuid')
     kwargs = {
         'domain': 'taxonomy',
         'subdomain': subdomain,
@@ -67,9 +67,9 @@ def get_product_identifier(product_type):
     Return the identifier of a Product Model from Discovery.
     """
     identifier = None
-    if product_type == 'Program':
+    if product_type == ProductTypes.Program:
         identifier = 'uuid'
-    elif product_type == 'Course':
+    elif product_type == ProductTypes.Course:
         identifier = 'key'
 
     return identifier
@@ -79,7 +79,7 @@ def get_product_skill_model_and_identifier(product_type):
     """
     Return the Skill Model along with its identifier based on product type.
     """
-    return (ProgramSkill, 'program_uuid') if product_type == 'Program' else (CourseSkills, 'course_key')
+    return (ProgramSkill, 'program_uuid') if product_type == ProductTypes.Program else (CourseSkills, 'course_key')
 
 
 def update_skills_data(key_or_uuid, skill_external_id, confidence, skill_data, product_type):
@@ -142,7 +142,7 @@ def get_translation_attr(product_type):
     """
     Return properties based on product type.
     """
-    return 'overview' if product_type == 'Program' else 'full_description'
+    return 'overview' if product_type == ProductTypes.Program else 'full_description'
 
 
 def refresh_product_skills(products, should_commit_to_db, product_type):

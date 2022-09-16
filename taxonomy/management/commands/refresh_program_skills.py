@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
 from taxonomy import utils
+from taxonomy.choices import ProductTypes
 from taxonomy.exceptions import ProgramMetadataNotFoundError, InvalidCommandOptionsError
 from taxonomy.models import RefreshProgramSkillsConfig
 from taxonomy.providers.utils import get_program_metadata_provider
@@ -27,7 +28,7 @@ class Command(BaseCommand):
             $ ./manage.py refresh_program_skills --all --commit
         """
     help = 'Refreshes the skills associated with programs.'
-    product_type = 'Program'
+    product_type = ProductTypes.Program
 
     def add_arguments(self, parser):
         """
