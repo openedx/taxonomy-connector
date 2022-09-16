@@ -11,6 +11,7 @@ from pytest import fixture, mark
 from testfixtures import LogCapture
 
 from taxonomy import models, utils
+from taxonomy.choices import ProductTypes
 from taxonomy.constants import ENGLISH
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
@@ -75,7 +76,7 @@ class TestUtils(TaxonomyTestCase):
         """
         # Create a Black listed course skill.
         factories.CourseSkillsFactory(course_key=COURSE_KEY, skill_id=self.skill.id, is_blacklisted=True)
-        product_type = 'Course'
+        product_type = ProductTypes.Course
 
         assert utils.is_skill_blacklisted(COURSE_KEY, self.skill.id, product_type) is True
         assert utils.is_skill_blacklisted(COURSE_KEY, 0, product_type) is not True
@@ -90,7 +91,7 @@ class TestUtils(TaxonomyTestCase):
         """
         black_listed_course_skill = factories.CourseSkillsFactory(course_key=COURSE_KEY, is_blacklisted=True)
         skills_count = Skill.objects.count()
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         utils.update_skills_data(
             key_or_uuid=COURSE_KEY,
             skill_external_id=black_listed_course_skill.skill.external_id,
@@ -158,7 +159,7 @@ class TestUtils(TaxonomyTestCase):
         """
         black_listed_program_skill = factories.ProgramSkillFactory(program_uuid=PROGRAM_UUID, is_blacklisted=True)
         skills_count = Skill.objects.count()
-        product_type = 'Program'
+        product_type = ProductTypes.Program
         utils.update_skills_data(
             key_or_uuid=PROGRAM_UUID,
             skill_external_id=black_listed_program_skill.skill.external_id,
@@ -222,7 +223,7 @@ class TestUtils(TaxonomyTestCase):
         sample_skill_data = copy.deepcopy({'data': [SKILLS_EMSI_CLIENT_RESPONSE['data'][0]]})
         del sample_skill_data['data'][0]['skill']['id']
         program = {'uuid': 'test-uuid'}
-        product_type = 'Program'
+        product_type = ProductTypes.Program
 
         failures = utils.process_skills_data(program, sample_skill_data, False, product_type)
         assert len(failures) == 1
@@ -235,7 +236,7 @@ class TestUtils(TaxonomyTestCase):
         sample_skill_data = copy.deepcopy({'data': [SKILLS_EMSI_CLIENT_RESPONSE['data'][0]]})
         sample_skill_data['data'][0]['confidence'] = 'invalid-value'
         program = {'uuid': 'test-uuid'}
-        product_type = 'Program'
+        product_type = ProductTypes.Program
 
         failures = utils.process_skills_data(program, sample_skill_data, False, product_type)
         assert len(failures) == 1
@@ -254,7 +255,9 @@ class TestUtils(TaxonomyTestCase):
 
         # 1 query for fetching all 5 course skills and its associated skill.
         with self.django_assert_num_queries(1):
-            course_skills = utils.get_whitelisted_product_skills(key_or_uuid=COURSE_KEY, product_type='Course')
+            course_skills = utils.get_whitelisted_product_skills(
+                key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course
+            )
             skill_ids = [course_skill.skill.id for course_skill in course_skills]
             assert len(skill_ids) == 5
 
@@ -262,7 +265,7 @@ class TestUtils(TaxonomyTestCase):
         # each of the 5 course skills.
         with self.django_assert_num_queries(6):
             course_skills = utils.get_whitelisted_product_skills(
-                key_or_uuid=COURSE_KEY, product_type='Course', prefetch_skills=False
+                key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course, prefetch_skills=False
             )
             skill_ids = [course_skill.skill.id for course_skill in course_skills]
             assert len(skill_ids) == 5
@@ -303,7 +306,7 @@ class TestUtils(TaxonomyTestCase):
             skill__category=None,
             skill__subcategory=None
         )
-        expected_skills = utils.get_whitelisted_product_skills(key_or_uuid=COURSE_KEY, product_type='Course')
+        expected_skills = utils.get_whitelisted_product_skills(key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course)
         expected_serialized_skills = [
             {
                 'name': expected_skill.skill.name,
@@ -314,7 +317,7 @@ class TestUtils(TaxonomyTestCase):
         ]
 
         actual_serialized_skills = utils.get_whitelisted_serialized_skills(
-            key_or_uuid=COURSE_KEY, product_type='Course'
+            key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course
         )
         assert actual_serialized_skills == expected_serialized_skills
 
@@ -325,7 +328,9 @@ class TestUtils(TaxonomyTestCase):
             skill__category=None,
             skill__subcategory=None
         )
-        expected_skills = utils.get_whitelisted_product_skills(key_or_uuid=PROGRAM_UUID, product_type='Program')
+        expected_skills = utils.get_whitelisted_product_skills(
+            key_or_uuid=PROGRAM_UUID, product_type=ProductTypes.Program
+        )
         expected_serialized_skills = [
             {
                 'name': expected_skill.skill.name,
@@ -336,7 +341,7 @@ class TestUtils(TaxonomyTestCase):
         ]
 
         actual_serialized_skills = utils.get_whitelisted_serialized_skills(
-            key_or_uuid=PROGRAM_UUID, product_type='Program'
+            key_or_uuid=PROGRAM_UUID, product_type=ProductTypes.Program
         )
         assert actual_serialized_skills == expected_serialized_skills
 
@@ -353,12 +358,12 @@ class TestUtils(TaxonomyTestCase):
             skill__subcategory=None
         )
         serialized_skills_first_result = utils.get_whitelisted_serialized_skills(
-            key_or_uuid=COURSE_KEY, product_type='Course'
+            key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course
         )
 
         with mock.patch('taxonomy.utils.get_whitelisted_product_skills') as mock_get_course_skills:
             serialized_skills_next_result = utils.get_whitelisted_serialized_skills(
-                key_or_uuid=COURSE_KEY, product_type='Course'
+                key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course
             )
             self.assertEqual(serialized_skills_first_result, serialized_skills_next_result)
             self.assertFalse(mock_get_course_skills.called)
@@ -372,7 +377,7 @@ class TestUtils(TaxonomyTestCase):
         for jobskill in jobskills:
             factories.JobPostingsFactory(job=jobskill.job)
 
-        expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY, product_type='Course')
+        expected_course_jobs = utils.get_course_jobs(course_key=COURSE_KEY, product_type=ProductTypes.Course)
 
         # course jobs should not be empty
         assert expected_course_jobs
@@ -403,7 +408,7 @@ class TestUtils(TaxonomyTestCase):
 
         new_course_description = "ghi jkl"
         new_translation = "translated text new"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translate_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
             'TranslatedText': new_translation
@@ -443,7 +448,7 @@ class TestUtils(TaxonomyTestCase):
 
         new_course_description = "ghi jkl"
         new_translation = "translated text new"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
 
         translate_text_mocked.return_value = {
             'SourceLanguageCode': 'AR',
@@ -478,7 +483,7 @@ class TestUtils(TaxonomyTestCase):
          and updates Translation object.
         """
         course_description = "abc def"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translated_course_description = "different text"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
@@ -514,13 +519,13 @@ class TestUtils(TaxonomyTestCase):
          if translate_text method returns None and does not create Translation object.
         """
         course_description = "abc def"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translate_text_mocked.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
         expected_translated_description = utils.get_translated_skill_attribute_val(
             COURSE_KEY, course_description, product_type
         )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=ProductTypes.Course,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -537,12 +542,12 @@ class TestUtils(TaxonomyTestCase):
         translate_text_mocked.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
         course_description = "abc def"
         new_course_description = "jhi qlm"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translated_course_description = "different text"
         trans = factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
             source_model_field='full_description',
-            source_model_name='Course',
+            source_model_name=ProductTypes.Course,
             source_text=course_description,
             translated_text=translated_course_description,
             translated_text_language=ENGLISH,
@@ -553,7 +558,7 @@ class TestUtils(TaxonomyTestCase):
             COURSE_KEY, new_course_description, product_type
         )
         translation_record = Translation.objects.filter(
-            source_model_name='Course',
+            source_model_name=ProductTypes.Course,
             source_model_field='full_description',
             source_record_identifier=COURSE_KEY
         ).first()
@@ -570,7 +575,7 @@ class TestUtils(TaxonomyTestCase):
         exist with the translated course description.
         """
         course_description = "abc def"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translated_course_description = "different text"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
@@ -596,7 +601,7 @@ class TestUtils(TaxonomyTestCase):
         exist with the translated course description.
         """
         course_description = "abc def"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translated_course_description = "different text"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': 'AR',
@@ -623,7 +628,7 @@ class TestUtils(TaxonomyTestCase):
         exist with the translated course description.
         """
         course_description = "<p>abc</p><span>def</span><br/><p>ghi</p>"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translated_course_description = "<p>abc</p><span>def</span><br/><p>ghi</p>"
         translate_text_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
@@ -655,7 +660,7 @@ class TestUtils(TaxonomyTestCase):
 
         new_course_description = "<p>abc</p><span>def</span>"
         new_translation = "<p>abc</p><span>def</span>"
-        product_type = 'Course'
+        product_type = ProductTypes.Course
         translate_mocked.return_value = {
             'SourceLanguageCode': ENGLISH,
             'TranslatedText': new_translation
@@ -698,7 +703,7 @@ class TestUtils(TaxonomyTestCase):
         get_course_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         get_translated_description_mock.return_value = None
         time_sleep_mock.return_value = None
-        product_type = 'Course'
+        product_type = ProductTypes.Course
 
         courses = []
         for _ in range(11):
@@ -718,7 +723,7 @@ class TestUtils(TaxonomyTestCase):
         overview = {'overview': None, 'uuid': program.uuid}
         program.__getitem__.side_effect = overview.__getitem__
         assert program['overview'] is None
-        product_type = 'Program'
+        product_type = ProductTypes.Program
 
         with LogCapture(level=logging.INFO) as log_capture:
             utils.refresh_product_skills([program], False, product_type)
@@ -826,7 +831,9 @@ class TestUtils(TaxonomyTestCase):
                 **category_data
             },
         ]
-        skill_details = utils.get_whitelisted_serialized_skills(key_or_uuid=COURSE_KEY, product_type='Course')
+        skill_details = utils.get_whitelisted_serialized_skills(
+            key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course
+        )
 
         assert len(skill_details) == 3  # Skill 2 with missing category is not present in the results
         assert skill_details == expected_data

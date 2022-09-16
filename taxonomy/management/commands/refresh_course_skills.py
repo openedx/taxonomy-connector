@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
 from taxonomy import utils
+from taxonomy.choices import ProductTypes
 from taxonomy.exceptions import CourseMetadataNotFoundError, InvalidCommandOptionsError
 from taxonomy.models import RefreshCourseSkillsConfig
 from taxonomy.providers.utils import get_course_metadata_provider
@@ -28,7 +29,7 @@ class Command(BaseCommand):
         $ ./manage.py refresh_course_skills --all --commit
     """
     help = 'Refreshes the skills associated with courses.'
-    product_type = 'Course'
+    product_type = ProductTypes.Course
 
     def add_arguments(self, parser):
         """
