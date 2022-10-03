@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.23.0] - 2022-10-05
+---------------------
+* Expand course skills tagging to include `title`, `short_description` and `full_description`.
+
 [1.22.5] - 2022-09-16
 ---------------------
 * Fixes product type issue by using ProductTypes choices.

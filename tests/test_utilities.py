@@ -415,7 +415,7 @@ class TestUtils(TaxonomyTestCase):
         }
         factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_model_name=product_type,
             source_text=existing_course_description,
             translated_text=existing_translation,
@@ -428,7 +428,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_record_identifier=COURSE_KEY
         ).first()
 
@@ -456,7 +456,7 @@ class TestUtils(TaxonomyTestCase):
         }
         factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_model_name=product_type,
             source_text=existing_course_description,
             translated_text=existing_translation,
@@ -468,7 +468,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_record_identifier=COURSE_KEY
         ).first()
 
@@ -491,7 +491,7 @@ class TestUtils(TaxonomyTestCase):
         }
         trans = factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_model_name=product_type,
             source_text=course_description,
             translated_text=translated_course_description,
@@ -504,7 +504,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_record_identifier=COURSE_KEY
         ).exists()
         assert translation_record is True
@@ -586,7 +586,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field='title:short_description:full_description',
             source_record_identifier=COURSE_KEY
         ).first()
 
@@ -612,7 +612,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_record_identifier=COURSE_KEY
         ).first()
 
@@ -639,7 +639,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_record_identifier=COURSE_KEY
         ).first()
 
@@ -667,7 +667,7 @@ class TestUtils(TaxonomyTestCase):
         }
         factories.TranslationFactory(
             source_record_identifier=COURSE_KEY,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_model_name=product_type,
             source_text=existing_course_description,
             translated_text=existing_translation,
@@ -680,7 +680,7 @@ class TestUtils(TaxonomyTestCase):
         )
         translation_record = Translation.objects.filter(
             source_model_name=product_type,
-            source_model_field='full_description',
+            source_model_field=utils.COURSE_METADATA_FIELDS_COMBINED,
             source_record_identifier=COURSE_KEY
         ).first()
 
@@ -708,7 +708,13 @@ class TestUtils(TaxonomyTestCase):
         courses = []
         for _ in range(11):
             course = MockCourse()
-            courses.append(course)
+            courses.append({
+                'uuid': course.uuid,
+                'key': course.key,
+                'title': course.title,
+                'short_description': course.short_description,
+                'full_description': course.full_description,
+            })
 
         utils.refresh_product_skills(courses, False, product_type)
 

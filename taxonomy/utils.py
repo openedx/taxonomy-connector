@@ -25,6 +25,8 @@ from taxonomy.serializers import SkillSerializer
 LOGGER = logging.getLogger(__name__)
 CACHE_TIMEOUT_COURSE_SKILLS_SECONDS = 60 * 60
 
+COURSE_METADATA_FIELDS_COMBINED = 'title:short_description:full_description'
+
 
 def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Course):
     """
@@ -142,7 +144,17 @@ def get_translation_attr(product_type):
     """
     Return properties based on product type.
     """
-    return 'overview' if product_type == ProductTypes.Program else 'full_description'
+    return 'overview' if product_type == ProductTypes.Program else COURSE_METADATA_FIELDS_COMBINED
+
+
+def get_course_metadata_fields_text(course_attrs_string, course):
+    """
+    Extract, combine and return text for multiple metadata fields of a course.
+    """
+    course_attr_values = []
+    for course_attr in course_attrs_string.split(':'):
+        course_attr_values.append(course[course_attr])
+    return ' '.join(course_attr_values).strip()
 
 
 def refresh_product_skills(products, should_commit_to_db, product_type):
@@ -157,7 +169,10 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
     client = EMSISkillsApiClient()
 
     for index, product in enumerate(products, start=1):
-        skill_attr_val = product[skill_extraction_attr]
+        if product_type == ProductTypes.Course:
+            skill_attr_val = get_course_metadata_fields_text(skill_extraction_attr, product)
+        else:
+            skill_attr_val = product[skill_extraction_attr]
         if skill_attr_val:
             translated_skill_attr = get_translated_skill_attribute_val(
                 product[key_or_uuid], skill_attr_val, product_type
