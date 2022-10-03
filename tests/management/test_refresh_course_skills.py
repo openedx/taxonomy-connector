@@ -81,6 +81,8 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         """
         Test that command work as expected if course description does not exist.
         """
+        self.course_1.title = ''
+        self.course_1.short_description = ''
         self.course_1.full_description = ''
         self.course_1.save()
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course_1])
