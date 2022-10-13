@@ -93,10 +93,12 @@ def update_skills_data(key_or_uuid, skill_external_id, confidence, skill_data, p
     kwargs = {
         identifier: key_or_uuid,
         'skill': skill,
+    }
+    defaults = {
         'confidence': confidence
     }
     if not is_skill_blacklisted(key_or_uuid, skill.id, product_type):
-        _, created = skill_model.objects.update_or_create(**kwargs)
+        _, created = skill_model.objects.update_or_create(**kwargs, defaults=defaults)
         action = 'created' if created else 'updated'
         LOGGER.error(f'{skill_model} {action} for key {key_or_uuid}')
 
@@ -154,7 +156,7 @@ def get_course_metadata_fields_text(course_attrs_string, course):
     course_attr_values = []
     for course_attr in course_attrs_string.split(':'):
         course_attr_values.append(course[course_attr])
-    return ' '.join(course_attr_values).strip()
+    return ' '.join(filter(bool, course_attr_values)).strip()
 
 
 def refresh_product_skills(products, should_commit_to_db, product_type):

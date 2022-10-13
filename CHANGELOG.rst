@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.23.1] - 2022-10-13
+---------------------
+* Do no concatenate if `short_description is `None`.
+* Fix CourseSkills update_or_create call.
+
 [1.23.0] - 2022-10-05
 ---------------------
 * Expand course skills tagging to include `title`, `short_description` and `full_description`.
