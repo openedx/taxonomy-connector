@@ -11,7 +11,7 @@ from faker import Faker
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
-    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig,
+    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig
 )
 from taxonomy.choices import UserGoal
 

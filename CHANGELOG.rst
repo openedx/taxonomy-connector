@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.24.0] - 2022-10-21
+---------------------
+* Added a new model to store industry data using NAICS2 codes.
+
 [1.23.1] - 2022-10-13
 ---------------------
 * Do no concatenate if `short_description is `None`.
