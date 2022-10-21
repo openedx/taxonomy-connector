@@ -683,3 +683,36 @@ class SkillsQuiz(TimeStampedModel):
         app_label = 'taxonomy'
         verbose_name = 'Skill Quiz'
         verbose_name_plural = 'Skill Quizzes'
+
+
+class Industry(models.Model):
+    """
+    Model for storing industry NAICS2 data.
+
+    .. no_pii:
+    """
+
+    name = models.CharField(_("Industry Name"), max_length=256)
+    code = models.IntegerField()
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<Industry id="{}" name="{}">'.format(self.id, self.name)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<Industry id="{}" code="{}">'.format(self.id, self.code)
+
+    class Meta:
+        """
+        Meta configuration for Skill model.
+        """
+
+        ordering = ('id', )
+        app_label = 'taxonomy'
+        verbose_name = 'Industry'
+        verbose_name_plural = 'Industries'

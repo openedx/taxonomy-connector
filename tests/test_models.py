@@ -7,7 +7,7 @@ from pytest import mark
 
 from django.test import TestCase
 
-from taxonomy.models import Job, JobPostings
+from taxonomy.models import Job, JobPostings, Industry
 from test_utils import factories
 
 
@@ -268,3 +268,22 @@ class TestSkillsQuiz(TestCase):
 
         assert expected_str == skill_quiz.__str__()
         assert expected_repr == skill_quiz.__repr__()
+
+
+@mark.django_db
+class TestIndustry(TestCase):
+    """
+    Tests for the ``Industry`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the SkillsQuiz model.
+        """
+        # We do need to create industry as it is pre-populated by the data migration.
+        industry = Industry.objects.first()
+        expected_str = '<Industry id="{}" name="{}">'.format(industry.id, industry.name)
+        expected_repr = '<Industry id="{}" code="{}">'.format(industry.id, industry.code)
+
+        assert expected_str == industry.__str__()
+        assert expected_repr == industry.__repr__()

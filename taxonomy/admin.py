@@ -10,7 +10,7 @@ from django.contrib import admin
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
-    SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig
+    SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry,
 )
 
 
@@ -138,3 +138,14 @@ class RefreshProgramSkillsConfigAdmin(admin.ModelAdmin):
     """
     RefreshProgramSkillsConfig admin view.
     """
+
+
+@admin.register(Industry)
+class IndustryAdmin(admin.ModelAdmin):
+    """
+    Industry admin view.
+    """
+
+    list_display = ('id', 'code', 'name',)
+    search_fields = ('name', )
+    list_filter = ('name', )
