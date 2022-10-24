@@ -4,19 +4,23 @@ Taxonomy API views.
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch, Sum
+from django.shortcuts import get_object_or_404
 
 from taxonomy.api.filters import SkillNameFilter
 from taxonomy.api.permissions import IsOwner
 from taxonomy.api.v1.serializers import (
     JobPostingsSerializer,
+    JobSkillCategorySerializer,
     JobsListSerializer,
     SkillListSerializer,
     SkillsQuizSerializer,
 )
-from taxonomy.models import CourseSkills, Job, JobPostings, Skill, SkillsQuiz
+from taxonomy.models import CourseSkills, Job, JobPostings, Skill, SkillCategory, SkillsQuiz, SkillSubCategory
 
 
 class TaxonomyAPIViewSetMixin:
@@ -61,6 +65,83 @@ class JobsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, G
         return Job.objects.all().prefetch_related(
             'jobskills_set', 'jobskills_set__skill'
         )
+
+
+class JobTopSkillCategoriesAPIView(APIView):
+    """
+    This API takes job id as input and return job related top 5 skills categories.
+    The top 5 skills categories also contains their skills and skills subcategories matching the job's skills.
+    """
+    permission_classes = [permissions.IsAdminUser]
+    throttle_scope = 'taxonomy-api-throttle-scope'
+
+    def get(self, request, job_id):
+        """
+        Example URL: GET https://discovery.edx.org/taxonomy/api/v1/job-top-subcategories/2/
+
+        example response:
+         {
+            "job": "Digital Product Manager",
+            "skill_categories": [
+                {
+                    "name": "Information Technology",
+                    "id": 1,
+                    "skills": [
+                        {"id": 1, "name": "Technology Roadmap"},
+                        {"id": 2, "name": "Query Languages"},
+                        {"id": 3, "name": "MongoDB"},
+                        // here only job related skills
+                    ],
+                    "skills_subcategories": [
+                        {
+                            "id": 1,
+                            "name": "Databases",
+                            skills: [
+                                {"id": 1, "name": "Technology Roadmap"},
+                                {"id": 2, "name": "Query Languages"},
+                                {"id": 3, "name": "MongoDB"},
+                                {"id": 5, "name": "DEF"},
+                                // all skills in this subcategory
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "name": "IT Management",
+                            "skills": [
+                                {"id": 1, "name": "Technology Roadmap"},
+                                // all skills in this subcategory
+                            ]
+                        },
+                        // job related skills subcategories
+                    ]
+                },
+                // Here more 4 skill categories
+            ]
+        }
+
+        """
+        job = get_object_or_404(Job, id=job_id)
+        skill_categories = SkillCategory.objects.filter(
+            skills__jobskills__job=job
+        ).prefetch_related(
+            Prefetch(
+                'skill_set',
+                queryset=Skill.objects.filter(jobskills__job=job).distinct()
+            ),
+            Prefetch(
+                'skillsubcategory_set',
+                queryset=SkillSubCategory.objects.filter(skills__jobskills__job=job).distinct().prefetch_related('skill_set')
+            ),
+        ).annotate(
+            total_significance=Sum('skills__jobskills__significance'),
+            total_unique_postings=Sum('skills__jobskills__unique_postings'),
+            total_skills=Count('skills'),
+        ).order_by(
+            '-total_significance', '-total_unique_postings', '-total_skills'
+        )[:5]
+
+        response_data = JobSkillCategorySerializer(job, context={'skill_categories': skill_categories}).data
+        return Response(response_data)
 
 
 class JobPostingsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, GenericViewSet):
