@@ -3,13 +3,25 @@
 Tests for the taxonomy API views.
 """
 import json
+from random import randint
 
 from pytest import mark
 
 from django.contrib.auth import get_user_model
+from django.db.models import Count, Sum
 from django.test import Client, TestCase
+from django.urls import reverse
 
-from test_utils.factories import JobFactory, JobPostingsFactory, JobSkillFactory, SkillFactory, SkillsQuizFactory
+from taxonomy.models import JobSkills, Skill, SkillCategory
+from test_utils.factories import (
+    JobFactory,
+    JobPostingsFactory,
+    JobSkillFactory,
+    SkillCategoryFactory,
+    SkillFactory,
+    SkillsQuizFactory,
+    SkillSubCategoryFactory,
+)
 
 User = get_user_model()  # pylint: disable=invalid-name
 USER_PASSWORD = 'QWERTY'
@@ -224,3 +236,133 @@ class TestSkillsQuizViewSet(TestCase):
         assert response['skills']
         assert response['skills'] == [self.skill_a.id, self.skill_b.id]
         assert response['future_jobs'] == post_data['future_jobs']
+
+
+@mark.django_db
+class TestJobTopSkillCategoriesAPIView(TestCase):
+    """
+    Tests for `JobTopSkillCategoriesAPIView` API view.
+    """
+
+    def setUp(self) -> None:
+        """
+        Setup env.
+        """
+        super(TestJobTopSkillCategoriesAPIView, self).setUp()
+        self.user = User.objects.create(username="rocky", is_staff=True)
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.job = JobFactory()
+
+        self.view_url = reverse('job_top_subcategories', kwargs={"job_id": self.job.id})
+
+    def test_non_staff(self):
+        """
+        Test that non-staff user should not access this API.
+        """
+        user = User.objects.create(username="non-staff-rocky", is_staff=False)
+        user.set_password(USER_PASSWORD)
+        user.save()
+        client = Client()
+        client.login(username=user.username, password=USER_PASSWORD)
+        api_response = client.get(self.view_url)
+        assert api_response.status_code == 403
+
+    @staticmethod
+    def _create_job_skills_and_skill_category(job, sub_category_count, skills_count):
+        """
+        Utility to create date required for the API.
+        """
+        category = SkillCategoryFactory()
+        sub_category_batch = SkillSubCategoryFactory.create_batch(sub_category_count, category=category)
+        for __ in range(skills_count):
+            sub_category_index = randint(0, sub_category_count - 1)
+            skill = SkillFactory(category=category, subcategory=sub_category_batch[sub_category_index])
+            if randint(0, 1):
+                JobSkillFactory(skill=skill, job=job)
+
+    @staticmethod
+    def _get_skill_category_stats(category_id, job):
+        """
+        Get stats of existing records for given Skill category and Job.
+        """
+        category = SkillCategory.objects.get(id=category_id)
+        return JobSkills.objects.filter(
+            job=job, skill__in=category.skill_set.all()
+        ).aggregate(
+            total_significance=Sum('significance'),
+            total_unique_postings=Sum('unique_postings'),
+            total_skills=Count('skill'),
+        )
+
+    @staticmethod
+    def _assert_skill_category_data(category_data, job):
+        """
+        Asserts response from the API is correct.
+        """
+        category = SkillCategory.objects.get(id=category_data['id'])
+        job_skills = JobSkills.objects.filter(job=job, skill__in=category.skill_set.all())
+
+        # assert skills inside the skills category
+        response_skills = [skill['id'] for skill in category_data['skills']]
+        expected_skills = list(job_skills.values_list('skill_id', flat=True))
+        assert len(response_skills) == len(expected_skills)
+        assert sorted(response_skills) == sorted(expected_skills)
+
+        # assert sub-categories
+        response_subcategories = [subcategory['id'] for subcategory in category_data['skills_subcategories']]
+        expected_subcategories_ids = list(set(job_skills.values_list('skill__subcategory_id', flat=True).distinct()))
+        assert len(response_subcategories) == len(expected_subcategories_ids)
+        assert sorted(response_subcategories) == sorted(expected_subcategories_ids)
+
+        # assert 'skills_subcategories' skills, these skills should not just job specific instead all sub-cat skills
+        for sub_category in category_data['skills_subcategories']:
+            expected_skills = list(Skill.objects.filter(subcategory_id=sub_category['id']).values_list('id', flat=True))
+            response_skills = [skill['id'] for skill in sub_category['skills']]
+            assert len(response_skills) == len(expected_skills)
+            assert sorted(response_skills) == sorted(expected_skills)
+
+    def test_success(self):
+        """
+        Test success response for the API.
+        """
+        # creating data for self.job
+        for __ in range(10):
+            self._create_job_skills_and_skill_category(
+                self.job,
+                sub_category_count=randint(3, 5),
+                skills_count=randint(30, 50)
+            )
+
+        # creating more data for other random jobs
+        for __ in range(5):
+            self._create_job_skills_and_skill_category(
+                JobFactory(),
+                sub_category_count=randint(2, 3),
+                skills_count=randint(10, 15)
+            )
+
+        with self.assertNumQueries(7):
+            api_response = self.client.get(self.view_url)
+
+        assert api_response.status_code == 200
+        data = api_response.json()
+
+        # assert that we are getting top 5 skill categories related to job. make sure there ordering is also correct.
+        last_category_stats = None
+        for index in range(5):
+            this_stats = self._get_skill_category_stats(data['skill_categories'][index]['id'], self.job)
+            if last_category_stats is None:
+                last_category_stats = this_stats
+                continue
+            assert (this_stats['total_significance'] < last_category_stats['total_significance']) \
+                   or (this_stats['total_significance'] == last_category_stats['total_significance']
+                       and this_stats['total_unique_postings'] < last_category_stats['total_unique_postings']) \
+                   or (this_stats['total_unique_postings'] == last_category_stats['total_unique_postings']
+                       and this_stats['total_skills'] <= last_category_stats['total_skills'])
+
+        # assert every category data individually
+        for index in range(5):
+            self._assert_skill_category_data(data['skill_categories'][index], self.job)

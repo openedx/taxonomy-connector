@@ -1,9 +1,19 @@
 """
 Taxonomy API serializers.
 """
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
-from taxonomy.models import CourseSkills, Job, JobPostings, JobSkills, Skill, SkillsQuiz
+from taxonomy.models import (
+    CourseSkills,
+    Job,
+    JobPostings,
+    JobSkills,
+    Skill,
+    SkillCategory,
+    SkillsQuiz,
+    SkillSubCategory,
+)
 
 
 class JobSerializer(ModelSerializer):
@@ -66,3 +76,52 @@ class SkillsQuizSerializer(ModelSerializer):
         model = SkillsQuiz
         fields = '__all__'
         read_only_fields = ('username', )
+
+
+class ShortSkillSerializer(ModelSerializer):
+    """
+    Serializer to get only id and name of skills.
+    """
+    class Meta:
+        model = Skill
+        fields = ('id', 'name')
+
+
+class ShortSkillSubcategorySerializer(ModelSerializer):
+    """
+    Serializer to get only id, name and skills of SkillSubcategory.
+    """
+    skills = ShortSkillSerializer(source='skill_set', many=True)
+
+    class Meta:
+        model = SkillSubCategory
+        fields = ('id', 'name', 'skills')
+
+
+class SkillCategorySerializer(ModelSerializer):
+    """
+    Serializer to get SkillCategory fields.
+    """
+    skills = ShortSkillSerializer(source='skill_set', many=True)
+    skills_subcategories = ShortSkillSubcategorySerializer(source='skillsubcategory_set', many=True)
+
+    class Meta:
+        model = SkillCategory
+        fields = ('id', 'name', 'skills', 'skills_subcategories')
+
+
+class JobSkillCategorySerializer(ModelSerializer):
+    """
+    Serializer to get data for JobTopSkillCategoriesAPIView.
+    """
+    skill_categories = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Job
+        fields = ('id', 'name', 'skill_categories')
+
+    def get_skill_categories(self, __):
+        """get skill_categories queryset from context and serializing it using SkillCategorySerializer."""
+        return SkillCategorySerializer(
+            self.context['skill_categories'], many=True
+        ).data

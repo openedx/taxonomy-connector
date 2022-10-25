@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.25.0] - 2022-10-24
+---------------------
+* Added JobTopSkillCategoriesAPIView.
+
 [1.24.0] - 2022-10-21
 ---------------------
 * Added a new model to store industry data using NAICS2 codes.

@@ -3,12 +3,25 @@ Taxonomy v1 API URLs.
 """
 from rest_framework.routers import DefaultRouter
 
-from taxonomy.api.v1.views import JobPostingsViewSet, JobsViewSet, SkillViewSet, SkillsQuizViewSet
+from django.urls import path
 
-router = DefaultRouter()
-router.register(r'skills', SkillViewSet, basename='skill')
-router.register(r'jobs', JobsViewSet, basename='job')
-router.register(r'jobpostings', JobPostingsViewSet, basename='jobposting')
-router.register(r'skills-quiz', SkillsQuizViewSet, basename='skills_quiz')
+from taxonomy.api.v1.views import (
+    JobPostingsViewSet,
+    JobsViewSet,
+    JobTopSkillCategoriesAPIView,
+    SkillsQuizViewSet,
+    SkillViewSet,
+)
 
-urlpatterns = router.urls
+ROUTER = DefaultRouter()
+
+urlpatterns = [
+    path(r'job-top-subcategories/<int:job_id>/', JobTopSkillCategoriesAPIView.as_view(), name='job_top_subcategories')
+]
+
+ROUTER.register(r'skills', SkillViewSet, basename='skill')
+ROUTER.register(r'jobs', JobsViewSet, basename='job')
+ROUTER.register(r'jobpostings', JobPostingsViewSet, basename='jobposting')
+ROUTER.register(r'skills-quiz', SkillsQuizViewSet, basename='skills_quiz')
+
+urlpatterns += ROUTER.urls
