@@ -5,9 +5,10 @@ Tests for the taxonomy models.
 
 from pytest import mark
 
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 
-from taxonomy.models import Job, JobPostings, Industry
+from taxonomy.models import Industry, Job, JobPostings, JobSkills
 from test_utils import factories
 
 
@@ -100,15 +101,43 @@ class TestJobSkills(TestCase):
         Test the string representation of the JobSkills model.
         """
         job_skill = factories.JobSkillFactory()
-        expected_str = '<JobSkills name="{}" significance="{}" unique_postings="{}">'.format(
+        expected_str = '<JobSkills skill="{}" significance="{}" unique_postings="{}">'.format(
             job_skill.skill.name, job_skill.significance, job_skill.unique_postings
         )
-        expected_repr = '<JobSkills id="{0}" name="{1}" job="{2!r}">'.format(
-            job_skill.id, job_skill.skill.name, job_skill.job,
+        expected_repr = '<JobSkills id="{0}" skill="{1}" job="{2!r}" industry="{3!r}">'.format(
+            job_skill.id, job_skill.skill.name, job_skill.job, job_skill.industry
         )
 
         assert expected_str == job_skill.__str__()
         assert expected_repr == job_skill.__repr__()
+
+    def test_unique_together_constraint(self):
+        """
+        Test unique together constraint of the JobSkills model.
+        """
+        skill = factories.SkillFactory()
+        job = factories.JobFactory()
+        industry = factories.IndustryFactory()
+
+        # We should be able to create JobSkill object
+        JobSkills.objects.create(skill=skill, job=job, industry=industry, significance='1.0', unique_postings='1')
+        assert JobSkills.objects.filter(skill=skill, job=job, industry=industry).count() == 1
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                JobSkills.objects.create(
+                    skill=skill, job=job, industry=industry, significance='1.0', unique_postings='1'
+                )
+
+        # we should be able to create record without industry
+        JobSkills.objects.create(skill=skill, job=job, significance='2.0', unique_postings='2')
+        assert JobSkills.objects.filter(skill=skill, job=job, industry=None).count() == 1
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                JobSkills.objects.create(
+                    skill=skill, job=job, industry=industry, significance='1.0', unique_postings='1'
+                )
 
 
 @mark.django_db

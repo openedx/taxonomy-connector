@@ -327,7 +327,7 @@ class Job(TimeStampedModel):
 
 class JobSkills(TimeStampedModel):
     """
-    Skills for a job.
+    Table to hold association between Skill-Job-Industry. A None Industry means record is not industry specific.
 
     .. no_pii:
     """
@@ -336,7 +336,7 @@ class JobSkills(TimeStampedModel):
         Skill,
         on_delete=models.deletion.CASCADE,
         help_text=_(
-            'The skill required for the job.'
+            'Skill associated with the job-skill.'
         )
     )
 
@@ -346,7 +346,17 @@ class JobSkills(TimeStampedModel):
         null=False,
         on_delete=models.deletion.CASCADE,
         help_text=_(
-            'The ID of the job title extracted for the skill.'
+            'Job associated with the job-skill.'
+        )
+    )
+
+    industry = models.ForeignKey(
+        'Industry',
+        blank=True,
+        null=True,
+        on_delete=models.deletion.CASCADE,
+        help_text=_(
+            'Industry associated with the job-skill. None industry indicates non-industry specific data.'
         )
     )
 
@@ -373,13 +383,13 @@ class JobSkills(TimeStampedModel):
         verbose_name_plural = 'Job Skills'
         ordering = ('created',)
         app_label = 'taxonomy'
-        unique_together = ('job', 'skill')
+        unique_together = ('job', 'skill', 'industry')
 
     def __str__(self):
         """
         Create a human-readable string representation of the object.
         """
-        return '<JobSkills name="{}" significance="{}" unique_postings="{}">'.format(
+        return '<JobSkills skill="{}" significance="{}" unique_postings="{}">'.format(
             self.skill.name, self.significance, self.unique_postings
         )
 
@@ -387,8 +397,8 @@ class JobSkills(TimeStampedModel):
         """
         Create a unique string representation of the object.
         """
-        return '<JobSkills id="{0}" name="{1}" job="{2!r}">'.format(
-            self.id, self.skill.name, self.job,
+        return '<JobSkills id="{0}" skill="{1}" job="{2!r}" industry="{3!r}">'.format(
+            self.id, self.skill.name, self.job, self.industry
         )
 
 
