@@ -75,7 +75,11 @@ class Command(BaseCommand):
             raise InvalidCommandOptionsError('Either program, args_from_database or all argument must be provided.')
 
         if options['args_from_database']:
+            passed_commit_val = options.get('commit', None)
+            passed_args_from_database = options.get('args_from_database', None)
             options = self.get_args_from_database()
+            options['args_from_database'] = passed_args_from_database
+            options['commit'] = passed_commit_val
 
         LOGGER.info('[TAXONOMY] Refresh Program Skills. Options: [%s]', options)
 
