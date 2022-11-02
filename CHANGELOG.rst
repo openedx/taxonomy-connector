@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.26.0] - 2022-10-31
+---------------------
+* Added relation between JobSkill and Industry Table.
+
 [1.25.0] - 2022-10-24
 ---------------------
 * Added JobTopSkillCategoriesAPIView.
