@@ -11,7 +11,8 @@ from faker import Faker
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
-    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, Industry, IndustryJobSkill
+    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
+    XBlockSkillData, XBlockSkills
 )
 from taxonomy.choices import UserGoal
 
@@ -114,6 +115,43 @@ class SkillFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
     category = factory.SubFactory(SkillCategoryFactory)
     subcategory = factory.SubFactory(SkillSubCategoryFactory)
+
+
+# pylint: disable=no-member
+class XBlockSkillsFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for XBlockSkills model.
+    """
+
+    class Meta:
+        """
+        Meta for ``XBlockSkillsFactory``.
+        """
+
+        model = XBlockSkills
+        django_get_or_create = ('usage_key',)
+
+    usage_key = factory.LazyAttribute(lambda x: FAKER.slug())
+
+
+# pylint: disable=no-member
+class XBlockSkillDataFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for XBlockSkills model.
+    """
+
+    class Meta:
+        """
+        Meta for ``XBlockSkillsFactory``.
+        """
+
+        model = XBlockSkillData
+        django_get_or_create = ('xblock', 'skill')
+
+    skill = factory.SubFactory(SkillFactory)
+    xblock = factory.SubFactory(XBlockSkillsFactory)
+    confidence = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=1))
+    is_blacklisted = False
 
 
 # pylint: disable=no-member

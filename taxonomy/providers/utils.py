@@ -30,3 +30,13 @@ def get_program_metadata_provider(*args, **kwargs):
     the `*args` and `**kwargs` provided in the function arguments and return the instance.
     """
     return import_string(settings.TAXONOMY_PROGRAM_METADATA_PROVIDER)(*args, **kwargs)
+
+
+def get_xblock_metadata_provider(*args, **kwargs):
+    """
+    Load and return an instance of xblock metadata provider.
+
+    Load xblock metadata provider class through `TAXONOMY_XBLOCK_METADATA_PROVIDER`, instantiate it using
+    the `*args` and `**kwargs` provided in the function arguments and return the instance.
+    """
+    return import_string(settings.TAXONOMY_XBLOCK_METADATA_PROVIDER)(*args, **kwargs)

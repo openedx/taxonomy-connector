@@ -9,7 +9,11 @@ from celery import shared_task
 
 from taxonomy import utils
 from taxonomy.choices import ProductTypes
-from taxonomy.providers.utils import get_course_metadata_provider, get_program_metadata_provider
+from taxonomy.providers.utils import (
+    get_course_metadata_provider,
+    get_program_metadata_provider,
+    get_xblock_metadata_provider
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -44,3 +48,19 @@ def update_program_skills(program_uuids):
         utils.refresh_product_skills(programs, True, ProductTypes.Program)
     else:
         LOGGER.warning('[TAXONOMY] No program found with uuids [%d] to update skills.', program_uuids)
+
+
+@shared_task()
+def update_xblock_skills(xblock_uuids):
+    """
+    Task to update xblock skills.
+
+    Arguments:
+        xblock_uuids (list): uuids of xblocks for which skills needs to be updated
+    """
+    LOGGER.info('[TAXONOMY] refresh_xblock_skills task triggered')
+    xblocks = get_xblock_metadata_provider().get_xblocks(xblock_ids=xblock_uuids)
+    if xblocks:
+        utils.refresh_product_skills(xblocks, True, ProductTypes.XBlock)
+    else:
+        LOGGER.warning('[TAXONOMY] No xblock found with uuids [%d] to update skills.', xblock_uuids)

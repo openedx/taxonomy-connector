@@ -22,3 +22,5 @@ class ProductTypes(DjangoChoices):
 
     Course = ChoiceItem('course', 'Course')
     Program = ChoiceItem('program', 'Program')
+    XBlock = ChoiceItem('xblock', 'XBlock')
+    XBlockData = ChoiceItem('xblock_data', 'XBlockData')

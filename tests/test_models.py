@@ -89,6 +89,48 @@ class TestCourseSkills(TestCase):
 
 
 @mark.django_db
+class TestXBlockSkills(TestCase):
+    """
+    Tests for the ``XBlockSkills`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the XBlockSkills model.
+        """
+        xblock_skills = factories.XBlockSkillsFactory()
+        expected_str = '<XBlockSkills usage_key="{}">'.format(
+            xblock_skills.usage_key
+        )
+        expected_repr = '<XBlockSkills id="{0}">'.format(xblock_skills.id)
+
+        assert expected_str == xblock_skills.__str__()
+        assert expected_repr == xblock_skills.__repr__()
+
+
+@mark.django_db
+class TestXBlockSkillData(TestCase):
+    """
+    Tests for the ``XBlockSkillData`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the XBlockSkillData model.
+        """
+        xblock_skill_through = factories.XBlockSkillDataFactory()
+        expected_str = '<XBlockSkillData usage_key="{}" skill="{}" verified="{}">'.format(
+            xblock_skill_through.xblock.usage_key,
+            xblock_skill_through.skill.name,
+            xblock_skill_through.verified,
+        )
+        expected_repr = '<XBlockSkillData id="{0}">'.format(xblock_skill_through.id)
+
+        assert expected_str == xblock_skill_through.__str__()
+        assert expected_repr == xblock_skill_through.__repr__()
+
+
+@mark.django_db
 class TestJobSkills(TestCase):
     """
     Tests for the ``JobSkills`` model.

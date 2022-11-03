@@ -3,8 +3,8 @@
 An implementation of providers to be used in tests.
 """
 
-from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider
-from test_utils.mocks import MockCourse, MockProgram
+from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider, XBlockContent, XBlockMetadataProvider
+from test_utils.mocks import MockCourse, MockProgram, MockXBlock
 
 
 class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
@@ -67,7 +67,7 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
         if self.mock_programs is not None:
             programs = self.mock_programs
         else:
-            programs = [MockCourse(uuid=program_id) for program_id in program_ids]
+            programs = [MockProgram(uuid=program_id) for program_id in program_ids]
 
         return [{
             'uuid': program.uuid,
@@ -91,3 +91,43 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
                 'subtitle': program.subtitle,
                 'overview': program.overview,
             }
+
+
+class DiscoveryXBlockMetadataProvider(XBlockMetadataProvider):
+    """
+    Discovery xblock metadata provider to be used in the tests.
+    """
+
+    def __init__(self, mock_xblocks=None):
+        """
+        Initialize with mocked xblocks.
+        """
+        super(DiscoveryXBlockMetadataProvider, self).__init__()
+        self.mock_xblocks = mock_xblocks
+
+    def get_xblocks(self, xblock_ids):
+        if self.mock_xblocks is not None:
+            xblocks = self.mock_xblocks
+        else:
+            xblocks = [MockXBlock(key=xblock_id) for xblock_id in xblock_ids]
+
+        return [XBlockContent(
+            key=xblock.key,
+            content_type=xblock.content_type,
+            content=xblock.content,
+        ) for xblock in xblocks]
+
+    def get_all_xblocks_in_course(self, course_id: str):
+        """
+        Get iterator for all the unit/video xblocks in course.
+        """
+        if self.mock_xblocks is not None:
+            xblocks = self.mock_xblocks
+        else:
+            xblocks = [MockXBlock() for _ in range(5)]
+        for xblock in xblocks:
+            yield XBlockContent(
+                key=xblock.key,
+                content_type=xblock.content_type,
+                content=xblock.content,
+            )
