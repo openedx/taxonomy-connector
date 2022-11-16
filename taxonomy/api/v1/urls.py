@@ -12,6 +12,7 @@ from taxonomy.api.v1.views import (
     SkillsQuizViewSet,
     SkillViewSet,
     JobHolderUsernamesAPIView,
+    XBlockSkillsViewSet,
 )
 
 ROUTER = DefaultRouter()
@@ -25,5 +26,6 @@ ROUTER.register(r'skills', SkillViewSet, basename='skill')
 ROUTER.register(r'jobs', JobsViewSet, basename='job')
 ROUTER.register(r'jobpostings', JobPostingsViewSet, basename='jobposting')
 ROUTER.register(r'skills-quiz', SkillsQuizViewSet, basename='skills_quiz')
+ROUTER.register(r'xblocks', XBlockSkillsViewSet, basename='xblock')
 
 urlpatterns += ROUTER.urls
