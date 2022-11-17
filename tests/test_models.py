@@ -2,13 +2,11 @@
 """
 Tests for the taxonomy models.
 """
-
 from pytest import mark
 
-from django.db import IntegrityError, transaction
 from django.test import TestCase
 
-from taxonomy.models import Industry, Job, JobPostings, JobSkills
+from taxonomy.models import Industry, Job, JobPostings
 from test_utils import factories
 
 
@@ -101,43 +99,37 @@ class TestJobSkills(TestCase):
         Test the string representation of the JobSkills model.
         """
         job_skill = factories.JobSkillFactory()
-        expected_str = '<JobSkills skill="{}" significance="{}" unique_postings="{}">'.format(
-            job_skill.skill.name, job_skill.significance, job_skill.unique_postings
+        expected_str = '<JobSkills job="{}" skill="{}" significance="{}">'.format(
+            job_skill.job.name, job_skill.skill.name, job_skill.significance
         )
-        expected_repr = '<JobSkills id="{0}" skill="{1}" job="{2!r}" industry="{3!r}">'.format(
-            job_skill.id, job_skill.skill.name, job_skill.job, job_skill.industry
+        expected_repr = '<JobSkills id={} job="{}" skill="{}" significance="{}">'.format(
+            job_skill.id, job_skill.job.name, job_skill.skill.name, job_skill.significance
         )
 
         assert expected_str == job_skill.__str__()
         assert expected_repr == job_skill.__repr__()
 
-    def test_unique_together_constraint(self):
+
+@mark.django_db
+class TestIndustryJobSkills(TestCase):
+    """
+    Tests for the ``IndustryJobSkill`` model.
+    """
+
+    def test_string_representation(self):
         """
-        Test unique together constraint of the JobSkills model.
+        Test the string representation of the IndustryJobSkill model.
         """
-        skill = factories.SkillFactory()
-        job = factories.JobFactory()
-        industry = factories.IndustryFactory()
+        ijs = factories.IndustryJobSkillFactory()
+        expected_str = '<IndustryJobSkills industry="{}" job="{}" skill="{}" significance="{}">'.format(
+            ijs.industry.name, ijs.job.name, ijs.skill.name, ijs.significance
+        )
+        expected_repr = '<IndustryJobSkills id={} industry="{}" job="{}" skill="{}" significance="{}">'.format(
+            ijs.id, ijs.industry.name, ijs.job.name, ijs.skill.name, ijs.significance
+        )
 
-        # We should be able to create JobSkill object
-        JobSkills.objects.create(skill=skill, job=job, industry=industry, significance='1.0', unique_postings='1')
-        assert JobSkills.objects.filter(skill=skill, job=job, industry=industry).count() == 1
-
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                JobSkills.objects.create(
-                    skill=skill, job=job, industry=industry, significance='1.0', unique_postings='1'
-                )
-
-        # we should be able to create record without industry
-        JobSkills.objects.create(skill=skill, job=job, significance='2.0', unique_postings='2')
-        assert JobSkills.objects.filter(skill=skill, job=job, industry=None).count() == 1
-
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                JobSkills.objects.create(
-                    skill=skill, job=job, industry=industry, significance='1.0', unique_postings='1'
-                )
+        assert expected_str == ijs.__str__()
+        assert expected_repr == ijs.__repr__()
 
 
 @mark.django_db

@@ -11,7 +11,7 @@ from faker import Faker
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
-    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, Industry
+    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, Industry, IndustryJobSkill
 )
 from taxonomy.choices import UserGoal
 
@@ -188,13 +188,27 @@ class JobSkillFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = JobSkills
-        django_get_or_create = ('job', 'skill', 'industry')
+        django_get_or_create = ('job', 'skill')
 
     skill = factory.SubFactory(SkillFactory)
     job = factory.SubFactory(JobFactory)
+    significance = factory.LazyAttribute(lambda x: FAKER.pyfloat(right_digits=2, min_value=0, max_value=100))
+    unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+
+
+class IndustryJobSkillFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for IndustryJobSkill model.
+    """
+
+    class Meta:
+        model = IndustryJobSkill
+        django_get_or_create = ('industry', 'job', 'skill')
     industry = factory.SubFactory(IndustryFactory)
-    significance = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=100))
-    unique_postings = factory.LazyAttribute(lambda x: FAKER.pyfloat(min_value=0, max_value=100000000))
+    skill = factory.SubFactory(SkillFactory)
+    job = factory.SubFactory(JobFactory)
+    significance = factory.LazyAttribute(lambda x: FAKER.pyfloat(right_digits=2, min_value=0, max_value=100))
+    unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
 
 
 class JobPostingsFactory(factory.django.DjangoModelFactory):
