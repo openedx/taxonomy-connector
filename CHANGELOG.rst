@@ -15,6 +15,11 @@ Unreleased
 
 [1.26.0] - 2022-10-31
 ---------------------
+* Removed industry foreign key from JobSkills table and create a new table IndustryJobSkill.
+
+
+[1.26.0] - 2022-10-31
+---------------------
 * Added relation between JobSkill and Industry Table.
 
 [1.25.0] - 2022-10-24

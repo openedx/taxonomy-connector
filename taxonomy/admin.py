@@ -10,7 +10,7 @@ from django.contrib import admin
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
-    SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry,
+    SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
 )
 
 
@@ -91,6 +91,15 @@ class JobSkillsAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
     search_fields = ('name', 'significance',)
+
+
+@admin.register(IndustryJobSkill)
+class IndustryJobSkillAdmin(admin.ModelAdmin):
+    """
+    Administrative view for Industry Job Skills.
+    """
+
+    list_display = ('id', 'industry', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
 
 
 @admin.register(JobPostings)

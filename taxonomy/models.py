@@ -325,9 +325,9 @@ class Job(TimeStampedModel):
         return '<Job id="{}" name="{}" external_id="{}" >'.format(self.id, self.name, self.external_id)
 
 
-class JobSkills(TimeStampedModel):
+class BaseJobSkill(TimeStampedModel):
     """
-    Table to hold association between Skill-Job-Industry. A None Industry means record is not industry specific.
+    A Base Table to hold association between Skill-Job.
 
     .. no_pii:
     """
@@ -350,16 +350,6 @@ class JobSkills(TimeStampedModel):
         )
     )
 
-    industry = models.ForeignKey(
-        'Industry',
-        blank=True,
-        null=True,
-        on_delete=models.deletion.CASCADE,
-        help_text=_(
-            'Industry associated with the job-skill. None industry indicates non-industry specific data.'
-        )
-    )
-
     significance = models.FloatField(
         blank=False,
         help_text=_(
@@ -376,6 +366,21 @@ class JobSkills(TimeStampedModel):
 
     class Meta:
         """
+        Metadata for the BaseJobSkill model.
+        """
+
+        abstract = True
+
+
+class JobSkills(BaseJobSkill):
+    """
+    Table to hold association between Skill-Job.
+
+    .. no_pii:
+    """
+
+    class Meta:
+        """
         Metadata for the JobSkills model.
         """
 
@@ -383,22 +388,65 @@ class JobSkills(TimeStampedModel):
         verbose_name_plural = 'Job Skills'
         ordering = ('created',)
         app_label = 'taxonomy'
-        unique_together = ('job', 'skill', 'industry')
+        unique_together = ('job', 'skill')
 
     def __str__(self):
         """
         Create a human-readable string representation of the object.
         """
-        return '<JobSkills skill="{}" significance="{}" unique_postings="{}">'.format(
-            self.skill.name, self.significance, self.unique_postings
+        return '<JobSkills job="{}" skill="{}" significance="{}">'.format(
+            self.job.name, self.skill.name, self.significance
         )
 
     def __repr__(self):
         """
         Create a unique string representation of the object.
         """
-        return '<JobSkills id="{0}" skill="{1}" job="{2!r}" industry="{3!r}">'.format(
-            self.id, self.skill.name, self.job, self.industry
+        return '<JobSkills id={} job="{}" skill="{}" significance="{}">'.format(
+            self.id, self.job.name, self.skill.name, self.significance
+        )
+
+
+class IndustryJobSkill(BaseJobSkill):
+    """
+    Table to hold association between Industry-Skill-Job. A None Industry means record is not industry specific.
+
+    .. no_pii:
+    """
+
+    industry = models.ForeignKey(
+        'Industry',
+        on_delete=models.deletion.CASCADE,
+        help_text=_(
+            'Industry associated with the job-skill.'
+        )
+    )
+
+    class Meta:
+        """
+        Metadata for the JobSkillsIndustry model.
+        """
+
+        verbose_name = 'Industry Job Skill'
+        verbose_name_plural = 'Industry Job Skills'
+        ordering = ('created',)
+        app_label = 'taxonomy'
+        unique_together = ('industry', 'job', 'skill')
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<IndustryJobSkills industry="{}" job="{}" skill="{}" significance="{}">'.format(
+            self.industry.name, self.job.name, self.skill.name, self.significance
+        )
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<IndustryJobSkills id={} industry="{}" job="{}" skill="{}" significance="{}">'.format(
+            self.id, self.industry.name, self.job.name, self.skill.name, self.significance
         )
 
 
