@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.28.1] - 2022-11-22
+---------------------
+* Added JobHolderUsernamesAPIView which returns a list of 100 usernames from SkillsQuiz.
+
+
 [1.28.0] - 2022-11-21
 ---------------------
 * Updated refresh_job_skills command to save industry relation with job and skills.

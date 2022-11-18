@@ -11,12 +11,14 @@ from taxonomy.api.v1.views import (
     JobTopSkillCategoriesAPIView,
     SkillsQuizViewSet,
     SkillViewSet,
+    JobHolderUsernamesAPIView,
 )
 
 ROUTER = DefaultRouter()
 
 urlpatterns = [
-    path(r'job-top-subcategories/<int:job_id>/', JobTopSkillCategoriesAPIView.as_view(), name='job_top_subcategories')
+    path(r'job-top-subcategories/<int:job_id>/', JobTopSkillCategoriesAPIView.as_view(), name='job_top_subcategories'),
+    path(r'job-holder-usernames/<int:job_id>/', JobHolderUsernamesAPIView.as_view(), name='job_holder_usernames'),
 ]
 
 ROUTER.register(r'skills', SkillViewSet, basename='skill')
