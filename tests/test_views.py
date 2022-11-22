@@ -366,3 +366,56 @@ class TestJobTopSkillCategoriesAPIView(TestCase):
         # assert every category data individually
         for index in range(5):
             self._assert_skill_category_data(data['skill_categories'][index], self.job)
+
+
+@mark.django_db
+class TestJobHolderUsernamesAPIView(TestCase):
+    """
+    Tests for `JobHolderUsernamesAPIView` API view.
+    """
+
+    def setUp(self) -> None:
+        """
+        Setup env.
+        """
+        super(TestJobHolderUsernamesAPIView, self).setUp()
+        self.user = User.objects.create(username="rocky", is_staff=True)
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.job = JobFactory()
+
+        self.view_url = reverse('job_holder_usernames', kwargs={"job_id": self.job.id})
+
+    def test_non_staff_user_failure(self):
+        """
+        Test that non-staff user should not access this API.
+        """
+        user = User.objects.create(username="non-staff-rocky", is_staff=False)
+        user.set_password(USER_PASSWORD)
+        user.save()
+        client = Client()
+        client.login(username=user.username, password=USER_PASSWORD)
+        api_response = client.get(self.view_url)
+        assert api_response.status_code == 403
+
+    def test_success(self):
+        """
+        Test success response for the API.
+        """
+        for __ in range(200):
+            SkillsQuizFactory(current_job=self.job)
+
+        with self.assertNumQueries(4):
+            api_response = self.client.get(self.view_url)
+
+        # assert that we get status code 200
+        assert api_response.status_code == 200
+        data = api_response.json()
+
+        # assert that usernames list has size of 100
+        assert len(data['usernames']) == 100
+
+        # assert that all usernames are unique in usernames list
+        assert len(data['usernames']) == len(set(data['usernames']))

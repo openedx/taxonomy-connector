@@ -1,6 +1,7 @@
 """
 Taxonomy API views.
 """
+from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -186,3 +187,38 @@ class SkillsQuizViewSet(TaxonomyAPIViewSetMixin, ModelViewSet):
             queryset = queryset.filter(username=self.request.user.username)
 
         return queryset.all().select_related('current_job').prefetch_related('skills', 'future_jobs')
+
+
+class JobHolderUsernamesAPIView(APIView):
+    """
+    THis API takes a job id as input and returns a list of 100 usernames
+    of job holders after querying the most recent SkillsQuiz table entries.
+    This API is available only to the admin users.
+    """
+    permission_classes = [permissions.IsAdminUser]
+    throttle_scope = 'taxonomy-api-throttle-scope'
+
+    def get(self, request, job_id):
+        """
+        Example URL: GET https://discovery.edx.org/taxonomy/api/v1/job-holder-usernames/2/
+
+        Example Response:
+        {
+            "usernames": [
+                "user1",
+                "user2",
+                "user3",
+                "user4",
+                "user5",
+                // 95 more usernames
+            ]
+        }
+        """
+        job = get_object_or_404(Job, id=job_id)
+
+        usernames_queryset = SkillsQuiz.objects.filter(
+            current_job=job,
+        ).order_by('-id').values_list('username', flat=True)[:5000]
+        usernames = list(OrderedDict.fromkeys(usernames_queryset))[:100]
+
+        return Response({"usernames": usernames})
