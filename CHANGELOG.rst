@@ -13,7 +13,12 @@ Change Log
 
 Unreleased
 
-[1.26.0] - 2022-10-31
+[1.28.0] - 2022-11-21
+---------------------
+* Updated refresh_job_skills command to save industry relation with job and skills.
+
+
+[1.27.0] - 2022-10-31
 ---------------------
 * Removed industry foreign key from JobSkills table and create a new table IndustryJobSkill.
 

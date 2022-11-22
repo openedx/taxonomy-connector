@@ -18,12 +18,13 @@ def get_lookup_query_filter(external_ids):
     return lookup_query_filter
 
 
-def get_job_query_filter(skills=None):
+def get_job_query_filter(skills=None, industry=None):
     """
     Build job query filter to be used in fetching jobs data from the EMSI Service.
 
     Arguments:
         skills (list): jobs external ids to add in filter
+        industry (Industry): Industry object to add in filter
 
     Returns:
         dict: Job postings query filter to used in EMSI API
@@ -37,7 +38,7 @@ def get_job_query_filter(skills=None):
             },
         },
         # we are using TITLE facet for `rank` and SKILLS facet for the `nested rank`
-        # for every skills batch in our system (let say 100 skills) we are getting top 100 jobs by `unique_postings`
+        # for every skill's batch in our system (let say 50 skills) we are getting top 100 jobs by `unique_postings`
         # and 10 skills per every job ranked by significance.
         'rank': {   # jobs
             'by': 'unique_postings',
@@ -53,6 +54,12 @@ def get_job_query_filter(skills=None):
             'include': skills,
             'include_op': 'or'
         }
+    if industry:
+        jobs_query_filter['filter']['naics2'] = {
+            'include': [str(industry.code)]
+        }
+        jobs_query_filter['rank']['limit'] = 25  # for every batch get top 25 jobs
+        jobs_query_filter['nested_rank']['limit'] = 10  # for every job get top 10 skills
     return jobs_query_filter
 
 
