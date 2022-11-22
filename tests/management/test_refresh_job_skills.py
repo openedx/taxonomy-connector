@@ -16,7 +16,7 @@ from django.utils.translation import gettext as _
 
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import Job, JobSkills, Skill
+from taxonomy.models import Job, JobSkills, Skill, Industry, IndustryJobSkill
 from test_utils.factories import SkillFactory
 from test_utils.sample_responses.jobs import JOBS, MISSING_SIGNIFICANCE_KEY_JOBS
 from test_utils.testcase import TaxonomyTestCase
@@ -50,6 +50,7 @@ class RefreshJobSkillsCommandTests(TaxonomyTestCase):
         get_job_skills_mock.return_value = self.jobs
         expected_job_count = 2
         expected_job_skill_count = 4
+        industry_count = Industry.objects.count()
 
         if missing_skill:
             # remove one skill
@@ -59,11 +60,13 @@ class RefreshJobSkillsCommandTests(TaxonomyTestCase):
 
         self.assertEqual(Job.objects.count(), 0)
         self.assertEqual(JobSkills.objects.count(), 0)
+        self.assertEqual(IndustryJobSkill.objects.count(), 0)
 
         call_command(self.command)
 
         self.assertEqual(Job.objects.all().count(), expected_job_count)
         self.assertEqual(JobSkills.objects.all().count(), expected_job_skill_count)
+        self.assertEqual(IndustryJobSkill.objects.all().count(), industry_count * expected_job_skill_count)
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_job_skills.EMSIJobsApiClient.get_jobs')

@@ -12,7 +12,7 @@ from taxonomy.constants import get_job_query_filter
 from taxonomy.emsi.client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import Job, JobSkills, Skill
+from taxonomy.models import Job, JobSkills, Skill, IndustryJobSkill, Industry
 
 LOGGER = logging.getLogger(__name__)
 
@@ -27,30 +27,37 @@ class Command(BaseCommand):
         """
     help = 'Refreshes the jobs associated with skills.'
 
-    def _update_jobs_data(self, job_skill_bucket):
+    @staticmethod
+    def _update_job_skills(job_bucket, industry=None):
         """
         Persist the jobs data in the database.
         """
-        job_id = job_skill_bucket['name']
+        job_id = job_bucket['name']
         job, _ = Job.objects.get_or_create(external_id=job_id)
-        jobs_bucket = job_skill_bucket['ranking']['buckets']
-        for skill_data in jobs_bucket:
-            skill_id = skill_data['name']
+        skill_buckets = job_bucket['ranking']['buckets']
+        for skill_bucket in skill_buckets:
+            skill_id = skill_bucket['name']
             try:
                 skill = Skill.objects.get(external_id=skill_id)
             except Skill.DoesNotExist:
                 LOGGER.warning('Skill %s not found', skill_id)
                 continue
-            JobSkills.objects.update_or_create(
-                job=job,
-                skill=skill,
-                defaults={
-                    'significance': skill_data['significance'],
-                    'unique_postings': skill_data['unique_postings'],
-                },
-            )
 
-    def _refresh_jobs(self, ranking_facet, nested_ranking_facet):
+            relation_model = JobSkills
+            relation_kwargs = {
+                'job': job,
+                'skill': skill,
+                'defaults': {
+                    'significance': skill_bucket['significance'],
+                    'unique_postings': skill_bucket['unique_postings'],
+                },
+            }
+            if industry:
+                relation_model = IndustryJobSkill
+                relation_kwargs['industry'] = industry
+            relation_model.objects.update_or_create(**relation_kwargs)
+
+    def _refresh_job_skills(self, ranking_facet, nested_ranking_facet):
         """
         Refreshes the jobs associated with the skills.
 
@@ -69,9 +76,20 @@ class Command(BaseCommand):
                     nested_ranking_facet=nested_ranking_facet,
                     query_filter=get_job_query_filter(skill_external_ids)
                 )
-                buckets = jobs['data']['ranking']['buckets']
-                for bucket in buckets:
-                    self._update_jobs_data(bucket)
+                job_buckets = jobs['data']['ranking']['buckets']
+                for bucket in job_buckets:
+                    self._update_job_skills(bucket)
+
+                for industry in Industry.objects.all():
+                    jobs = client.get_jobs(
+                        ranking_facet=ranking_facet,
+                        nested_ranking_facet=nested_ranking_facet,
+                        query_filter=get_job_query_filter(skill_external_ids, industry)
+                    )
+                    job_buckets = jobs['data']['ranking']['buckets']
+                    for bucket in job_buckets:
+                        self._update_job_skills(bucket, industry)
+
         except TaxonomyAPIError as error:
             message = 'Taxonomy API Error for refreshing the jobs for Ranking Facet {} and Nested Ranking Facet {}, ' \
                       'Error: {}'.format(ranking_facet, nested_ranking_facet, error)
@@ -86,4 +104,4 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        self._refresh_jobs(RankingFacet.TITLE, RankingFacet.SKILLS)
+        self._refresh_job_skills(RankingFacet.TITLE, RankingFacet.SKILLS)
