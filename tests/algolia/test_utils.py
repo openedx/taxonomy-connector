@@ -43,6 +43,8 @@ class TestUtils(TaxonomyTestCase):
         assert all('median_salary' in job_data['job_postings'][0] for job_data in jobs_data)
         assert all('job_id' in job_data['job_postings'][0] for job_data in jobs_data)
 
+        assert all('industry_names' in job_data for job_data in jobs_data)
+
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)  # this is done to trigger the pagination flow.
     @mock.patch('taxonomy.algolia.client.algoliasearch.Client')
     def test_index_jobs_data_in_algolia(self, algolia_search_client_mock):

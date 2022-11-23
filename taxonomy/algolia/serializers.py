@@ -8,7 +8,7 @@ This module depends on serializers provided by django-rest-framework.
 from rest_framework import serializers
 
 from taxonomy.algolia.constants import EMBEDDED_OBJECT_LENGTH_CAP
-from taxonomy.models import Job, JobPostings, JobSkills
+from taxonomy.models import Job, JobPostings, JobSkills, IndustryJobSkill
 
 
 class JobPostingSerializer(serializers.ModelSerializer):
@@ -38,9 +38,11 @@ class JobSerializer(serializers.ModelSerializer):
     # ref: https://www.algolia.com/doc/api-client/methods/indexing/#the-objectid
     objectID = serializers.SerializerMethodField()  # required by Algolia, e.g. "job-{external_id}"
 
+    industry_names = serializers.SerializerMethodField()
+
     class Meta:
         model = Job
-        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID')
+        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID', 'industry_names')
         read_only_fields = fields
 
     def get_objectID(self, obj):  # pylint: disable=invalid-name
@@ -78,6 +80,16 @@ class JobSerializer(serializers.ModelSerializer):
         qs = JobPostings.objects.filter(job=obj)[:EMBEDDED_OBJECT_LENGTH_CAP]
         serializer = JobPostingSerializer(qs, many=True)
         return serializer.data
+
+    def get_industry_names(self, obj):
+        """
+        Get a list of industry names associated with the job.
+
+        Arguments:
+            obj (Job): Job instance whose industries need to be fetched.
+        """
+        qs = IndustryJobSkill.objects.filter(job=obj).select_related('industry')
+        return [industry_job_skill.industry.name for industry_job_skill in qs]
 
 
 class JobSkillSerializer(serializers.ModelSerializer):
