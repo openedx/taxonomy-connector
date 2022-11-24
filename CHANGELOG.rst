@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.28.2] - 2022-11-23
+---------------------
+* Added industry_names field in Algolia serializer.
+
+
 [1.28.1] - 2022-11-22
 ---------------------
 * Added JobHolderUsernamesAPIView which returns a list of 100 usernames from SkillsQuiz.
