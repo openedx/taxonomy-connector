@@ -13,25 +13,26 @@ Change Log
 
 Unreleased
 
+[1.29.0] - 2022-11-28
+---------------------
+* Added XBlockSkills and XBlockSkillData models.
+* Added related celery tasks, abstract provider, signals and commands.
+
 [1.28.2] - 2022-11-23
 ---------------------
 * Added industry_names field in Algolia serializer.
-
 
 [1.28.1] - 2022-11-22
 ---------------------
 * Added JobHolderUsernamesAPIView which returns a list of 100 usernames from SkillsQuiz.
 
-
 [1.28.0] - 2022-11-21
 ---------------------
 * Updated refresh_job_skills command to save industry relation with job and skills.
 
-
 [1.27.0] - 2022-10-31
 ---------------------
 * Removed industry foreign key from JobSkills table and create a new table IndustryJobSkill.
-
 
 [1.26.0] - 2022-10-31
 ---------------------

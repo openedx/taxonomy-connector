@@ -15,7 +15,7 @@ from django.core.management import call_command
 
 from taxonomy.exceptions import CourseMetadataNotFoundError, InvalidCommandOptionsError, TaxonomyAPIError
 from taxonomy.models import CourseSkills, RefreshCourseSkillsConfig, Skill
-from test_utils.mocks import MockCourse
+from test_utils.mocks import MockCourse, mock_as_dict
 from test_utils.providers import DiscoveryCourseMetadataProvider
 from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS_EMSI_CLIENT_RESPONSE, TYPE_ERROR_SKILLS
 from test_utils.testcase import TaxonomyTestCase
@@ -33,9 +33,9 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.skills_emsi_client_response = SKILLS_EMSI_CLIENT_RESPONSE
         self.missing_skills = MISSING_NAME_SKILLS
         self.type_error_skills = TYPE_ERROR_SKILLS
-        self.course_1 = MockCourse()
-        self.course_2 = MockCourse()
-        self.course_3 = MockCourse()
+        self.course_1 = mock_as_dict(MockCourse())
+        self.course_2 = mock_as_dict(MockCourse())
+        self.course_3 = mock_as_dict(MockCourse())
         self.mock_access_token()
 
     def test_missing_arguments(self):
@@ -84,7 +84,6 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         self.course_1.title = ''
         self.course_1.short_description = ''
         self.course_1.full_description = ''
-        self.course_1.save()
         get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider([self.course_1])
 
         skill = Skill.objects.all()

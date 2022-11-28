@@ -3,10 +3,12 @@ Utils for taxonomy.
 """
 import logging
 import time
+from typing import Union
 import boto3
 
 from bs4 import BeautifulSoup
 from edx_django_utils.cache import get_cache_key, TieredCache
+from edx_django_utils.cache.utils import hashlib
 
 from taxonomy.choices import ProductTypes
 from taxonomy.constants import (
@@ -19,7 +21,7 @@ from taxonomy.constants import (
 )
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, ProgramSkill, JobSkills, Skill, Translation
+from taxonomy.models import CourseSkills, ProgramSkill, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -71,7 +73,7 @@ def get_product_identifier(product_type):
     identifier = None
     if product_type == ProductTypes.Program:
         identifier = 'uuid'
-    elif product_type == ProductTypes.Course:
+    elif product_type in (ProductTypes.Course, ProductTypes.XBlock):
         identifier = 'key'
 
     return identifier
@@ -81,29 +83,66 @@ def get_product_skill_model_and_identifier(product_type):
     """
     Return the Skill Model along with its identifier based on product type.
     """
-    return (ProgramSkill, 'program_uuid') if product_type == ProductTypes.Program else (CourseSkills, 'course_key')
+    product_skill = (CourseSkills, 'course_key')
+    if product_type == ProductTypes.Program:
+        product_skill = (ProgramSkill, 'program_uuid')
+    elif product_type == ProductTypes.XBlock:
+        product_skill = (XBlockSkills, 'usage_key')
+    elif product_type == ProductTypes.XBlockData:
+        product_skill = (XBlockSkillData, 'xblock_id')
+    return product_skill
 
 
-def update_skills_data(key_or_uuid, skill_external_id, confidence, skill_data, product_type):
+def _create_xblockskill_with_hash(key_or_uuid, hash_content):
     """
-    Persist the skills data in the database either for Program or Course.
+    Create or update a XBlockSkill object with hash of the text content.
+
+    Args:
+        key_or_uuid (str): product uuid
+        hash_content (str): hash of content
+
+    Returns:
+        XBlockSkills object
     """
-    skill, __ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
+    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    product, _ = model.objects.update_or_create(
+        **{identifier: key_or_uuid},
+        defaults={'hash_content': hash_content, 'auto_processed': True},
+    )
+    return product
+
+
+def update_skills_data(key_or_uuid, skill_external_id, confidence, skill_data, product_type, **kwargs):
+    """
+    Persist the skills data in the database for Program, Course or XBlock.
+
+    Args:
+        key_or_uuid (str): key or uuid of the object whose skill is to be updated.
+        skill_external_id (str): id from external api
+        confidence (float): confidence from external api
+        skill_data (dict): data from external api about the skill
+        product_type (ProductTypes): type of product
+        **kwargs: It should contain `hash_content` in case the product_type is XBlockSkills
+
+    Returns:
+
+    """
+    skill, _ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
+    if product_type == ProductTypes.XBlock:
+        xblock = _create_xblockskill_with_hash(key_or_uuid, kwargs.get('hash_content'))
+        key_or_uuid = xblock.id
+        product_type = ProductTypes.XBlockData
+    if is_skill_blacklisted(key_or_uuid, skill.id, product_type):
+        return
     skill_model, identifier = get_product_skill_model_and_identifier(product_type)
-    kwargs = {
-        identifier: key_or_uuid,
-        'skill': skill,
-    }
-    defaults = {
-        'confidence': confidence
-    }
-    if not is_skill_blacklisted(key_or_uuid, skill.id, product_type):
-        _, created = skill_model.objects.update_or_create(**kwargs, defaults=defaults)
-        action = 'created' if created else 'updated'
-        LOGGER.error(f'{skill_model} {action} for key {key_or_uuid}')
+    condition = {identifier: key_or_uuid, 'skill': skill}
+    defaults = {'confidence': confidence}
+    _, created = skill_model.objects.update_or_create(**condition, defaults=defaults)
+    action = 'created' if created else 'updated'
+    LOGGER.info(f'{skill_model} {action} for key {key_or_uuid}')
 
 
-def process_skills_data(product, skills, should_commit_to_db, product_type):
+def process_skills_data(product, skills, should_commit_to_db, product_type, **kwargs):
     """
     Process skills data returned by the EMSI service and update databased.
 
@@ -112,6 +151,7 @@ def process_skills_data(product, skills, should_commit_to_db, product_type):
         skills (dict): Course or Program skills data returned by the EMSI API.
         should_commit_to_db (bool): Boolean indicating whether data should be committed to database.
         product_type (str): String indicating about the product type.
+        **kwargs: It should contain `hash_content` in case the product_type is XBlockSkills
     """
     failures = []
     key_or_uuid = get_product_identifier(product_type)
@@ -129,7 +169,7 @@ def process_skills_data(product, skills, should_commit_to_db, product_type):
             }
             if should_commit_to_db:
                 update_skills_data(
-                    product[key_or_uuid], skill_external_id, confidence, skill_data, product_type
+                    product[key_or_uuid], skill_external_id, confidence, skill_data, product_type, **kwargs
                 )
         except KeyError:
             message = f'[TAXONOMY] Missing keys in skills data for key: {product[key_or_uuid]}'
@@ -146,7 +186,12 @@ def get_translation_attr(product_type):
     """
     Return properties based on product type.
     """
-    return 'overview' if product_type == ProductTypes.Program else COURSE_METADATA_FIELDS_COMBINED
+    translation_attr = COURSE_METADATA_FIELDS_COMBINED
+    if product_type == ProductTypes.Program:
+        translation_attr = 'overview'
+    elif product_type == ProductTypes.XBlock:
+        translation_attr = 'content'
+    return translation_attr
 
 
 def get_course_metadata_fields_text(course_attrs_string, course):
@@ -157,6 +202,63 @@ def get_course_metadata_fields_text(course_attrs_string, course):
     for course_attr in course_attrs_string.split(':'):
         course_attr_values.append(course[course_attr])
     return ' '.join(filter(bool, course_attr_values)).strip()
+
+
+def get_hash(text_data: str):
+    """
+    Return hash for given text_data.
+    """
+    processed_text = text_data.replace(" ", "").strip()
+    if not processed_text:
+        return None
+    return hashlib.md5(processed_text.encode()).hexdigest()
+
+
+def process_skill_attr_text(text_data: str, product_type: ProductTypes) -> dict:
+    """
+    Return metadata for text_data.
+    """
+    extra_data = {}
+    if product_type == ProductTypes.XBlock:
+        hash_content = get_hash(text_data)
+        if hash_content:
+            extra_data['hash_content'] = hash_content
+    return extra_data
+
+
+def skip_product_processing(extra_data: dict, key_or_uuid: str, product_type: ProductTypes) -> bool:
+    """
+    Check whether to skip processing.
+    """
+    # currently only xblock text is checked
+    if product_type != ProductTypes.XBlock:
+        return False
+
+    if not extra_data:
+        return True
+    model, identifier = get_product_skill_model_and_identifier(product_type)
+    skill_filter = {
+        identifier: key_or_uuid,
+        'auto_processed': True,
+        **extra_data,
+    }
+    no_change = model.objects.filter(**skill_filter).exists()
+    if no_change:
+        # text with same hash exists, so skip further processing
+        return True
+    return False
+
+
+def _convert_product_to_dict(product: Union[dict, tuple]):
+    """
+    Convert product data to dict.
+    """
+    product_dict = None
+    if isinstance(product, dict):
+        product_dict = product
+    elif isinstance(product, tuple) and hasattr(product, '_asdict'):
+        product_dict = product._asdict()
+    return product_dict
 
 
 def refresh_product_skills(products, should_commit_to_db, product_type):
@@ -171,14 +273,29 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
     client = EMSISkillsApiClient()
 
     for index, product in enumerate(products, start=1):
+        product = _convert_product_to_dict(product)
+        if product is None:
+            skipped_count += 1
+            continue
         if product_type == ProductTypes.Course:
             skill_attr_val = get_course_metadata_fields_text(skill_extraction_attr, product)
         else:
             skill_attr_val = product[skill_extraction_attr]
         if skill_attr_val:
-            translated_skill_attr = get_translated_skill_attribute_val(
-                product[key_or_uuid], skill_attr_val, product_type
-            )
+            # get metadata of skill_attr_val
+            extra_data = process_skill_attr_text(skill_attr_val, product_type)
+            if skip_product_processing(extra_data, product[key_or_uuid], product_type):
+                skipped_count += 1
+                continue
+            # TODO: Skip translation for xblock text till we find better way to
+            # handle huge amounts of text
+            if product_type == ProductTypes.XBlock:
+                # TODO: make sure that skill_attr_val is in english
+                translated_skill_attr = skill_attr_val
+            else:
+                translated_skill_attr = get_translated_skill_attribute_val(
+                    product[key_or_uuid], skill_attr_val, product_type
+                )
             try:
                 # EMSI only allows 5 requests/sec
                 # We need to add one sec delay after every 5 requests to prevent 429 errors
@@ -192,7 +309,13 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
                 continue
 
             try:
-                failures = process_skills_data(product, skills, should_commit_to_db, product_type)
+                failures = process_skills_data(
+                    product,
+                    skills,
+                    should_commit_to_db,
+                    product_type,
+                    **extra_data
+                )
                 if failures:
                     LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
                     all_failures += failures
@@ -255,7 +378,7 @@ def is_skill_blacklisted(key_or_uuid, skill_id, product_type):
     Return the black listed status of a course or program skill.
 
     Arguments:
-        key_or_uuid: CourseKey or ProgramUUID object pointing to the course or program whose skill need to be checked.
+        key_or_uuid: CourseKey, UsageKey or ProgramUUID object whose skill need to be checked.
         skill_id (int): Primary key identifier of the skill that need to be checked.
         is_programs(bool): Boolean indicating which Skill Model would be selected.
 

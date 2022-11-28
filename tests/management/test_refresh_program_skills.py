@@ -15,7 +15,7 @@ from django.core.management import call_command
 
 from taxonomy.exceptions import ProgramMetadataNotFoundError, InvalidCommandOptionsError, TaxonomyAPIError
 from taxonomy.models import ProgramSkill, RefreshProgramSkillsConfig, Skill
-from test_utils.mocks import MockProgram
+from test_utils.mocks import MockProgram, mock_as_dict
 from test_utils.providers import DiscoveryProgramMetadataProvider
 from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS_EMSI_CLIENT_RESPONSE, TYPE_ERROR_SKILLS
 from test_utils.testcase import TaxonomyTestCase
@@ -33,9 +33,9 @@ class RefreshProgramSkillsCommandTests(TaxonomyTestCase):
         self.skills_emsi_client_response = SKILLS_EMSI_CLIENT_RESPONSE
         self.missing_skills = MISSING_NAME_SKILLS
         self.type_error_skills = TYPE_ERROR_SKILLS
-        self.program_1 = MockProgram()
-        self.program_2 = MockProgram()
-        self.program_3 = MockProgram()
+        self.program_1 = mock_as_dict(MockProgram())
+        self.program_2 = mock_as_dict(MockProgram())
+        self.program_3 = mock_as_dict(MockProgram())
         self.mock_access_token()
 
     def test_missing_arguments(self):
@@ -82,7 +82,6 @@ class RefreshProgramSkillsCommandTests(TaxonomyTestCase):
         Test that command work as expected if program overview does not exist.
         """
         self.program_1.overview = ''
-        self.program_1.save()
         get_program_provider_mock.return_value = DiscoveryProgramMetadataProvider([self.program_1])
 
         skill = Skill.objects.all()

@@ -11,6 +11,7 @@ from django.contrib import admin
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
     SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
+    XBlockSkills, XBlockSkillData
 )
 
 
@@ -158,3 +159,23 @@ class IndustryAdmin(admin.ModelAdmin):
     list_display = ('id', 'code', 'name',)
     search_fields = ('name', )
     list_filter = ('name', )
+
+
+@admin.register(XBlockSkills)
+class XBlockSkillsAdmin(admin.ModelAdmin):
+    """
+    Admin view for XBlockSkills model.
+    """
+
+    list_display = ('usage_key', 'requires_verification', 'auto_processed', 'created', 'modified')
+    search_fields = ('usage_key',)
+
+
+@admin.register(XBlockSkillData)
+class XBlockSkillDataAdmin(admin.ModelAdmin):
+    """
+    Admin view for XBlockSkillData model.
+    """
+
+    list_display = ('xblock', 'skill', 'verified_count', 'verified', 'created', 'modified', 'is_blacklisted')
+    search_fields = ('skill__name',)

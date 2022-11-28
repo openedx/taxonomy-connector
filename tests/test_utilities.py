@@ -14,10 +14,10 @@ from taxonomy import models, utils
 from taxonomy.choices import ProductTypes
 from taxonomy.constants import ENGLISH
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, JobSkills, Skill, Translation
+from taxonomy.models import CourseSkills, JobSkills, Skill, Translation, XBlockSkills
 from test_utils import factories
-from test_utils.constants import COURSE_KEY, PROGRAM_UUID
-from test_utils.mocks import MockCourse, MockProgram
+from test_utils.constants import COURSE_KEY, PROGRAM_UUID, USAGE_KEY
+from test_utils.mocks import MockCourse, MockProgram, MockXBlock, mock_as_dict
 from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE
 from test_utils.testcase import TaxonomyTestCase
 
@@ -209,6 +209,87 @@ class TestUtils(TaxonomyTestCase):
         ).exists()
 
         # Make sure the `Skill` object updated
+        self.skill.refresh_from_db()
+        assert self.skill.name == skill_data.get('name')
+        assert self.skill.info_url == skill_data.get('info_url')
+        assert self.skill.type_id == skill_data.get('type_id')
+        assert self.skill.type_name == skill_data.get('type_name')
+        assert self.skill.description == skill_data.get('description')
+
+    def test_update_xblock_skills_data(self):
+        """
+        Validate that update_xblock_skills_data works as expected.
+        """
+        xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
+        black_listed_xblock_skill = factories.XBlockSkillDataFactory(xblock=xblock, is_blacklisted=True)
+        skills_count = Skill.objects.count()
+        product_type = ProductTypes.XBlock
+        utils.update_skills_data(
+            key_or_uuid=USAGE_KEY,
+            skill_external_id=black_listed_xblock_skill.skill.external_id,
+            confidence=black_listed_xblock_skill.confidence,
+            skill_data={
+                'name': black_listed_xblock_skill.skill.name,
+                'info_url': black_listed_xblock_skill.skill.info_url,
+                'type_id': black_listed_xblock_skill.skill.type_id,
+                'type_name': black_listed_xblock_skill.skill.type_name,
+                'description': black_listed_xblock_skill.skill.description
+            },
+            product_type=product_type,
+        )
+
+        updated_name = 'new_name'
+        updated_info_url = 'new_url'
+        updated_type_id = '1'
+        updated_type_name = 'new_type'
+        updated_description = 'new description'
+        hash_content = 'xyz'
+        skill_data = {
+            'name': updated_name,
+            'info_url': updated_info_url,
+            'type_id': updated_type_id,
+            'type_name': updated_type_name,
+            'description': updated_description
+        }
+        utils.update_skills_data(
+            key_or_uuid=USAGE_KEY,
+            skill_external_id=self.skill.external_id,
+            confidence=0.9,
+            skill_data=skill_data,
+            product_type=product_type,
+            hash_content=hash_content,
+        )
+
+        # Make sure no new `Skill` object is created.
+        assert Skill.objects.count() == skills_count
+
+        # Make sure hash_content is stored properly.
+        assert XBlockSkills.objects.filter(
+            usage_key=USAGE_KEY,
+            hash_content=hash_content,
+        ).exists()
+
+        # Make sure `XBlockSkills` is not removed from the blacklist.
+        assert utils.is_skill_blacklisted(
+            xblock.id,
+            black_listed_xblock_skill.skill.id,
+            ProductTypes.XBlockData,
+        ) is True
+        xblock_skill = models.XBlockSkillData.objects.get(
+            xblock=xblock,
+            skill=black_listed_xblock_skill.skill,
+        )
+        assert xblock_skill.is_blacklisted
+
+        # Make sure the skill that was not black listed is added with no issues.
+        assert not utils.is_skill_blacklisted(xblock.id, self.skill.id, ProductTypes.XBlockData)
+        assert models.XBlockSkillData.objects.filter(
+            xblock=xblock,
+            skill=self.skill,
+            is_blacklisted=False,
+        ).exists()
+
+        # Make sure the `Skill` object is updated
         self.skill.refresh_from_db()
         assert self.skill.name == skill_data.get('name')
         assert self.skill.info_url == skill_data.get('info_url')
@@ -688,6 +769,66 @@ class TestUtils(TaxonomyTestCase):
         assert translation_record.translated_text == new_course_description
         assert translate_mocked.call_count == 3
 
+    def test_process_skill_attr_text(self):
+        """
+        Validate process_skill_attr_text and skip_product_processing returns correct data and flag.
+        """
+        text = 'some text'
+        xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
+        extra_data = utils.process_skill_attr_text(text, ProductTypes.XBlock)
+        skip = utils.skip_product_processing(extra_data, USAGE_KEY, ProductTypes.XBlock)
+        # XBlock with new text should not skip.
+        assert not skip
+        assert 'hash_content' in extra_data
+        xblock.hash_content = extra_data['hash_content']
+        xblock.auto_processed = True
+        xblock.save()
+
+        # xblock with same content should skip processing.
+        extra_data = utils.process_skill_attr_text(text, ProductTypes.XBlock)
+        skip = utils.skip_product_processing(extra_data, USAGE_KEY, ProductTypes.XBlock)
+        assert skip
+
+    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
+    def test_refresh_xblock_skills_no_change_skipped(
+            self,
+            get_translated_description_mock,
+            get_xblock_skills_mock
+    ):
+        """
+        Validate that `refresh_product_skills` rate limits API calls to EMSI.
+        """
+        get_xblock_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
+        get_translated_description_mock.return_value = None
+        product_type = ProductTypes.XBlock
+
+        xblocks = []
+        xblock = mock_as_dict(MockXBlock())
+        for _ in range(3):
+            xblocks.append({
+                'key': xblock.key,
+                'content_type': xblock.content_type,
+                'content': xblock.content,
+            })
+
+        utils.refresh_product_skills(xblocks, True, product_type)
+
+        assert get_translated_description_mock.call_count == 0
+        # it should be processed only once as the same content for same xblock
+        # is passed multiple times
+        assert get_xblock_skills_mock.call_count == 1
+
+        # changed content should trigger processing
+        new_data = [{
+            'key': xblock.key,
+            'content_type': xblock.content_type,
+            'content': mock_as_dict(MockXBlock()).content,
+        }]
+
+        utils.refresh_product_skills(new_data, True, product_type)
+        assert get_xblock_skills_mock.call_count == 2
+
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
     @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
     @mock.patch('time.sleep')
@@ -707,7 +848,7 @@ class TestUtils(TaxonomyTestCase):
 
         courses = []
         for _ in range(11):
-            course = MockCourse()
+            course = mock_as_dict(MockCourse())
             courses.append({
                 'uuid': course.uuid,
                 'key': course.key,
@@ -725,7 +866,7 @@ class TestUtils(TaxonomyTestCase):
         """
         Validate that `refresh_skills` shows skipped_programs_count properly.
         """
-        program = MockProgram()
+        program = mock_as_dict(MockProgram())
         overview = {'overview': None, 'uuid': program.uuid}
         program.__getitem__.side_effect = overview.__getitem__
         assert program['overview'] is None
@@ -736,53 +877,64 @@ class TestUtils(TaxonomyTestCase):
             messages = [record.msg for record in log_capture.records]
             self.assertIn('Total %s Skipped: %s', messages[0])
 
+    @mock.patch('taxonomy.utils.translate_text')
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
-    def test_refresh_program_skills_api_error(self, mock_emsi_skills_data):
+    def test_refresh_program_skills_api_error(self, mock_emsi_skills_data, mock_translate):
         """
         Validate that `refresh_program_skills` handles TaxonomyAPIError
         """
         mock_emsi_skills_data.side_effect = TaxonomyAPIError
-        program = MockProgram()
+        mock_translate.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
+        program = mock_as_dict(MockProgram())
 
         with LogCapture(level=logging.INFO) as log_capture:
-            utils.refresh_product_skills([program], False, True)
+            utils.refresh_product_skills([program], False, ProductTypes.Program)
             messages = [record.msg for record in log_capture.records]
             self.assertIn(f'[TAXONOMY] API Error for key: {program["uuid"]}', messages)
 
+    @mock.patch('taxonomy.utils.translate_text')
     @mock.patch('taxonomy.utils.process_skills_data')
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
-    def test_refresh_program_skills_broad_exception(self, mock_emsi_skills_data, mock_skills_data):
+    def test_refresh_program_skills_broad_exception(
+            self,
+            mock_emsi_skills_data,
+            mock_skills_data,
+            mock_translate,
+    ):
         """
         Validate that `refresh_skills` handles broad exception.
         """
         mock_emsi_skills_data.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         mock_skills_data.side_effect = Exception
-        program = MockProgram()
+        mock_translate.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
+        program = mock_as_dict(MockProgram())
 
         with LogCapture(level=logging.INFO) as log_capture:
-            utils.refresh_product_skills([program], False, True)
+            utils.refresh_product_skills([program], False, ProductTypes.Program)
             messages = [record.msg for record in log_capture.records]
             self.assertIn(f'[TAXONOMY] Exception for key: {program["uuid"]} Error: ', messages)
 
+    @mock.patch('taxonomy.utils.translate_text')
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('time.sleep')
+    @mock.patch('time.sleep', return_value=None)
     def test_refresh_program_skills_rate_limit_emsi_api_calls(
             self,
             time_sleep_mock,
-            get_program_skills_mock
+            get_program_skills_mock,
+            mock_translate,
     ):
         """
         Validate that `refresh_program_skills` rate limits API calls to EMSI.
         """
         get_program_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
-        time_sleep_mock.return_value = None
+        mock_translate.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
 
         programs = []
         for _ in range(11):
-            program = MockProgram()
+            program = mock_as_dict(MockProgram())
             programs.append(program)
 
-        utils.refresh_product_skills(programs, False, True)
+        utils.refresh_product_skills(programs, False, ProductTypes.Program)
 
         # it should be called after every 5 requests made to EMSI
         assert time_sleep_mock.call_count == 2
