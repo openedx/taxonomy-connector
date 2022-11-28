@@ -40,6 +40,8 @@ Notes:
 - In order to communicate with EMSI service, you need to set the values of ``client_id`` and ``client_secret``. These values are picked up from the host environment so you need to pass them in ``.yaml`` file of the host environment.
 - Also, to make taxonomy work, the host platform must add an implementation of data providers written in ``./taxonomy/providers``
 - Taxonomy APIs use throttle rate set in ``DEFAULT_THROTTLE_RATES`` settings by default. Custom Throttle rate can by set by adding ``ScopedRateThrottle`` class in ``DEFAULT_THROTTLE_CLASSES`` settings and ``taxonomy-api-throttle-scope`` key in ``DEFAULT_THROTTLE_RATES``
+- For the skill tags to be verified, the management command ``finalize_xblockskill_tags`` needs to be run periodically.
+- Also, You can configure the skill tags verification by setting the values of ``MIN_VOTES_FOR_SKILLS`` and ``RATIO_THRESHOLD_FOR_SKILLS`` in the host platform or by passing the values to the command using the args ``--min-votes`` and ``--ratio-threshold``.
 
 
 .. code-block:: python
