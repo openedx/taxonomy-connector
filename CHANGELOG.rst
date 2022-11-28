@@ -17,6 +17,7 @@ Unreleased
 ---------------------
 * Added XBlockSkills and XBlockSkillData models.
 * Added related celery tasks, abstract provider, signals and commands.
+* Added management command to verify xblockskill tags.
 
 [1.28.2] - 2022-11-23
 ---------------------
