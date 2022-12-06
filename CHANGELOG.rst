@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.30.0] - 2022-12-06
+---------------------
+* Added industry_names facet in Algolia Jobs Index.
+
+
 [1.29.0] - 2022-11-28
 ---------------------
 * Added XBlockSkills and XBlockSkillData models.
