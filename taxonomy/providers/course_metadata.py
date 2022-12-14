@@ -30,6 +30,7 @@ class CourseMetadataProvider:
             3. title: Course Title
             4. short_description: Course's short description
             5. full_description: Course's full description
+            6. contentful_data: Aggregated data from Contentful
         """
 
     @abstractmethod
@@ -45,4 +46,5 @@ class CourseMetadataProvider:
             3. title: Course Title
             4. short_description: Course's short description
             5. full_description: Course's full description
+            6. contentful_data: Aggregated data from Contentful
         """

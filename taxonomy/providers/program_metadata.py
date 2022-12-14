@@ -29,6 +29,7 @@ class ProgramMetadataProvider:
             2. title: Program title
             3. subtitle: Program subtitle
             4. overview: Program overview
+            5. contentful_data: Aggregated data from Contentful
         """
 
     @abstractmethod
@@ -43,4 +44,5 @@ class ProgramMetadataProvider:
             2. title: Program title
             3. subtitle: Program subtitle
             4. overview: Program overview
+            5. contentful_data: Aggregated data from Contentful
         """

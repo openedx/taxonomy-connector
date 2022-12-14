@@ -46,6 +46,7 @@ class ProgramMetadataProviderValidator:
             assert 'title' in program
             assert 'subtitle' in program
             assert 'overview' in program
+            assert 'contentful_data' in program
 
     def validate_get_all_programs(self):
         """
@@ -58,3 +59,4 @@ class ProgramMetadataProviderValidator:
             assert 'title' in program
             assert 'subtitle' in program
             assert 'overview' in program
+            assert 'contentful_data' in program

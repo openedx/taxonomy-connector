@@ -47,6 +47,7 @@ class CourseMetadataProviderValidator:
             assert 'title' in course
             assert 'short_description' in course
             assert 'full_description' in course
+            assert 'contentful_data' in course
 
     def validate_get_all_courses(self):
         """
@@ -60,3 +61,4 @@ class CourseMetadataProviderValidator:
             assert 'title' in course
             assert 'short_description' in course
             assert 'full_description' in course
+            assert 'contentful_data' in course

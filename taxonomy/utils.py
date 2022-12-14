@@ -281,6 +281,10 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
             skill_attr_val = get_course_metadata_fields_text(skill_extraction_attr, product)
         else:
             skill_attr_val = product[skill_extraction_attr]
+
+        if 'contentful_data' in product:
+            skill_attr_val = skill_attr_val + ' ' + product['contentful_data']
+
         if skill_attr_val:
             # get metadata of skill_attr_val
             extra_data = process_skill_attr_text(skill_attr_val, product_type)
