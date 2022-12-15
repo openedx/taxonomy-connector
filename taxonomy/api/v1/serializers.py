@@ -13,6 +13,8 @@ from taxonomy.models import (
     SkillCategory,
     SkillsQuiz,
     SkillSubCategory,
+    XBlockSkillData,
+    XBlockSkills,
 )
 
 
@@ -54,13 +56,22 @@ class CourseSkillsSerializer(ModelSerializer):
         exclude = ('id', 'created', 'modified', 'is_blacklisted', 'skill')
 
 
+class XBlockSkillDataSerializer(ModelSerializer):
+    usage_key = serializers.CharField(source='xblock.usage_key')
+
+    class Meta:
+        model = XBlockSkillData
+        exclude = ('id', 'created', 'modified', 'is_blacklisted', 'skill', 'xblock')
+
+
 class SkillListSerializer(ModelSerializer):
     courses = CourseSkillsSerializer(source='courseskills_set.all', many=True)
+    xblocks = XBlockSkillDataSerializer(source='xblockskilldata_set.all', many=True)
 
     class Meta:
         model = Skill
         fields = '__all__'
-        extra_fields = ('courses',)
+        extra_fields = ('courses', 'xblocks')
 
 
 class JobPostingsSerializer(ModelSerializer):
@@ -85,6 +96,17 @@ class ShortSkillSerializer(ModelSerializer):
     class Meta:
         model = Skill
         fields = ('id', 'name')
+
+
+class XBlocksSkillsSerializer(ModelSerializer):
+    """
+    Serializer to get XBlockSkills fields.
+    """
+    skills = ShortSkillSerializer(many=True)
+
+    class Meta:
+        model = XBlockSkills
+        exclude = ('created', 'modified')
 
 
 class ShortSkillSubcategorySerializer(ModelSerializer):

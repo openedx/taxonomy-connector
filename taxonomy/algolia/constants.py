@@ -14,6 +14,7 @@ ALGOLIA_JOBS_INDEX_SETTINGS = {
     'attributesForFaceting': [
         'searchable(name)',
         'searchable(skills.name)',
+        'searchable(industry_names)'
     ],
 }
 

@@ -12,7 +12,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from django.db.models import Count, Prefetch, Sum
 from django.shortcuts import get_object_or_404
 
-from taxonomy.api.filters import SkillNameFilter
+from taxonomy.api.filters import SkillNameFilter, XBlocksFilter
 from taxonomy.api.permissions import IsOwner
 from taxonomy.api.v1.serializers import (
     JobPostingsSerializer,
@@ -20,8 +20,19 @@ from taxonomy.api.v1.serializers import (
     JobsListSerializer,
     SkillListSerializer,
     SkillsQuizSerializer,
+    XBlocksSkillsSerializer,
 )
-from taxonomy.models import CourseSkills, Job, JobPostings, Skill, SkillCategory, SkillsQuiz, SkillSubCategory
+from taxonomy.models import (
+    CourseSkills,
+    Job,
+    JobPostings,
+    Skill,
+    SkillCategory,
+    SkillsQuiz,
+    SkillSubCategory,
+    XBlockSkillData,
+    XBlockSkills,
+)
 
 
 class TaxonomyAPIViewSetMixin:
@@ -49,7 +60,11 @@ class SkillViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, 
             Prefetch(
                 'courseskills_set',
                 queryset=CourseSkills.objects.filter(is_blacklisted=False)
-            )
+            ),
+            Prefetch(
+                'xblockskilldata_set',
+                queryset=XBlockSkillData.objects.filter(is_blacklisted=False).select_related('xblock')
+            ),
         )
 
 
@@ -222,3 +237,24 @@ class JobHolderUsernamesAPIView(APIView):
         usernames = list(OrderedDict.fromkeys(usernames_queryset))[:100]
 
         return Response({"usernames": usernames})
+
+
+class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, GenericViewSet):
+    """
+    ViewSet to list and retrieve all XBlockSkills in the system.
+    """
+    serializer_class = XBlocksSkillsSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = XBlocksFilter
+
+    def get_queryset(self):
+        """
+        Get all the xblocks skills with prefetch_related objects.
+        """
+        return XBlockSkills.objects.all().prefetch_related(
+            Prefetch(
+                'skills',
+                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False),
+            ),
+        )

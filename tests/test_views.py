@@ -14,6 +14,7 @@ from django.urls import reverse
 
 from taxonomy.models import JobSkills, Skill, SkillCategory
 from test_utils.factories import (
+    CourseSkillsFactory,
     JobFactory,
     JobPostingsFactory,
     JobSkillFactory,
@@ -21,6 +22,8 @@ from test_utils.factories import (
     SkillFactory,
     SkillsQuizFactory,
     SkillSubCategoryFactory,
+    XBlockSkillDataFactory,
+    XBlockSkillsFactory,
 )
 
 User = get_user_model()  # pylint: disable=invalid-name
@@ -35,15 +38,27 @@ class TestSkillsViewSet(TestCase):
 
     def setUp(self) -> None:
         super(TestSkillsViewSet, self).setUp()
-        self.skill_a = SkillFactory()
-        self.skill_b = SkillFactory()
-        self.skill_c = SkillFactory()
+        self.skills = SkillFactory.simple_generate_batch(True, 3)
+        self.xblock_skill_data = XBlockSkillDataFactory.simple_generate_batch(True, 2, skill=self.skills[0])
+        self.course_skills = CourseSkillsFactory.simple_generate_batch(True, 2, skill=self.skills[0])
         self.user = User.objects.create(username="rocky")
         self.user.set_password(USER_PASSWORD)
         self.user.save()
         self.client = Client()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.view_url = r'/api/v1/skills/'
+
+    @staticmethod
+    def _verify_skill(response_obj, expected_obj):
+        """
+        Verify that response matches the expected data.
+        """
+        assert response_obj['id'] == expected_obj.id
+        assert response_obj['external_id'] == expected_obj.external_id
+        assert response_obj['type_id'] == expected_obj.type_id
+        assert response_obj['name'] == expected_obj.name
+        assert response_obj['category'] == expected_obj.category.id
+        assert response_obj['subcategory'] == expected_obj.subcategory.id
 
     def _verify_skills_data(self, api_response, expected_data):
         """
@@ -52,30 +67,37 @@ class TestSkillsViewSet(TestCase):
         response_data = api_response.json()
         assert len(response_data) == len(expected_data)
         for response_obj, expected_obj in zip(response_data, expected_data):
-            assert response_obj['id'] == expected_obj.id
-            assert response_obj['external_id'] == expected_obj.external_id
-            assert response_obj['type_id'] == expected_obj.type_id
-            assert response_obj['name'] == expected_obj.name
-            assert response_obj['category'] == expected_obj.category.id
-            assert response_obj['subcategory'] == expected_obj.subcategory.id
+            self._verify_skill(response_obj, expected_obj)
 
     def test_skills_api(self):
         """
         Verify that skills API returns the expected response.
         """
         api_response = self.client.get(self.view_url)
-        self._verify_skills_data(api_response, [self.skill_a, self.skill_b, self.skill_c])
+        self._verify_skills_data(api_response, self.skills)
+
+    def test_skills_api_get_single(self):
+        """
+        Verify that skills API returns the expected response for given skill id.
+        """
+        api_response = self.client.get(self.view_url + f"{self.skills[0].id}/")
+        response_data = api_response.json()
+        self._verify_skill(response_data, self.skills[0])
+        assert "courses" in response_data
+        assert len(response_data["courses"]) == 2
+        assert "xblocks" in response_data
+        assert len(response_data["xblocks"]) == 2
 
     def test_skills_api_filtering(self):
         """
         Verify that skills API filters on the basis of skill names.
         """
-        url = f'{self.view_url}?name={self.skill_a.name}'
+        url = f'{self.view_url}?name={self.skills[0].name}'
         api_response = self.client.get(url)
-        self._verify_skills_data(api_response, [self.skill_a])
-        url = f'{self.view_url}?name={self.skill_a.name},{self.skill_c.name}'
+        self._verify_skills_data(api_response, [self.skills[0]])
+        url = f'{self.view_url}?name={self.skills[0].name},{self.skills[2].name}'
         api_response = self.client.get(url)
-        self._verify_skills_data(api_response, [self.skill_a, self.skill_c])
+        self._verify_skills_data(api_response, [self.skills[0], self.skills[2]])
 
 
 @mark.django_db
@@ -419,3 +441,93 @@ class TestJobHolderUsernamesAPIView(TestCase):
 
         # assert that all usernames are unique in usernames list
         assert len(data['usernames']) == len(set(data['usernames']))
+
+
+@mark.django_db
+class TestXBlockSkillsViewSet(TestCase):
+    """
+    Tests for ``XBlockSkillsViewSet`` view set.
+    """
+
+    def setUp(self) -> None:
+        super(TestXBlockSkillsViewSet, self).setUp()
+        self.skills = SkillFactory.simple_generate_batch(True, 5)
+        self.xblock_skills = XBlockSkillsFactory.simple_generate_batch(True, 3)
+        self.xblock_skill_data_objs = XBlockSkillDataFactory.simple_generate_batch(
+            False,
+            2,
+            verified=True,
+            xblock=self.xblock_skills[0],
+        )
+        self.xblock_skill_data_objs.extend(XBlockSkillDataFactory.simple_generate_batch(
+            False,
+            3,
+            verified=False,
+            xblock=self.xblock_skills[0],
+        ))
+        XBlockSkillDataFactory.simple_generate_batch(False, 5, xblock=self.xblock_skills[1])
+        for i, xblock_skill_data in enumerate(self.xblock_skill_data_objs):
+            xblock_skill_data.skill = self.skills[i]
+            xblock_skill_data.save()
+        self.user = User.objects.create(username="rocky")
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.view_url = r'/api/v1/xblocks/'
+
+    @staticmethod
+    def _verify_xblock(response_obj, expected_obj, verified=None):
+        """
+        Verify that response matches the expected data.
+        """
+        assert response_obj['id'] == expected_obj.id
+        assert response_obj['usage_key'] == expected_obj.usage_key
+        assert response_obj['requires_verification'] == expected_obj.requires_verification
+        assert response_obj['auto_processed'] == expected_obj.auto_processed
+        skill_count_query = expected_obj.skills
+        if verified is not None:
+            skill_count_query = skill_count_query.filter(xblockskilldata__verified=verified)
+        assert len(response_obj['skills']) == skill_count_query.count()
+
+    def _verify_xblocks_data(self, api_response, expected_data, verified=None):
+        """
+        Verify that skills API response matches the expected data.
+        """
+        response_data = api_response.json()
+        assert len(response_data) == len(expected_data)
+        for response_obj, expected_obj in zip(response_data, expected_data):
+            self._verify_xblock(response_obj, expected_obj, verified=verified)
+
+    def test_xblocks_api(self):
+        """
+        Verify that xblocks API returns the expected response.
+        """
+        api_response = self.client.get(self.view_url)
+        self._verify_xblocks_data(api_response, self.xblock_skills)
+
+    def test_xblocks_api_filtering(self):
+        """
+        Verify that xblocks API filters on the basis of usage_key and verified flag.
+        """
+        # filter by single usage_key
+        api_response = self.client.get(self.view_url, {"usage_key": self.xblock_skills[0].usage_key})
+        self._verify_xblocks_data(api_response, [self.xblock_skills[0]])
+        # filter by multiple usage_keys
+        api_response = self.client.get(
+            self.view_url,
+            {"usage_key": f'{self.xblock_skills[0].usage_key},{self.xblock_skills[1].usage_key}'},
+        )
+        self._verify_xblocks_data(api_response, self.xblock_skills[:2])
+        # filter skills by verified = True
+        api_response = self.client.get(self.view_url, {"verified": True})
+        self._verify_xblocks_data(api_response, self.xblock_skills, verified=True)
+        # filter skills by verified = False
+        api_response = self.client.get(self.view_url, {"verified": False})
+        self._verify_xblocks_data(api_response, self.xblock_skills, verified=False)
+        # filter skills by verified = False and xblock by usage_key
+        api_response = self.client.get(self.view_url, {
+            "verified": False,
+            "usage_key": self.xblock_skills[0].usage_key,
+        })
+        self._verify_xblocks_data(api_response, self.xblock_skills[:1], verified=False)

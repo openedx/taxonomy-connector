@@ -13,6 +13,19 @@ Change Log
 
 Unreleased
 
+[1.31.0] - 2022-12-06
+---------------------
+* Added handlers for openedx-events: XBLOCK_DELETED, XBLOCK_PUBLISHED and XBLOCK_PUBLISHED.
+
+[1.30.1] - 2022-12-06
+---------------------
+* Added xblocks to skill API.
+* Added xblocks API.
+
+[1.30.0] - 2022-12-06
+---------------------
+* Added industry_names facet in Algolia Jobs Index.
+
 [1.29.0] - 2022-11-28
 ---------------------
 * Added XBlockSkills and XBlockSkillData models.

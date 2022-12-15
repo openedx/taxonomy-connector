@@ -131,7 +131,9 @@ class XBlockSkillsFactory(factory.django.DjangoModelFactory):
         model = XBlockSkills
         django_get_or_create = ('usage_key',)
 
-    usage_key = factory.LazyAttribute(lambda x: FAKER.slug())
+    usage_key = factory.LazyAttribute(
+        lambda x: "%(key)s-v1:edx+%(key)s+%(key)s+%(key)s@%(key)s" % {"key": FAKER.slug()},
+    )
 
 
 # pylint: disable=no-member
