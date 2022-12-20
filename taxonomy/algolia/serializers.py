@@ -88,8 +88,9 @@ class JobSerializer(serializers.ModelSerializer):
         Arguments:
             obj (Job): Job instance whose industries need to be fetched.
         """
-        qs = IndustryJobSkill.objects.filter(job=obj).select_related('industry')
-        return [industry_job_skill.industry.name for industry_job_skill in qs]
+        return list(IndustryJobSkill.objects.filter(job=obj)
+                    .order_by("industry__name")
+                    .values_list('industry__name', flat=True).distinct())
 
 
 class JobSkillSerializer(serializers.ModelSerializer):
