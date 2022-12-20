@@ -45,6 +45,36 @@ class TestUtils(TaxonomyTestCase):
 
         assert all('industry_names' in job_data for job_data in jobs_data)
 
+    @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)
+    def test_fetch_industry_job_skill_data(self):
+        """
+        Test test_fetch_industry_job_skill_data returns data for available jobs with unique industry names
+        """
+        industry_1 = factories.IndustryFactory(code=12, name='mining')
+        skill_1 = factories.SkillFactory(external_id='SKILL-1', name='skill_1')
+        skill_2 = factories.SkillFactory(external_id='SKILL-2', name='skill_2')
+        job_1 = factories.JobFactory(
+            external_id='JOB-test1',
+            name='test1'
+        )
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_1, job=job_1,
+            significance=1,
+            unique_postings=12121)
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_2,
+            job=job_1,
+            significance=2,
+            unique_postings=12131
+        )
+
+        jobs_data = fetch_jobs_data()
+
+        # Assert industrie_names are unique
+        assert all(len(set(job_data['industry_names'])) == len(job_data['industry_names']) for job_data in jobs_data)
+
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)  # this is done to trigger the pagination flow.
     @mock.patch('taxonomy.algolia.client.algoliasearch.Client')
     def test_index_jobs_data_in_algolia(self, algolia_search_client_mock):
