@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.31.1] - 2022-12-19
+---------------------
+* Handle repeating industry names in algolia index and test
+
 [1.31.0] - 2022-12-06
 ---------------------
 * Added handlers for openedx-events: XBLOCK_DELETED, XBLOCK_PUBLISHED and XBLOCK_PUBLISHED.
