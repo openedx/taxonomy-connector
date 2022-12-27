@@ -31,6 +31,7 @@ class JwtEMSIApiClient:
 
     client_id = settings.EMSI_CLIENT_ID
     client_secret = settings.EMSI_CLIENT_SECRET
+    ACCESS_TOKEN_EXPIRY_THRESHOLD = 60
 
     def __init__(self, scope):
         """
@@ -86,7 +87,8 @@ class JwtEMSIApiClient:
         """
         Return True if the access token has expired, False if not.
         """
-        return int(time()) > self.expires_at
+        expires_at = self.expires_at - self.ACCESS_TOKEN_EXPIRY_THRESHOLD
+        return int(time()) > expires_at
 
     @staticmethod
     def refresh_token(func):
