@@ -2,10 +2,12 @@
 Utils for taxonomy.
 """
 import logging
-from typing import Union
+from typing import List, Union
 import boto3
 
 from bs4 import BeautifulSoup
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import F
 from django.utils.timezone import now
 from edx_django_utils.cache import get_cache_key, TieredCache
 from edx_django_utils.cache.utils import hashlib
@@ -656,3 +658,33 @@ def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid):
     for source_xblock_skill in source_xblock_skills:
         source_xblock_skill.xblock = xblock
         duplicate_model_instance(source_xblock_skill)
+
+
+def update_xblock_skills_verification_counts(usage_key: str, verified_skills: List[int], ignored_skills: List[int]):
+    """
+    Update xblock skill verified and ignored count.
+
+    Arguments:
+        usage_key (str): usage_key of xblock.
+        verified_skills (List[int]): list of verified skill ids.
+        ignored_skills (List[int]): list of ignored skill ids.
+    """
+    xblock_model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    try:
+        xblock = xblock_model.objects.get(**{identifier: usage_key})
+    except ObjectDoesNotExist:
+        LOGGER.error(f'[TAXONOMY] XBlock with usage_key: {usage_key} not found!')
+        return
+    xblock_data_model, _ = get_product_skill_model_and_identifier(ProductTypes.XBlockData)
+    # update verified_count
+    xblock_data_model.objects.filter(
+        xblock=xblock,
+        skill_id__in=verified_skills,
+        is_blacklisted=False,
+    ).update(verified_count=F('verified_count') + 1)
+    # update ignored_count
+    xblock_data_model.objects.filter(
+        xblock=xblock,
+        skill_id__in=ignored_skills,
+        is_blacklisted=False,
+    ).update(ignored_count=F('ignored_count') + 1)
