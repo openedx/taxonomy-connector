@@ -22,6 +22,12 @@ class ProgramMetadataNotFoundError(Exception):
     """
 
 
+class XBlockMetadataNotFoundError(Exception):
+    """
+    Exception to raise when metadata was not found for an XBlock.
+    """
+
+
 class InvalidCommandOptionsError(Exception):
     """
     Exception to raise when incorrect command options are provided.

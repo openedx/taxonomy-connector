@@ -13,6 +13,14 @@ Change Log
 
 Unreleased
 
+[1.32.0] - 2022-12-20
+---------------------
+* Added refresh_xblock_skills command to update skills for xblocks.
+
+[1.31.2] - 2022-12-23
+---------------------
+* Added ACCESS_TOKEN_EXPIRY_THRESHOLD_IN_SECONDS in EMSI client.
+
 [1.31.1] - 2022-12-19
 ---------------------
 * Handle repeating industry names in algolia index and test
