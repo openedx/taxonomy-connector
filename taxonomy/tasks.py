@@ -64,29 +64,3 @@ def update_xblock_skills(xblock_uuids):
         utils.refresh_product_skills(xblocks, True, ProductTypes.XBlock)
     else:
         LOGGER.warning('[TAXONOMY] No xblock found with uuids [%d] to update skills.', xblock_uuids)
-
-
-@shared_task()
-def delete_xblock_skills(xblock_uuids):
-    """
-    Task to delete xblock skills.
-
-    Arguments:
-        xblock_uuids (list): uuids of xblocks for which skills needs to be deleted.
-    """
-    LOGGER.info('[TAXONOMY] delete_xblock_skills task triggered')
-    for xblock_uuid in xblock_uuids:
-        utils.delete_product(key_or_uuid=xblock_uuid, product_type=ProductTypes.XBlock)
-
-
-@shared_task()
-def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid):
-    """
-    Task to duplicate xblock skills.
-
-    Arguments:
-        source_xblock_uuid (str): source xblock usage key.
-        xblock_uuid (str): uuid of xblock for which skills needs to be duplicated.
-    """
-    LOGGER.info('[TAXONOMY] duplicate_xblock_skills task triggered')
-    utils.duplicate_xblock_skills(source_xblock_uuid, xblock_uuid)

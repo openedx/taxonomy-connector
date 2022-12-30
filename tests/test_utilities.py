@@ -14,7 +14,7 @@ from taxonomy import models, utils
 from taxonomy.choices import ProductTypes
 from taxonomy.constants import ENGLISH
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
+from taxonomy.models import CourseSkills, JobSkills, Skill, Translation, XBlockSkills
 from test_utils import factories
 from test_utils.constants import COURSE_KEY, PROGRAM_UUID, USAGE_KEY
 from test_utils.mocks import MockCourse, MockProgram, MockXBlock, mock_as_dict
@@ -797,7 +797,7 @@ class TestUtils(TaxonomyTestCase):
             get_xblock_skills_mock
     ):
         """
-        Validate that `refresh_product_skills` only calls API if content has changed.
+        Validate that `refresh_product_skills` rate limits API calls to EMSI.
         """
         get_xblock_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         get_translated_description_mock.return_value = None
@@ -995,44 +995,3 @@ class TestUtils(TaxonomyTestCase):
 
         assert len(skill_details) == 3  # Skill 2 with missing category is not present in the results
         assert skill_details == expected_data
-
-    def test_duplicate_xblock_skills(self):
-        """
-        Validate that `duplicate_xblock_skills` works as expected.
-        """
-        xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
-        factories.XBlockSkillDataFactory.create_batch(4, xblock=xblock)
-        dup_usage_key = 'block-v1:edx+DemoX+Demo_course+type@video+block@dup-uuid'
-        utils.duplicate_xblock_skills(USAGE_KEY, dup_usage_key)
-        dup_xblock = XBlockSkills.objects.filter(usage_key=dup_usage_key).first()
-        assert dup_xblock is not None
-        assert XBlockSkillData.objects.filter(xblock=dup_xblock).count() == 4
-
-    def test_duplicate_xblock_skills_incorrect_source(self):
-        """
-        Validate that `duplicate_xblock_skills` stops for incorrect source usage_key.
-        """
-        xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
-        factories.XBlockSkillDataFactory.create_batch(4, xblock=xblock)
-        dup_usage_key = 'block-v1:edx+DemoX+Demo_course+type@video+block@dup-uuid'
-        incorrect_source = xblock.usage_key[:-1]
-        with LogCapture(level=logging.INFO) as log_capture:
-            utils.duplicate_xblock_skills(incorrect_source, dup_usage_key)
-            messages = [record.msg for record in log_capture.records]
-            self.assertIn(f'[TAXONOMY] Source xblock: {incorrect_source} not found', messages[0])
-        dup_xblock = XBlockSkills.objects.filter(usage_key=dup_usage_key).first()
-        self.assertIsNone(dup_xblock)
-        assert XBlockSkillData.objects.filter(xblock=dup_xblock).count() == 0
-
-    def test_duplicate_xblock_skills_existing_usage_key(self):
-        """
-        Validate that `duplicate_xblock_skills` stops if usage_key already exists.
-        """
-        xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
-        existing_xblock = factories.XBlockSkillsFactory()
-        factories.XBlockSkillDataFactory.create_batch(4, xblock=xblock)
-        with LogCapture(level=logging.INFO) as log_capture:
-            utils.duplicate_xblock_skills(USAGE_KEY, existing_xblock.usage_key)
-            messages = [record.msg for record in log_capture.records]
-            self.assertIn(f'[TAXONOMY] XBlock with usage_key: {existing_xblock.usage_key} already exists!', messages[0])
-        assert XBlockSkillData.objects.filter(xblock=existing_xblock).count() == 0

@@ -27,7 +27,7 @@ class MockCourse(MagicMock):
         super().__init__(*args, spec=dict, **kwargs)
 
         self.uuid = uuid if uuid is not DEFAULT else uuid4()
-        self.key = key if key is not DEFAULT else 'course-v1:{}'.format("+".join(FAKER.words(3)))
+        self.key = key if key is not DEFAULT else 'course-id/{}'.format(FAKER.slug())
         self.title = title if title is not DEFAULT else 'Test Course {}'.format(FAKER.sentence())
         self.short_description = short_description if short_description is not DEFAULT else FAKER.sentence(nb_words=10)
         self.full_description = full_description if full_description is not DEFAULT else FAKER.sentence(nb_words=50)
@@ -65,10 +65,7 @@ class MockXBlock(MagicMock):
         """
         super().__init__(*args, spec=dict, **kwargs)
 
-        self.key = key if key is not DEFAULT else 'block-v1:edx+D+D+type@{}+block@{}'.format(
-            FAKER.word(),
-            FAKER.uuid4(),
-        )
+        self.key = key if key is not DEFAULT else 'xblock-id/{}'.format(FAKER.slug())
         self.content_type = content_type if content_type is not DEFAULT else 'Video'
         self.content = content if content is not DEFAULT else FAKER.sentence(nb_words=50)
 
