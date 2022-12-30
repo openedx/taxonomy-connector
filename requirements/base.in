@@ -11,4 +11,3 @@ django-ses
 beautifulsoup4
 django-choices
 django-filter
-openedx-events
