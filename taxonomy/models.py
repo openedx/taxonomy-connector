@@ -367,40 +367,6 @@ class RefreshCourseSkillsConfig(SingletonModel):
         return '<RefreshCourseSkillsConfig id="{}">'.format(self.id)
 
 
-class RefreshXBlockSkillsConfig(SingletonModel):
-    """
-    Configuration for the refresh_xblock_skills management command.
-
-    .. no_pii:
-    """
-
-    class Meta:
-        """
-        Meta configuration for RefreshXBlockSkillsConfig model.
-        """
-
-        app_label = 'taxonomy'
-        verbose_name = 'refresh_xblock_skills argument'
-
-    arguments = models.TextField(
-        blank=True,
-        help_text='Useful for manually running a Jenkins job. Specify like "--course=key1 --course=key2".',
-        default='',
-    )
-
-    def __str__(self):
-        """
-        Create a human-readable string representation of the object.
-        """
-        return '<RefreshXBlockSkillsConfig arguments="{}">'.format(self.arguments)
-
-    def __repr__(self):
-        """
-        Create a unique string representation of the object.
-        """
-        return '<RefreshXBlockSkillsConfig id="{}">'.format(self.id)
-
-
 class RefreshProgramSkillsConfig(SingletonModel):
     """
     Configuration for the refresh_program_skills management command.

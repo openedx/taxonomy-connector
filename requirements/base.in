@@ -5,12 +5,10 @@ django-solo
 pytz
 edx-rest-api-client
 edx-django-utils
-edx-opaque-keys
 celery
 algoliasearch
 django-ses
 beautifulsoup4
 django-choices
 django-filter
-# FIXME: remove pin once https://github.com/openedx/openedx-events/pull/143 is merged.
-openedx-events @ git+https://github.com/open-craft/openedx-events.git@1934a839b6b04db1b02634cd74320045f2e6ed17
+openedx-events

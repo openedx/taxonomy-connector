@@ -175,7 +175,7 @@ def process_skills_data(product, skills, should_commit_to_db, product_type, **kw
         except KeyError:
             message = f'[TAXONOMY] Missing keys in skills data for key: {product[key_or_uuid]}'
             LOGGER.error(message)
-            failures.append((product[key_or_uuid], message))
+            failures.append((product['uuid'], message))
         except (ValueError, TypeError):
             message = f'[TAXONOMY] Invalid type for `confidence` in skills for key: {product[key_or_uuid]}'
             LOGGER.error(message)
@@ -306,7 +306,7 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for key: {product[key_or_uuid]}'
                 LOGGER.error(message)
-                all_failures.append((product[key_or_uuid], message))
+                all_failures.append((product['uuid'], message))
                 continue
 
             try:

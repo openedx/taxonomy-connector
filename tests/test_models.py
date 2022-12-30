@@ -276,24 +276,6 @@ class TestRefreshCourseSkillConfig(TestCase):
 
 
 @mark.django_db
-class TestRefreshXBlockSkillConfig(TestCase):
-    """
-    Tests for the ``RefreshXBlockSkillsConfig`` model.
-    """
-
-    def test_string_representation(self):
-        """
-        Test the string representation of the RefreshXBlockSkillsConfig model.
-        """
-        xblock_skill_config = factories.RefreshXBlockSkillsConfigFactory()
-        expected_str = '<RefreshXBlockSkillsConfig arguments="{}">'.format(xblock_skill_config.arguments)
-        expected_repr = '<RefreshXBlockSkillsConfig id="{}">'.format(xblock_skill_config.id)
-
-        assert expected_str == xblock_skill_config.__str__()
-        assert expected_repr == xblock_skill_config.__repr__()
-
-
-@mark.django_db
 class TestJob(TestCase):
     """
     Tests for the ``Job`` model.

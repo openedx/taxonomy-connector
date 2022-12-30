@@ -21,7 +21,3 @@ edx-lint<=1.5.2
 # latest version causing issues in discovery.
 algoliasearch-django<4.0.0
 algoliasearch<2.0.0
-
-# latest version i.e. 4.0.9 fails with dependency "hookimpl"
-# https://github.com/tox-dev/tox/issues/2637
-tox<4.0.0
