@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+
+[1.32.2] - 2023-01-02
+---------------------
+* updated requirements.
+
 [1.32.1] - 2022-12-20
 ---------------------
 * Reverts changes depending on openedx-events till upstream MR is merged.
