@@ -5,9 +5,11 @@ django-solo
 pytz
 edx-rest-api-client
 edx-django-utils
+edx-opaque-keys
 celery
 algoliasearch
 django-ses
 beautifulsoup4
 django-choices
 django-filter
+openedx-events

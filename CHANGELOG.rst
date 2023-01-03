@@ -13,6 +13,13 @@ Change Log
 
 Unreleased
 
+[1.33.0] - 2023-01-06
+---------------------
+* https://github.com/openedx/openedx-events/pull/143 merged, so adding back
+  changes reverted in version 1.32.1
+* Added refresh_xblock_skills command to update skills for xblocks.
+* Added handlers for openedx-events: XBLOCK_DELETED, XBLOCK_PUBLISHED and XBLOCK_PUBLISHED.
+
 [1.32.3] - 2023-01-05
 ---------------------
 * Added log for EMSI client access token and raising error for error status.
