@@ -66,15 +66,19 @@ class JwtEMSIApiClient:
             headers={'content-type': 'application/x-www-form-urlencoded'}
         )
 
-        if response.ok:
-            data = response.json()
-            access_token = data['access_token']
-            expires_in = data['expires_in']
-            self.expires_at = int(time()) + expires_in
-            return access_token
+        if not response.ok:
+            LOGGER.error(
+                '[EMSI Service] Error occurred while getting the access token for EMSI service. Response: %s',
+                response.__dict__
+            )
+            response.raise_for_status()
 
-        LOGGER.error('[EMSI Service] Error occurred while getting the access token for EMSI service')
-        return None
+        LOGGER.info('[EMSI Service] Access token fetched successfully.')
+        data = response.json()
+        access_token = data['access_token']
+        expires_in = data['expires_in']
+        self.expires_at = int(time()) + expires_in
+        return access_token
 
     def connect(self):
         """
