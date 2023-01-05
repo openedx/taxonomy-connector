@@ -13,6 +13,9 @@ Change Log
 
 Unreleased
 
+[1.32.3] - 2023-01-05
+---------------------
+* Added log for EMSI client access token and raising error for error status.
 
 [1.32.2] - 2023-01-02
 ---------------------
