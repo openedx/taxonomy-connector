@@ -7,6 +7,7 @@ from typing import Union
 import boto3
 
 from bs4 import BeautifulSoup
+from django.utils.timezone import now
 from edx_django_utils.cache import get_cache_key, TieredCache
 from edx_django_utils.cache.utils import hashlib
 
@@ -174,7 +175,7 @@ def process_skills_data(product, skills, should_commit_to_db, product_type, **kw
         except KeyError:
             message = f'[TAXONOMY] Missing keys in skills data for key: {product[key_or_uuid]}'
             LOGGER.error(message)
-            failures.append((product['uuid'], message))
+            failures.append((product[key_or_uuid], message))
         except (ValueError, TypeError):
             message = f'[TAXONOMY] Invalid type for `confidence` in skills for key: {product[key_or_uuid]}'
             LOGGER.error(message)
@@ -305,7 +306,7 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for key: {product[key_or_uuid]}'
                 LOGGER.error(message)
-                all_failures.append((product['uuid'], message))
+                all_failures.append((product[key_or_uuid], message))
                 continue
 
             try:
@@ -601,3 +602,63 @@ def apply_batching_to_translate_large_text(key, source_text):
     result['TranslatedText'] = translated_text
     result['SourceLanguageCode'] = source_language_code
     return result
+
+
+def duplicate_model_instance(instance):
+    """
+    Duplicate passed django model as described in django docs.
+
+    https://docs.djangoproject.com/en/4.1/topics/db/queries/#copying-model-instances
+
+        source_block (model instance): django model instance to be duplicated.
+    """
+    instance.id = None
+    instance.pk = None
+    instance._state.adding = True  # pylint: disable=protected-access
+    if hasattr(instance, "created"):
+        instance.created = now()
+    if hasattr(instance, "modified"):
+        instance.modified = now()
+    instance.save()
+    return instance
+
+
+def delete_product(key_or_uuid: str, product_type: ProductTypes):
+    """
+    Delete product from database if it exists.
+
+        key_or_uuid (str): Key or uuid of the product to be deleted.
+        product_type (ProductTypes): Product type.
+    """
+    product_model, identifier = get_product_skill_model_and_identifier(product_type)
+    product_model.objects.filter(**{identifier: key_or_uuid}).delete()
+
+
+def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid):
+    """
+    Duplicate xblock and its skills if source xblock exists.
+
+        source_xblock_uuid (str): source xblock usage key.
+        xblock_uuid (str): new xblock usage key.
+    """
+    # get source xblock_skill instance.
+    source_xblock = XBlockSkills.objects.filter(usage_key=source_xblock_uuid).first()
+    if not source_xblock:
+        LOGGER.info(f'[TAXONOMY] Source xblock: {source_xblock_uuid} not found')
+        return
+
+    # just in case xblock_skill with new usage_key exists, stop execution.
+    if XBlockSkills.objects.filter(usage_key=xblock_uuid).exists():
+        LOGGER.error(f'[TAXONOMY] XBlock with usage_key: {xblock_uuid} already exists!')
+        return
+
+    # fetch source xblock skills.
+    source_xblock_skills = XBlockSkillData.objects.filter(xblock=source_xblock).all()
+    # copy source xblock with new usage_key.
+    source_xblock.usage_key = xblock_uuid
+    xblock = duplicate_model_instance(source_xblock)
+
+    # copy source xblock skills and set relation with new xblock.
+    for source_xblock_skill in source_xblock_skills:
+        source_xblock_skill.xblock = xblock
+        duplicate_model_instance(source_xblock_skill)
