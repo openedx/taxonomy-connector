@@ -22,6 +22,5 @@ edx-lint<=1.5.2
 algoliasearch-django<4.0.0
 algoliasearch<2.0.0
 
-# latest version i.e. 4.0.9 fails with dependency "hookimpl"
-# https://github.com/tox-dev/tox/issues/2637
+# tox version greater than 4 is causing problems.
 tox<4.0.0

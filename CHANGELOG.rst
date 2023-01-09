@@ -13,6 +13,23 @@ Change Log
 
 Unreleased
 
+[1.33.0] - 2023-01-05
+---------------------
+* Added finalize_xblockskill_tags to mark skills as verified or blacklisted.
+
+[1.32.3] - 2023-01-05
+---------------------
+* Added log for EMSI client access token and raising error for error status.
+
+[1.32.2] - 2023-01-02
+---------------------
+* updated requirements.
+
+[1.32.1] - 2022-12-20
+---------------------
+* Reverts changes depending on openedx-events till upstream MR is merged.
+  https://github.com/openedx/openedx-events/pull/143
+
 [1.32.0] - 2022-12-20
 ---------------------
 * Added refresh_xblock_skills command to update skills for xblocks.

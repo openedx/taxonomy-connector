@@ -23,7 +23,6 @@ astroid==2.3.3
 attrs==22.2.0
     # via
     #   -r requirements/test.txt
-    #   openedx-events
     #   pytest
 beautifulsoup4==4.11.1
     # via -r requirements/test.txt
@@ -31,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.26.37
+boto3==1.26.41
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.29.37
+botocore==1.29.41
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -106,7 +105,6 @@ django==3.2.16
     #   djangorestframework
     #   edx-django-utils
     #   edx-i18n-tools
-    #   openedx-events
 django-choices==1.7.2
     # via -r requirements/test.txt
 django-crum==0.7.9
@@ -137,10 +135,6 @@ edx-lint==1.5.2
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/dev.in
-edx-opaque-keys[django]==2.3.0
-    # via
-    #   -r requirements/test.txt
-    #   openedx-events
 edx-rest-api-client==5.5.0
     # via -r requirements/test.txt
 exceptiongroup==1.1.0
@@ -153,11 +147,7 @@ faker==15.3.4
     # via
     #   -r requirements/test.txt
     #   factory-boy
-fastavro==1.7.0
-    # via
-    #   -r requirements/test.txt
-    #   openedx-events
-filelock==3.8.2
+filelock==3.9.0
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -197,14 +187,12 @@ markupsafe==2.1.1
     #   jinja2
 mccabe==0.6.1
     # via pylint
-mock==4.0.3
+mock==5.0.0
     # via -r requirements/test.txt
 newrelic==8.5.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events @ git+https://github.com/open-craft/openedx-events.git@1934a839b6b04db1b02634cd74320045f2e6ed17
-    # via -r requirements/test.txt
 packaging==22.0
     # via
     #   -r requirements/ci.txt
@@ -227,7 +215,7 @@ pep517==0.13.0
     #   build
 pip-tools==6.12.1
     # via -r requirements/pip-tools.txt
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via
     #   -r requirements/ci.txt
     #   virtualenv
@@ -256,7 +244,7 @@ pycparser==2.21
     #   cffi
 pydocstyle==6.1.1
     # via -r requirements/dev.in
-pygments==2.13.0
+pygments==2.14.0
     # via diff-cover
 pyjwt==2.6.0
     # via
@@ -276,10 +264,6 @@ pylint-plugin-utils==0.7
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==3.13.0
-    # via
-    #   -r requirements/test.txt
-    #   edx-opaque-keys
 pynacl==1.5.0
     # via
     #   -r requirements/test.txt
@@ -357,7 +341,6 @@ stevedore==4.1.1
     #   -r requirements/test.txt
     #   code-annotations
     #   edx-django-utils
-    #   edx-opaque-keys
 testfixtures==7.0.4
     # via -r requirements/test.txt
 text-unidecode==1.3

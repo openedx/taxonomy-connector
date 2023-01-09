@@ -13,16 +13,14 @@ amqp==2.6.1
 asgiref==3.6.0
     # via django
 attrs==22.2.0
-    # via
-    #   openedx-events
-    #   pytest
+    # via pytest
 beautifulsoup4==4.11.1
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.26.37
+boto3==1.26.41
     # via django-ses
-botocore==1.29.37
+botocore==1.29.41
     # via
     #   boto3
     #   s3transfer
@@ -57,7 +55,6 @@ ddt==1.6.0
     #   django-solo
     #   djangorestframework
     #   edx-django-utils
-    #   openedx-events
 django-choices==1.7.2
     # via -r requirements/base.in
 django-crum==0.7.9
@@ -78,10 +75,6 @@ edx-django-utils==5.2.0
     # via
     #   -r requirements/base.in
     #   edx-rest-api-client
-edx-opaque-keys[django]==2.3.0
-    # via
-    #   -r requirements/base.in
-    #   openedx-events
 edx-rest-api-client==5.5.0
     # via -r requirements/base.in
 exceptiongroup==1.1.0
@@ -92,8 +85,6 @@ faker==15.3.4
     # via
     #   -r requirements/test.in
     #   factory-boy
-fastavro==1.7.0
-    # via openedx-events
 idna==3.4
     # via requests
 iniconfig==1.1.1
@@ -108,12 +99,10 @@ kombu==4.6.11
     # via celery
 markupsafe==2.1.1
     # via jinja2
-mock==4.0.3
+mock==5.0.0
     # via -r requirements/test.in
 newrelic==8.5.0
     # via edx-django-utils
-openedx-events @ git+https://github.com/open-craft/openedx-events.git@1934a839b6b04db1b02634cd74320045f2e6ed17
-    # via -r requirements/base.in
 packaging==22.0
     # via pytest
 pbr==5.11.0
@@ -126,8 +115,6 @@ pycparser==2.21
     # via cffi
 pyjwt==2.6.0
     # via edx-rest-api-client
-pymongo==3.13.0
-    # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
 pytest==7.2.0
@@ -177,7 +164,6 @@ stevedore==4.1.1
     # via
     #   code-annotations
     #   edx-django-utils
-    #   edx-opaque-keys
 testfixtures==7.0.4
     # via -r requirements/test.in
 text-unidecode==1.3

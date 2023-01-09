@@ -8,7 +8,7 @@ Taxonomy
 .. image:: http://codecov.io/github/edx/taxonomy-connector/coverage.svg?branch=master
     :target: http://codecov.io/github/edx/taxonomy-connector?branch=master
     :alt: Codecov
-    
+
 .. image:: https://github.com/edx/taxonomy-connector/workflows/Python%20CI/badge.svg?branch=master
     :target: https://github.com/edx/taxonomy-connector/actions?query=workflow%3A%22Python+CI%22
     :alt: CI
@@ -41,7 +41,7 @@ Notes:
 - Also, to make taxonomy work, the host platform must add an implementation of data providers written in ``./taxonomy/providers``
 - Taxonomy APIs use throttle rate set in ``DEFAULT_THROTTLE_RATES`` settings by default. Custom Throttle rate can by set by adding ``ScopedRateThrottle`` class in ``DEFAULT_THROTTLE_CLASSES`` settings and ``taxonomy-api-throttle-scope`` key in ``DEFAULT_THROTTLE_RATES``
 - For the skill tags to be verified, the management command ``finalize_xblockskill_tags`` needs to be run periodically.
-- Also, You can configure the skill tags verification by setting the values of ``MIN_VOTES_FOR_SKILLS`` and ``RATIO_THRESHOLD_FOR_SKILLS`` in the host platform or by passing the values to the command using the args ``--min-votes`` and ``--ratio-threshold``.
+- Also, You can configure the skill tags verification by setting the values of ``SKILLS_VERIFICATION_THRESHOLD``, ``SKILLS_VERIFICATION_RATIO_THRESHOLD``, ``SKILLS_IGNORED_THRESHOLD`` and ``SKILLS_IGNORED_RATIO_THRESHOLD`` in the host platform or by passing the values to the command using the args ``--min-verified-votes``, ``--ratio-verified-threshold``, ``--min-ignored-votes`` and ``--ratio-ignored-threshold``.
 
 
 .. code-block:: python

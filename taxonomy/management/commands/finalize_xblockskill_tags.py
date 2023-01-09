@@ -5,11 +5,11 @@ Management command for finalizing the xblockskill tags based on number of votes.
 
 import logging
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.translation import gettext as _
 
-from taxonomy.constants import MIN_VOTES_FOR_SKILLS, RATIO_THRESHOLD_FOR_SKILLS
 from taxonomy.exceptions import InvalidCommandOptionsError
 from taxonomy.models import XBlockSkillData
 
@@ -34,13 +34,43 @@ class Command(BaseCommand):
         Add arguments to the command parser
         """
         parser.add_argument(
-            '--min-votes',
+            '--min-verified-votes',
             help=_('Minimum number of votes required for verification'),
         )
         parser.add_argument(
-            '--ratio-threshold',
-            help=_('Ratio of min votes to total votes for verification'),
+            '--ratio-verified-threshold',
+            help=_('Ratio of min verified_count to total count for verification'),
         )
+        parser.add_argument(
+            '--min-ignored-votes',
+            help=_('Minimum number of times the skill must be ignored to be blacklisted'),
+        )
+        parser.add_argument(
+            '--ratio-ignored-threshold',
+            help=_('Ratio of min ignored_count to total count for blacklisting'),
+        )
+
+    @staticmethod
+    def _get_and_validate_argument_value(argument, setting_key, options):
+        """
+        Gets argument value from arguments or settings. Raises error if None.
+        """
+        value = options.get(argument, None) or getattr(settings, setting_key, None)
+        if value is None:
+            raise InvalidCommandOptionsError(
+                f'Either configure {setting_key} in settings or pass with arg --{argument.replace("_", "-")}'
+            )
+        return value
+
+    @staticmethod
+    def _is_over_threshold(actual_count, total_count, min_votes, ratio_threshold):
+        """
+        Checks if count passes min count and ratio test.
+        """
+        has_min_votes = bool(actual_count > int(min_votes))
+        count_ratio = float(actual_count / total_count)
+        crosses_ratio_threshold = bool(count_ratio > float(ratio_threshold))
+        return has_min_votes and crosses_ratio_threshold
 
     def handle(self, *args, **options):
         """
@@ -48,34 +78,48 @@ class Command(BaseCommand):
         """
         LOGGER.info('Starting xblockskill tags verification task')
 
-        min_votes = options.get('min_votes', None) or MIN_VOTES_FOR_SKILLS
-        ratio_threshold = options.get('ratio_threshold', None) or RATIO_THRESHOLD_FOR_SKILLS
-
-        if min_votes is None:
-            raise InvalidCommandOptionsError('Either configure MIN_VOTES_FOR_SKILLS in settings '
-                                             'or pass with arg --min-votes')
-
-        if ratio_threshold is None:
-            raise InvalidCommandOptionsError('Either configure RATIO_THRESHOLD_FOR_SKILLS in settings '
-                                             'or pass with arg --ratio-threshold')
+        min_verified_votes = self._get_and_validate_argument_value(
+            'min_verified_votes',
+            "SKILLS_VERIFICATION_THRESHOLD",
+            options,
+        )
+        ratio_verified_threshold = self._get_and_validate_argument_value(
+            'ratio_verified_threshold',
+            "SKILLS_VERIFICATION_RATIO_THRESHOLD",
+            options,
+        )
+        min_ignored_votes = self._get_and_validate_argument_value(
+            'min_ignored_votes',
+            "SKILLS_IGNORED_THRESHOLD",
+            options,
+        )
+        ratio_ignored_threshold = self._get_and_validate_argument_value(
+            'ratio_ignored_threshold',
+            "SKILLS_IGNORED_RATIO_THRESHOLD",
+            options,
+        )
 
         with transaction.atomic():
-            unverified_skills = XBlockSkillData.objects.filter(verified=False)
+            unverified_skills = XBlockSkillData.objects.filter(verified=False, is_blacklisted=False)
             for xblock_skill in unverified_skills:
                 verified_count = xblock_skill.verified_count if xblock_skill.verified_count else 0
                 ignored_count = xblock_skill.ignored_count if xblock_skill.ignored_count else 0
-                has_min_votes = bool(verified_count > int(min_votes))
                 total_count = int(verified_count + ignored_count)
-                if total_count > 0:
-                    count_ratio = float(verified_count / total_count)
-                else:
-                    count_ratio = 0
-                crosses_ratio_threshold = bool(count_ratio > float(ratio_threshold))
-                if has_min_votes and crosses_ratio_threshold:
+                if total_count <= 0:
+                    continue
+                if self._is_over_threshold(verified_count, total_count, min_verified_votes, ratio_verified_threshold):
                     xblock_skill.verified = True
                     xblock_skill.save()
                     LOGGER.info(
                         '[%s] skill tag for the xblock [%s] has been verified',
+                        xblock_skill.skill.name,
+                        xblock_skill.xblock.usage_key
+                    )
+                elif self._is_over_threshold(ignored_count, total_count, min_ignored_votes, ratio_ignored_threshold):
+                    xblock_skill.is_blacklisted = True
+                    xblock_skill.save()
+                    LOGGER.info(
+                        '[%s] skill tag for the xblock [%s] has been blacklisted',
                         xblock_skill.skill.name,
                         xblock_skill.xblock.usage_key
                     )

@@ -8,6 +8,7 @@ from time import time
 
 import responses
 from pytest import raises
+from requests import HTTPError
 from testfixtures import LogCapture
 
 from taxonomy.emsi.client import EMSIJobsApiClient, EMSISkillsApiClient, JwtEMSIApiClient
@@ -18,7 +19,11 @@ from test_utils.sample_responses.job_lookup import JOB_LOOKUP, JOB_LOOKUP_FILTER
 from test_utils.sample_responses.job_postings import JOB_POSTINGS, JOB_POSTINGS_FILTER
 from test_utils.sample_responses.jobs import JOBS, JOBS_FILTER
 from test_utils.sample_responses.skills import (
-    SKILL_TEXT_DATA, SKILLS_EMSI_CLIENT_RESPONSE, SKILLS_EMSI_RESPONSE, SKILL_ID, SKILL_DETAILS_EMSI_RESPONSE
+    SKILL_DETAILS_EMSI_RESPONSE,
+    SKILL_ID,
+    SKILL_TEXT_DATA,
+    SKILLS_EMSI_CLIENT_RESPONSE,
+    SKILLS_EMSI_RESPONSE,
 )
 from test_utils.testcase import TaxonomyTestCase
 
@@ -59,14 +64,14 @@ class TestJwtEMSIApiClient(TaxonomyTestCase):
         """
         Validate that `fetch_oauth_access_token` correctly handles errors while fetching access token.
         """
-        with LogCapture(level=logging.INFO) as log_capture:
-            token = self.client.oauth_access_token()
-            assert token is None
+        with raises(HTTPError):
+            with LogCapture(level=logging.INFO) as log_capture:
+                self.client.oauth_access_token()
 
-            # Validate a descriptive and readable log message.
-            assert len(log_capture.records) == 1
-            message = log_capture.records[0].msg
-            assert message == '[EMSI Service] Error occurred while getting the access token for EMSI service'
+        # Validate a descriptive and readable log message.
+        assert len(log_capture.records) == 1
+        message = log_capture.records[0].msg
+        assert message == '[EMSI Service] Error occurred while getting the access token for EMSI service. Response: %s'
 
     @mock_api_response(
         method=responses.POST,

@@ -11,8 +11,8 @@ from faker import Faker
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
-    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, RefreshXBlockSkillsConfig, Industry,
-    IndustryJobSkill, XBlockSkillData, XBlockSkills
+    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
+    XBlockSkillData, XBlockSkills
 )
 from taxonomy.choices import UserGoal
 
@@ -50,24 +50,6 @@ class RefreshCourseSkillsConfigFactory(factory.django.DjangoModelFactory):
         """
 
         model = RefreshCourseSkillsConfig
-        django_get_or_create = ('id',)
-
-    id = factory.Sequence(lambda n: n)
-    arguments = factory.LazyAttribute(lambda x: FAKER.word())
-
-
-# pylint: disable=no-member, invalid-name
-class RefreshXBlockSkillsConfigFactory(factory.django.DjangoModelFactory):
-    """
-    Factory class for RefreshXBlockSkillsConfig model.
-    """
-
-    class Meta:
-        """
-        Meta for ``RefreshXBlockSkillsConfig``.
-        """
-
-        model = RefreshXBlockSkillsConfig
         django_get_or_create = ('id',)
 
     id = factory.Sequence(lambda n: n)
