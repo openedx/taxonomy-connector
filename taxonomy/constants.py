@@ -6,7 +6,6 @@ Constants used by the taxonomy connector.
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 
 
 def get_lookup_query_filter(external_ids):
@@ -136,8 +135,3 @@ NAICS2_CODES = {
     81: 'Other Services (except Public Administration)',
     92: 'Public Administration',
 }
-
-MIN_VOTES_FOR_SKILLS = settings.MIN_VOTES_FOR_SKILLS \
-    if hasattr(settings, "MIN_VOTES_FOR_SKILLS") else None
-RATIO_THRESHOLD_FOR_SKILLS = settings.RATIO_THRESHOLD_FOR_SKILLS \
-    if hasattr(settings, "RATIO_THRESHOLD_FOR_SKILLS") else None

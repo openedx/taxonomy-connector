@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.33.0] - 2023-01-05
+---------------------
+* Added finalize_xblockskill_tags to mark skills as verified or blacklisted.
+
 [1.32.3] - 2023-01-05
 ---------------------
 * Added log for EMSI client access token and raising error for error status.
