@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.34.0] - 2023-01-10
+---------------------
+* Added similar jobs list in jobs algolia jobs index.
+
 [1.33.0] - 2023-01-06
 ---------------------
 * https://github.com/openedx/openedx-events/pull/143 merged, so adding back
