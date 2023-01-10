@@ -5,7 +5,7 @@ import mock
 from pytest import mark
 
 from taxonomy.algolia.constants import ALGOLIA_JOBS_INDEX_SETTINGS
-from taxonomy.algolia.utils import fetch_jobs_data, index_jobs_data_in_algolia
+from taxonomy.algolia.utils import calculate_jaccard_similarity, fetch_jobs_data, index_jobs_data_in_algolia
 from test_utils import factories
 from test_utils.testcase import TaxonomyTestCase
 
@@ -15,6 +15,15 @@ class TestUtils(TaxonomyTestCase):
     """
     Validate algolia utility functions.
     """
+
+    def test_calculate_jaccard_similarity(self):
+        """
+        Test that calculate_jaccard_similarity returns correct value.
+        """
+        # Test an edge case where skills cam be two empty sets
+        set_a = set([])
+        set_b = set([])
+        assert calculate_jaccard_similarity(set_a, set_b) == 0
 
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)  # this is done to trigger the pagination flow.
     def test_fetch_jobs_data(self):
@@ -44,6 +53,7 @@ class TestUtils(TaxonomyTestCase):
         assert all('job_id' in job_data['job_postings'][0] for job_data in jobs_data)
 
         assert all('industry_names' in job_data for job_data in jobs_data)
+        assert all('similar_jobs' in job_data for job_data in jobs_data)
 
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)
     def test_fetch_industry_job_skill_data(self):

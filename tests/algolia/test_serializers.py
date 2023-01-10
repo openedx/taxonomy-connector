@@ -26,7 +26,19 @@ class TestJobSerializer(TaxonomyTestCase):
         for job_skill in job_skills:
             factories.JobPostingsFactory.create(job=job_skill.job)
 
-        job_serializer = JobSerializer(Job.objects, many=True)
+        data = {
+            'jobs_with_recommendations': [
+                {
+                    "name": "Job Name 1",
+                    "similar_jobs": ["Job A", "Job B", "Job C"]
+                },
+                {
+                    "name": "Job Name 2",
+                    "similar_jobs": ["Job A", "Job B", "Job C"]
+                },
+            ]
+        }
+        job_serializer = JobSerializer(Job.objects, context=data, many=True)
         jobs_data = job_serializer.data
 
         # Assert all jobs are included in the data returned by the serializer
@@ -46,3 +58,6 @@ class TestJobSerializer(TaxonomyTestCase):
         assert all('job_postings' in job_data for job_data in jobs_data)
         assert all('median_salary' in job_data['job_postings'][0] for job_data in jobs_data)
         assert all('job_id' in job_data['job_postings'][0] for job_data in jobs_data)
+
+        # Assert similar_jobs is present and has correct data
+        assert all('similar_jobs' in job_data for job_data in jobs_data)

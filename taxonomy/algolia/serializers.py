@@ -39,10 +39,11 @@ class JobSerializer(serializers.ModelSerializer):
     objectID = serializers.SerializerMethodField()  # required by Algolia, e.g. "job-{external_id}"
 
     industry_names = serializers.SerializerMethodField()
+    similar_jobs = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
-        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID', 'industry_names')
+        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID', 'industry_names', 'similar_jobs')
         read_only_fields = fields
 
     def get_objectID(self, obj):  # pylint: disable=invalid-name
@@ -91,6 +92,29 @@ class JobSerializer(serializers.ModelSerializer):
         return list(IndustryJobSkill.objects.filter(job=obj)
                     .order_by("industry__name")
                     .values_list('industry__name', flat=True).distinct())
+
+    @staticmethod
+    def extract_similar_jobs(recommendations, name):
+        """
+        Extract similar jobs from recommendations.
+
+        Arguments:
+            recommendations (list): List containing dictionaries of job names and recommendations.
+            name (str): Name of the job for which recommendations are being extracted.
+        """
+        similar_jobs = []
+        for recommendation in recommendations:
+            if recommendation['name'] == name:
+                similar_jobs = recommendation['similar_jobs']
+                break
+        return similar_jobs
+
+    def get_similar_jobs(self, obj):
+        """
+        Get a list of recommendations.
+        """
+        recommendations_data = self.context.get('jobs_with_recommendations', None)
+        return self.extract_similar_jobs(recommendations_data, obj.name)
 
 
 class JobSkillSerializer(serializers.ModelSerializer):
