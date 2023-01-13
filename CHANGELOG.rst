@@ -17,12 +17,13 @@ Unreleased
 ---------------------
 * Added similar jobs list in jobs algolia jobs index.
 
-[1.33.0] - 2023-01-06
+[1.33.0] - 2023-01-09
 ---------------------
 * https://github.com/openedx/openedx-events/pull/143 merged, so adding back
   changes reverted in version 1.32.1
 * Added refresh_xblock_skills command to update skills for xblocks.
 * Added handlers for openedx-events: XBLOCK_DELETED, XBLOCK_PUBLISHED and XBLOCK_PUBLISHED.
+* Added finalize_xblockskill_tags to mark skills as verified or blacklisted.
 
 [1.32.3] - 2023-01-05
 ---------------------
@@ -66,6 +67,7 @@ Unreleased
 ---------------------
 * Added XBlockSkills and XBlockSkillData models.
 * Added related celery tasks, abstract provider, signals and commands.
+* Added management command to verify xblockskill tags.
 
 [1.28.2] - 2022-11-23
 ---------------------
