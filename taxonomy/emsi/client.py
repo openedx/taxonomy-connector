@@ -5,17 +5,19 @@ Clients for communicating with the EMSI Service.
 
 import logging
 from functools import wraps
-from time import time
+from time import time, sleep
 from urllib.parse import urljoin
 
 import requests
 from edx_rest_api_client.auth import BearerAuth
+from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError, RequestException, Timeout  # pylint: disable=redefined-builtin
+from urllib3 import Retry
 
 from django.conf import settings
 
 from taxonomy.exceptions import TaxonomyAPIError
-
+from taxonomy.constants import EMSI_API_RATE_LIMIT_PER_SEC
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ class JwtEMSIApiClient:
     """
     EMSI client authenticates using a access token for the given user.
     """
+    REQUEST_COUNT_CACHE = {}
 
     ACCESS_TOKEN_URL = settings.EMSI_API_ACCESS_TOKEN_URL
     API_BASE_URL = settings.EMSI_API_BASE_URL
@@ -39,12 +42,55 @@ class JwtEMSIApiClient:
 
         Arguments:
             scope (str): The value of the scope depends on the EMSI API endpoints we want to
-                access and its values are dependant on EMSI API specifications. Example values
+                access and its values are dependent on EMSI API specifications. Example values
                 are `emsi_open` and `postings:us`.
         """
         self.scope = scope
         self.expires_at = 0
         self.client = None
+
+    @classmethod
+    def __ensure_request_allowed(cls):
+        """
+        Ensure the request to LightCast API is allowed.
+
+        This function will first check the total number of requests to the LightCast API in the current second,
+        - If the rate limit is reached then it will wait for 1 second and start the counter from 0.
+        - If the rate limit is not reached it will simply update the counter.
+        It also makes sure to clear the dict for the past (redundant) entries to avoid dict size from
+        increasing put of bound.
+        """
+        # Wait for a second if limit for the current second is reached.
+        if cls.REQUEST_COUNT_CACHE.get(int(time()), 0) > EMSI_API_RATE_LIMIT_PER_SEC:
+            sleep(1)
+
+        second_count = int(time())
+
+        # If a second has passed then clear the dict and start counting from the start.
+        if second_count not in cls.REQUEST_COUNT_CACHE:
+            cls.REQUEST_COUNT_CACHE.clear()
+            cls.REQUEST_COUNT_CACHE[second_count] = 0
+
+        cls.REQUEST_COUNT_CACHE[second_count] += 1
+
+    @staticmethod
+    def handle_rate_limiting(func):
+        """
+        Handle rate limiting restrictions by LightCast.
+
+        Currently, LightCast enforces 5 requests/second per client. This decorator tries to avoid rate limiting errors.
+        """
+
+        @wraps(func)
+        def inner(*args, **kwargs):
+            """
+            Before calling the wrapped function, we check if we have exhausted the rate limit set by LightCast API.
+            """
+            # Ensure the rate limit is not reached before calling the decorated function.
+            JwtEMSIApiClient.__ensure_request_allowed()
+            return func(*args, **kwargs)
+
+        return inner
 
     def oauth_access_token(self, grant_type='client_credentials'):
         """
@@ -60,6 +106,8 @@ class JwtEMSIApiClient:
             'scope': self.scope,
         }
 
+        # Make sure to avoid rate limit.
+        self.__ensure_request_allowed()
         response = requests.post(
             self.ACCESS_TOKEN_URL,
             data=data,
@@ -86,6 +134,13 @@ class JwtEMSIApiClient:
         """
         self.client = requests.Session()
         self.client.auth = BearerAuth(self.oauth_access_token())
+        adapter = HTTPAdapter(
+            max_retries=Retry(
+                total=3, backoff_factor=1, allowed_methods=None, status_forcelist=[429]
+            )
+        )
+        self.client.mount("http://", adapter)
+        self.client.mount("https://", adapter)
 
     def is_token_expired(self):
         """
@@ -135,6 +190,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         """
         super(EMSISkillsApiClient, self).__init__(scope='emsi_open')
 
+    @JwtEMSIApiClient.handle_rate_limiting
     @JwtEMSIApiClient.refresh_token
     def get_skill_details(self, skill_id):
         """
@@ -160,6 +216,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
             )
             raise TaxonomyAPIError('Error while fetching skill details.') from error
 
+    @JwtEMSIApiClient.handle_rate_limiting
     @JwtEMSIApiClient.refresh_token
     def get_product_skills(self, text_data):
         """
@@ -220,6 +277,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         """
         super(EMSIJobsApiClient, self).__init__(scope='postings:us')
 
+    @JwtEMSIApiClient.handle_rate_limiting
     @JwtEMSIApiClient.refresh_token
     def get_details(self, ranking_facet, query_filter):
         """
@@ -247,6 +305,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
                 'Error while fetching lookup for {ranking_facet}'.format(ranking_facet=ranking_facet.value)
             ) from error
 
+    @JwtEMSIApiClient.handle_rate_limiting
     @JwtEMSIApiClient.refresh_token
     def get_jobs(self, ranking_facet, nested_ranking_facet, query_filter):
         """
@@ -285,6 +344,7 @@ class EMSIJobsApiClient(JwtEMSIApiClient):
         """
         return jobs_data
 
+    @JwtEMSIApiClient.handle_rate_limiting
     @JwtEMSIApiClient.refresh_token
     def get_job_postings(self, ranking_facet, query_filter):
         """

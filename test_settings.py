@@ -53,7 +53,7 @@ MIDDLEWARE = (
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
 )
 
-# Settings related to to EMSI client
+# Settings related to LightCast (EMSI) client
 # API URLs are altered to avoid accidentally calling the API in tests
 # Original URL: https://auth.emsicloud.com/connect/token
 EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'

@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.35.0] - 2023-02-07
+---------------------
+* Added logic to avoid 429 errors and handle these errors if they still appear while communicating with LightCast API.
+
 [1.34.0] - 2023-01-10
 ---------------------
 * Added similar jobs list in jobs algolia jobs index.

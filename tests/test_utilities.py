@@ -6,6 +6,7 @@ import logging
 
 import ddt
 import mock
+import responses
 from edx_django_utils.cache import TieredCache
 from pytest import fixture, mark
 from testfixtures import LogCapture
@@ -13,12 +14,14 @@ from testfixtures import LogCapture
 from taxonomy import models, utils
 from taxonomy.choices import ProductTypes
 from taxonomy.constants import ENGLISH
+from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import CourseSkills, Industry, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
 from test_utils import factories
 from test_utils.constants import COURSE_KEY, PROGRAM_UUID, USAGE_KEY
+from test_utils.decorators import mock_api_response
 from test_utils.mocks import MockCourse, MockProgram, MockXBlock, mock_as_dict
-from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE
+from test_utils.sample_responses.skills import SKILLS_EMSI_CLIENT_RESPONSE, SKILLS_EMSI_RESPONSE
 from test_utils.testcase import TaxonomyTestCase
 
 
@@ -829,25 +832,33 @@ class TestUtils(TaxonomyTestCase):
         utils.refresh_product_skills(new_data, True, product_type)
         assert get_xblock_skills_mock.call_count == 2
 
-    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
+    @mock_api_response(
+        method=responses.POST,
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
+        json=SKILLS_EMSI_RESPONSE,
+    )
     @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
-    @mock.patch('time.sleep')
+    @mock.patch('taxonomy.emsi.client.sleep')
+    @mock.patch('taxonomy.emsi.client.time')
     def test_refresh_course_skills_rate_limit_emsi_api_calls(
             self,
+            time_mock,
             time_sleep_mock,
             get_translated_description_mock,
-            get_course_skills_mock
     ):
         """
         Validate that `refresh_product_skills` rate limits API calls to EMSI.
         """
-        get_course_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
+        self.mock_access_token()
+        time_mock.return_value = 1  # Freeze time for the test.
         get_translated_description_mock.return_value = None
         time_sleep_mock.return_value = None
+
+        EMSISkillsApiClient.REQUEST_COUNT_CACHE.clear()
         product_type = ProductTypes.Course
 
         courses = []
-        for _ in range(11):
+        for _ in range(6):
             course = mock_as_dict(MockCourse())
             courses.append({
                 'uuid': course.uuid,
@@ -859,8 +870,8 @@ class TestUtils(TaxonomyTestCase):
 
         utils.refresh_product_skills(courses, False, product_type)
 
-        # it should be called after every 5 requests made to EMSI
-        assert time_sleep_mock.call_count == 2
+        # It should be called at the 6th request made in the current second
+        assert time_sleep_mock.call_count == 1
 
     def test_refresh_program_skills_skipped(self):
         """
@@ -914,30 +925,37 @@ class TestUtils(TaxonomyTestCase):
             messages = [record.msg for record in log_capture.records]
             self.assertIn(f'[TAXONOMY] Exception for key: {program["uuid"]} Error: ', messages)
 
+    @mock_api_response(
+        method=responses.POST,
+        url=EMSISkillsApiClient.API_BASE_URL + '/extract',
+        json=SKILLS_EMSI_RESPONSE,
+    )
     @mock.patch('taxonomy.utils.translate_text')
-    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
-    @mock.patch('time.sleep', return_value=None)
+    @mock.patch('taxonomy.emsi.client.sleep', return_value=None)
+    @mock.patch('taxonomy.emsi.client.time')
     def test_refresh_program_skills_rate_limit_emsi_api_calls(
             self,
+            time_mock,
             time_sleep_mock,
-            get_program_skills_mock,
             mock_translate,
     ):
         """
         Validate that `refresh_program_skills` rate limits API calls to EMSI.
         """
-        get_program_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
+        self.mock_access_token()
+        time_mock.return_value = 1  # Freeze time for the test.
         mock_translate.return_value = {'SourceLanguageCode': '', 'TranslatedText': ''}
+        EMSISkillsApiClient.REQUEST_COUNT_CACHE.clear()
 
         programs = []
-        for _ in range(11):
+        for _ in range(6):
             program = mock_as_dict(MockProgram())
             programs.append(program)
 
         utils.refresh_product_skills(programs, False, ProductTypes.Program)
 
-        # it should be called after every 5 requests made to EMSI
-        assert time_sleep_mock.call_count == 2
+        # It should be called at the 6th request made in the current second
+        assert time_sleep_mock.call_count == 1
 
     def test_get_whitelisted_serialized_skills_with_category_details(self):
         """
