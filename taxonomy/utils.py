@@ -2,7 +2,6 @@
 Utils for taxonomy.
 """
 import logging
-import time
 from typing import Union
 import boto3
 
@@ -18,7 +17,6 @@ from taxonomy.constants import (
     ENGLISH,
     REGION,
     TRANSLATE_SERVICE,
-    EMSI_API_RATE_LIMIT_PER_SEC
 )
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
@@ -273,7 +271,7 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
 
     client = EMSISkillsApiClient()
 
-    for index, product in enumerate(products, start=1):
+    for product in products:
         product = _convert_product_to_dict(product)
         if product is None:
             skipped_count += 1
@@ -298,10 +296,6 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
                     product[key_or_uuid], skill_attr_val, product_type
                 )
             try:
-                # EMSI only allows 5 requests/sec
-                # We need to add one sec delay after every 5 requests to prevent 429 errors
-                if index % EMSI_API_RATE_LIMIT_PER_SEC == 0:
-                    time.sleep(1)  # sleep for 1 second
                 skills = client.get_product_skills(translated_skill_attr)
             except TaxonomyAPIError:
                 message = f'[TAXONOMY] API Error for key: {product[key_or_uuid]}'
