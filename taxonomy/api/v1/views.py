@@ -4,6 +4,7 @@ Taxonomy API views.
 from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
+from rest_framework.filters import OrderingFilter
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -181,7 +182,7 @@ class SkillsQuizViewSet(TaxonomyAPIViewSetMixin, ModelViewSet):
     """
     serializer_class = SkillsQuizSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwner | permissions.IsAdminUser, )
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter, )
     filterset_fields = ('username', )
 
     queryset = SkillsQuiz.objects.all()
