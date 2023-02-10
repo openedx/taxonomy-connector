@@ -53,7 +53,7 @@ MIDDLEWARE = (
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
 )
 
-# Settings related to to EMSI client
+# Settings related to LightCast (EMSI) client
 # API URLs are altered to avoid accidentally calling the API in tests
 # Original URL: https://auth.emsicloud.com/connect/token
 EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
@@ -84,3 +84,8 @@ ALGOLIA = {
     'API_KEY': '',
     'TAXONOMY_INDEX_NAME': ''
 }
+
+SKILLS_VERIFICATION_THRESHOLD = 2
+SKILLS_VERIFICATION_RATIO_THRESHOLD = 0.5
+SKILLS_IGNORED_THRESHOLD = 10
+SKILLS_IGNORED_RATIO_THRESHOLD = 0.8
