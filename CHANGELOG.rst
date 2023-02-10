@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.35.1] - 2023-02-10
+---------------------
+* Enabled ordering in SkillsQuizViewSet.
+
 [1.35.0] - 2023-02-07
 ---------------------
 * Added logic to avoid 429 errors and handle these errors if they still appear while communicating with LightCast API.
