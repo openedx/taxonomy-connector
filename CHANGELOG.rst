@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.36.0] - 2023-02-20
+---------------------
+* Added handler for openedx-events: XBLOCK_SKILL_VERIFIED.
+
 [1.35.1] - 2023-02-10
 ---------------------
 * Enabled ordering in SkillsQuizViewSet.

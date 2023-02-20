@@ -5,10 +5,12 @@ import logging
 import unittest
 
 import mock
-from openedx_events.content_authoring.data import DuplicatedXBlockData, XBlockData
-from openedx_events.content_authoring.signals import XBLOCK_DELETED, XBLOCK_DUPLICATED, XBLOCK_PUBLISHED
 from pytest import mark
 from testfixtures import LogCapture
+from openedx_events.content_authoring.data import DuplicatedXBlockData, XBlockData
+from openedx_events.content_authoring.signals import XBLOCK_DELETED, XBLOCK_DUPLICATED, XBLOCK_PUBLISHED
+from openedx_events.learning.data import XBlockSkillVerificationData
+from openedx_events.learning.signals import XBLOCK_SKILL_VERIFIED
 
 from taxonomy.models import CourseSkills, Skill, ProgramSkill, XBlockSkillData, XBlockSkills
 from taxonomy.signals.signals import (
@@ -158,6 +160,7 @@ class TaxonomySignalHandlerTests(unittest.TestCase):
             (XBLOCK_PUBLISHED, "XBLOCK_PUBLISHED"),
             (XBLOCK_DELETED, "XBLOCK_DELETED"),
             (XBLOCK_DUPLICATED, "XBLOCK_DUPLICATED"),
+            (XBLOCK_SKILL_VERIFIED, "XBLOCK_SKILL_VERIFIED"),
         ]
         for event, name in events:
             correct_init_data = event.init_data
@@ -178,3 +181,96 @@ class TaxonomySignalHandlerTests(unittest.TestCase):
                     ],
                     messages[:-1]
                 )
+
+    @mock.patch('taxonomy.tasks.get_xblock_metadata_provider')
+    @mock.patch('taxonomy.tasks.utils.EMSISkillsApiClient.get_product_skills')
+    def test_xblock_skills_verification_signals(self, get_product_skills_mock, get_block_provider_mock):
+        """
+        Verify that `XBLOCK_SKILL_VERIFIED` signal is handled as expected.
+        """
+        # setup, create xblock and related skills
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
+        get_block_provider_mock.return_value = DiscoveryXBlockMetadataProvider([self.xblock])
+        XBLOCK_PUBLISHED.send_event(
+            xblock_info=XBlockData(
+                usage_key=self.xblock.key,
+                block_type=self.xblock.content_type,
+            ),
+        )
+
+        self.assertEqual(XBlockSkillData.objects.all().count(), 4)
+        self.assertEqual(sum(XBlockSkillData.objects.all().values_list("verified_count", flat=True)), 0)
+        self.assertEqual(sum(XBlockSkillData.objects.all().values_list("ignored_count", flat=True)), 0)
+        skill_ids = list(XBlockSkillData.objects.all().values_list("skill_id", flat=True))
+
+        # action
+        XBLOCK_SKILL_VERIFIED.send_event(
+            xblock_info=XBlockSkillVerificationData(
+                usage_key=self.xblock.key,
+                verified_skills=skill_ids[:2],
+                ignored_skills=skill_ids[2:],
+            )
+        )
+        # verify
+        self.assertEqual(list(XBlockSkillData.objects.all().values_list("verified_count", flat=True)), [1, 1, 0, 0])
+        self.assertEqual(list(XBlockSkillData.objects.all().values_list("ignored_count", flat=True)), [0, 0, 1, 1])
+
+        # double check
+        XBLOCK_SKILL_VERIFIED.send_event(
+            xblock_info=XBlockSkillVerificationData(
+                usage_key=self.xblock.key,
+                verified_skills=skill_ids[:2],
+                ignored_skills=skill_ids[2:],
+            )
+        )
+        self.assertEqual(list(XBlockSkillData.objects.all().values_list("verified_count", flat=True)), [2, 2, 0, 0])
+        self.assertEqual(list(XBlockSkillData.objects.all().values_list("ignored_count", flat=True)), [0, 0, 2, 2])
+
+    def test_missing_xblock_skills_verification_signals(self):
+        """
+        Verify that `XBLOCK_SKILL_VERIFIED` signal does nothing if xblock does not exists.
+        """
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            XBLOCK_SKILL_VERIFIED.send_event(
+                xblock_info=XBlockSkillVerificationData(
+                    usage_key=self.xblock.key,
+                    verified_skills=[1],
+                    ignored_skills=[],
+                )
+            )
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(len(log_capture.records), 6)
+            self.assertEqual(
+                [
+                    f'[TAXONOMY] XBLOCK_SKILL_VERIFIED signal received',
+                    '[TAXONOMY] update_xblock_skills_verification_counts task triggered',
+                    f'[TAXONOMY] XBlock with usage_key: {self.xblock.key} not found!',
+                    '[TAXONOMY] update_xblock_skills_verification_counts task completed',
+                ],
+                messages[:-2]
+            )
+
+    def test_empty_skills_for_xblock_verification_signals(self):
+        """
+        Verify that `XBLOCK_SKILL_VERIFIED` signal does nothing if both
+        verified and ignored skill list are empty.
+        """
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            XBLOCK_SKILL_VERIFIED.send_event(
+                xblock_info=XBlockSkillVerificationData(
+                    usage_key=self.xblock.key,
+                    verified_skills=[],
+                    ignored_skills=[],
+                )
+            )
+            messages = [record.msg for record in log_capture.records]
+            self.assertEqual(len(log_capture.records), 3)
+            self.assertEqual(
+                [
+                    f'[TAXONOMY] XBLOCK_SKILL_VERIFIED signal received',
+                    '[TAXONOMY] Missing verified and ignored skills list.',
+                ],
+                messages[:-1]
+            )

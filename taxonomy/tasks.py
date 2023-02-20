@@ -90,3 +90,18 @@ def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid):
     """
     LOGGER.info('[TAXONOMY] duplicate_xblock_skills task triggered')
     utils.duplicate_xblock_skills(source_xblock_uuid, xblock_uuid)
+
+
+@shared_task()
+def update_xblock_skills_verification_counts(xblock_uuid, verified_skills, ignored_skills):
+    """
+    Task to update xblock skills verification counts.
+
+    Arguments:
+        xblock_uuid (str): uuid of xblock.
+        verified_skills (List[int]): list of verified skill ids.
+        ignored_skills (List[int]): list of ignored skill ids.
+    """
+    LOGGER.info('[TAXONOMY] update_xblock_skills_verification_counts task triggered')
+    utils.update_xblock_skills_verification_counts(xblock_uuid, verified_skills, ignored_skills)
+    LOGGER.info('[TAXONOMY] update_xblock_skills_verification_counts task completed')
