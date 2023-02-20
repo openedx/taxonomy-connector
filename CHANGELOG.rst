@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.35.2] - 2023-02-21
+---------------------
+* Index industry data with skills in Algolia.
+
 [1.35.1] - 2023-02-10
 ---------------------
 * Enabled ordering in SkillsQuizViewSet.

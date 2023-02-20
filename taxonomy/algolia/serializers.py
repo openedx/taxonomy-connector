@@ -39,11 +39,13 @@ class JobSerializer(serializers.ModelSerializer):
     objectID = serializers.SerializerMethodField()  # required by Algolia, e.g. "job-{external_id}"
 
     industry_names = serializers.SerializerMethodField()
+    industries = serializers.SerializerMethodField()
     similar_jobs = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
-        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID', 'industry_names', 'similar_jobs')
+        fields = ('id', 'external_id', 'name', 'skills', 'job_postings', 'objectID', 'industry_names',
+                  'industries', 'similar_jobs')
         read_only_fields = fields
 
     def get_objectID(self, obj):  # pylint: disable=invalid-name
@@ -92,6 +94,21 @@ class JobSerializer(serializers.ModelSerializer):
         return list(IndustryJobSkill.objects.filter(job=obj)
                     .order_by("industry__name")
                     .values_list('industry__name', flat=True).distinct())
+
+    def get_industries(self, obj):
+        """
+        Get a list of industries associated with a job and their skills.
+
+        Arguments:
+            obj (Job): Job instance whose industries need to be fetched.
+        """
+        industries = []
+        job_industries = list(IndustryJobSkill.objects.filter(job=obj).order_by("industry__name").
+                              values_list('industry__name', flat=True).distinct())
+        for industry_name in job_industries:
+            industry_skills = self.context.get('industry_skills')[industry_name]
+            industries.append({'name': industry_name, 'skills': industry_skills})
+        return industries
 
     @staticmethod
     def extract_similar_jobs(recommendations, name):

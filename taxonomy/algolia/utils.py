@@ -9,10 +9,9 @@ import pandas as pd
 from django.conf import settings
 
 from taxonomy.algolia.client import AlgoliaClient
-from taxonomy.algolia.constants import ALGOLIA_JOBS_INDEX_SETTINGS, JOBS_PAGE_SIZE
+from taxonomy.algolia.constants import ALGOLIA_JOBS_INDEX_SETTINGS, JOBS_PAGE_SIZE, EMBEDDED_OBJECT_LENGTH_CAP
 from taxonomy.algolia.serializers import JobSerializer
-from taxonomy.models import Job
-from taxonomy.models import JobSkills
+from taxonomy.models import Job, Industry, JobSkills, IndustryJobSkill
 
 LOGGER = logging.getLogger(__name__)
 
@@ -139,6 +138,19 @@ def calculate_job_recommendations(jobs):
     return jobs_and_recommendations
 
 
+def combine_industry_skills():
+    """
+    Constructs a dict with keys as industry names and values as their skills.
+    """
+    industries = list(Industry.objects.all())
+    industries_and_skills = {}
+    for industry in industries:
+        skills = list(IndustryJobSkill.objects.filter(industry=industry).order_by('-significance').
+                      values_list('skill__name', flat=True).distinct()[:EMBEDDED_OBJECT_LENGTH_CAP])
+        industries_and_skills[industry.name] = skills
+    return industries_and_skills
+
+
 def fetch_jobs_data():
     """
     Construct a list of all the jobs from the database.
@@ -151,6 +163,7 @@ def fetch_jobs_data():
     combine_start_time = datetime.datetime.now()
     LOGGER.info('[TAXONOMY] Started combining Jobs and their skills for recommendations calculation.')
     all_job_and_skills = combine_jobs_and_skills_data(qs)
+    industry_skills = combine_industry_skills()
     combine_end_time = datetime.datetime.now()
     LOGGER.info(
         '[TAXONOMY] Time taken to combine jobs and skills data: %s',
@@ -174,7 +187,10 @@ def fetch_jobs_data():
         job_serializer = JobSerializer(
             qs[start:start + page_size],
             many=True,
-            context={'jobs_with_recommendations': jobs_with_recommendations},
+            context={
+                'jobs_with_recommendations': jobs_with_recommendations,
+                'industry_skills': industry_skills
+            },
         )
         jobs.extend(job_serializer.data)
         start += page_size
