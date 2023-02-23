@@ -53,6 +53,7 @@ class TestUtils(TaxonomyTestCase):
         assert all('job_id' in job_data['job_postings'][0] for job_data in jobs_data)
 
         assert all('industry_names' in job_data for job_data in jobs_data)
+        assert all('industries' in job_data for job_data in jobs_data)
         assert all('similar_jobs' in job_data for job_data in jobs_data)
 
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)
@@ -69,7 +70,8 @@ class TestUtils(TaxonomyTestCase):
         )
         factories.IndustryJobSkillFactory(
             industry=industry_1,
-            skill=skill_1, job=job_1,
+            skill=skill_1,
+            job=job_1,
             significance=1,
             unique_postings=12121)
         factories.IndustryJobSkillFactory(
@@ -84,6 +86,108 @@ class TestUtils(TaxonomyTestCase):
 
         # Assert industrie_names are unique
         assert all(len(set(job_data['industry_names'])) == len(job_data['industry_names']) for job_data in jobs_data)
+
+    @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)
+    @mock.patch('taxonomy.algolia.utils.EMBEDDED_OBJECT_LENGTH_CAP', 2)
+    def test_fetch_industry_skills_data(self):
+        """
+        Test that fetch_jobs_data returns industries along with top 2 skills with highest significance
+        for the available jobs.
+        """
+        industry_1 = factories.IndustryFactory(code=12, name='mining')
+        skill_1 = factories.SkillFactory(external_id='SKILL-1', name='skill_1')
+        skill_2 = factories.SkillFactory(external_id='SKILL-2', name='skill_2')
+        # third skill with lowset significance
+        skill_3 = factories.SkillFactory(external_id='SKILL-3', name='skill_3')
+
+        job_1 = factories.JobFactory(
+            external_id='JOB-test1',
+            name='test1'
+        )
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_1,
+            job=job_1,
+            significance=3,
+            unique_postings=12121)
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_2,
+            job=job_1,
+            significance=2,
+            unique_postings=12131
+        )
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_3,
+            job=job_1,
+            significance=1,
+            unique_postings=12133
+        )
+
+        jobs_data = fetch_jobs_data()
+        assert jobs_data[0]['industries'] == [
+            {
+                'name': industry_1.name,
+                'skills': [skill_1.name, skill_2.name],
+            }
+        ]
+
+    @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)
+    @mock.patch('taxonomy.algolia.utils.EMBEDDED_OBJECT_LENGTH_CAP', 2)
+    def test_fetch_industry_skills_data_with_duplicate_skills(self):
+        """
+        Test that fetch_jobs_data returns industries along with top 2 skills with the highest sum of significance
+        values for duplicate skills.
+        """
+        industry_1 = factories.IndustryFactory(code=12, name='mining')
+        skill_1 = factories.SkillFactory(external_id='SKILL-1', name='skill_1')
+        skill_2 = factories.SkillFactory(external_id='SKILL-2', name='skill_2')
+        skill_3 = factories.SkillFactory(external_id='SKILL-3', name='skill_3')
+
+        job_1 = factories.JobFactory(
+            external_id='JOB-test1',
+            name='test1'
+        )
+        job_2 = factories.JobFactory(
+            external_id='JOB-test2',
+            name='test2'
+        )
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_1,
+            job=job_1,
+            significance=2,
+            unique_postings=12121)
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_1,
+            job=job_2,
+            significance=2,
+            unique_postings=12131
+        )
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_2,
+            job=job_1,
+            significance=3,
+            unique_postings=12133
+        )
+        factories.IndustryJobSkillFactory(
+            industry=industry_1,
+            skill=skill_3,
+            job=job_1,
+            significance=2,
+            unique_postings=12133
+        )
+
+        jobs_data = fetch_jobs_data()
+        assert jobs_data[0]['industries'] == [
+            {
+                'name': industry_1.name,
+                'skills': [skill_1.name, skill_2.name],
+            }
+        ]
 
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)  # this is done to trigger the pagination flow.
     @mock.patch('taxonomy.algolia.client.algoliasearch.Client')
