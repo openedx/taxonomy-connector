@@ -180,3 +180,4 @@ def fetch_jobs_data():
         start += page_size
 
     return jobs
+
