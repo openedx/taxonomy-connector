@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.36.1] - 2023-02-23
+---------------------
+* Index industry data with skills in Algolia.
+
 [1.36.0] - 2023-02-20
 ---------------------
 * Added handler for openedx-events: XBLOCK_SKILL_VERIFIED.

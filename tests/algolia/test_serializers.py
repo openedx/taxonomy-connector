@@ -61,3 +61,6 @@ class TestJobSerializer(TaxonomyTestCase):
 
         # Assert similar_jobs is present and has correct data
         assert all('similar_jobs' in job_data for job_data in jobs_data)
+
+        # Assert industries is present and has correct data
+        assert all('industries' in job_data for job_data in jobs_data)
