@@ -259,6 +259,25 @@ class TestSkillsQuizViewSet(TestCase):
         assert response['skills'] == [self.skill_a.id, self.skill_b.id]
         assert response['future_jobs'] == post_data['future_jobs']
 
+    def test_skills_quiz_api_post_with_empty_skills(self):
+        """
+        Verify skills quiz API post endpoint works correctly with empty skills.
+        """
+        post_data = {
+            'goal': 'change_careers',
+            'current_job': self.job_a.id,
+            'skills': [],
+            'future_jobs': [self.job_a.id, self.job_b.id]
+        }
+        response = self.client.post(self.view_url, json.dumps(post_data), 'application/json')
+        assert response.status_code == 201
+        response = response.json()
+        assert response['goal'] == post_data['goal']
+        assert response['current_job'] == post_data['current_job']
+        assert response['username'] == self.user.username
+        assert response['skills'] == []
+        assert response['future_jobs'] == post_data['future_jobs']
+
 
 @mark.django_db
 class TestJobTopSkillCategoriesAPIView(TestCase):

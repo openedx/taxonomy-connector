@@ -868,7 +868,7 @@ class SkillsQuiz(TimeStampedModel):
     """
 
     username = models.CharField(_("username"), max_length=150)
-    skills = models.ManyToManyField(Skill)
+    skills = models.ManyToManyField(Skill, null=True, blank=True)
     current_job = models.ForeignKey(
         Job, on_delete=models.SET_NULL, related_name='current_job_skills_quiz', null=True, blank=True
     )
