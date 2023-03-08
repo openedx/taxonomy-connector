@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.36.2] - 2023-03-08
+---------------------
+* fix: remove validations on skills in skill quiz
+
 [1.36.1] - 2023-02-23
 ---------------------
 * Index industry data with skills in Algolia.
