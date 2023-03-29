@@ -33,8 +33,14 @@ class Command(BaseCommand):
         Persist the jobs data in the database.
         """
         job_id = job_bucket['name']
-        job, _ = Job.objects.get_or_create(external_id=job_id)
         skill_buckets = job_bucket['ranking']['buckets']
+        skill_external_ids = [skill_bucket['name'] for skill_bucket in skill_buckets]
+
+        # If not a single skill exists then it doesn't make sense to create a job so return
+        if not Skill.objects.filter(external_id__in=skill_external_ids).exists():
+            return
+
+        job, _ = Job.objects.get_or_create(external_id=job_id)
         for skill_bucket in skill_buckets:
             skill_id = skill_bucket['name']
             try:
