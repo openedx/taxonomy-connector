@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.36.3] - 2023-03-29
+---------------------
+* fix: Do not create a job if all of the releated skills does not exist in database
+
 [1.36.2] - 2023-03-08
 ---------------------
 * fix: remove validations on skills in skill quiz
