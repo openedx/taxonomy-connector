@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.37.0] - 2023-03-31
+---------------------
+* Added the ability to remove unused jobs from django admin.
+
 [1.36.3] - 2023-03-29
 ---------------------
 * fix: Do not create a job if all of the releated skills does not exist in database

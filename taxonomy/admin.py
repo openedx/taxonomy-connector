@@ -7,6 +7,7 @@ Only the models that have administration requirements are exposed via the django
 from __future__ import unicode_literals
 
 from django.contrib import admin
+from django.contrib import messages
 
 from taxonomy.models import (
     CourseSkills, Job, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
@@ -82,6 +83,16 @@ class JobAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'name', 'created', 'modified')
     search_fields = ('name',)
+    actions = ['remove_unused_jobs']
+
+    def remove_unused_jobs(self, request, queryset):  # pylint: disable=unused-argument
+        """
+        Add an action to remove unused jobs from the database.
+        """
+        delete_count, _ = Job.objects.filter(jobskills__isnull=True).delete()
+        messages.info(request, f'Successfully Deleted {delete_count} jobs.')
+
+    remove_unused_jobs.short_description = 'Remove Jobs that are not used anywhere'
 
 
 @admin.register(JobSkills)
