@@ -358,9 +358,12 @@ class TestJobTopSkillCategoriesAPIView(TestCase):
         assert len(response_subcategories) == len(expected_subcategories_ids)
         assert sorted(response_subcategories) == sorted(expected_subcategories_ids)
 
-        # assert 'skills_subcategories' skills, these skills should not just job specific instead all sub-cat skills
+        # assert 'skills_subcategories' skills, these skills should be just job specific
         for sub_category in category_data['skills_subcategories']:
-            expected_skills = list(Skill.objects.filter(subcategory_id=sub_category['id']).values_list('id', flat=True))
+            expected_skills = list(Skill.objects.filter(
+                subcategory_id=sub_category['id'],
+                jobskills__job=job,
+            ).values_list('id', flat=True))
             response_skills = [skill['id'] for skill in sub_category['skills']]
             assert len(response_skills) == len(expected_skills)
             assert sorted(response_skills) == sorted(expected_skills)
@@ -399,10 +402,10 @@ class TestJobTopSkillCategoriesAPIView(TestCase):
                 last_category_stats = this_stats
                 continue
             assert (this_stats['total_significance'] < last_category_stats['total_significance']) \
-                   or (this_stats['total_significance'] == last_category_stats['total_significance']
-                       and this_stats['total_unique_postings'] < last_category_stats['total_unique_postings']) \
-                   or (this_stats['total_unique_postings'] == last_category_stats['total_unique_postings']
-                       and this_stats['total_skills'] <= last_category_stats['total_skills'])
+                or (this_stats['total_significance'] == last_category_stats['total_significance']
+                    and this_stats['total_unique_postings'] < last_category_stats['total_unique_postings']) \
+                or (this_stats['total_unique_postings'] == last_category_stats['total_unique_postings']
+                    and this_stats['total_skills'] <= last_category_stats['total_skills'])
 
         # assert every category data individually
         for index in range(5):

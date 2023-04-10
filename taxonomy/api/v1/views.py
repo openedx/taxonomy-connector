@@ -147,7 +147,12 @@ class JobTopSkillCategoriesAPIView(APIView):
             ),
             Prefetch(
                 'skillsubcategory_set',
-                queryset=SkillSubCategory.objects.filter(skills__jobskills__job=job).distinct().prefetch_related('skill_set')
+                queryset=SkillSubCategory.objects.filter(skills__jobskills__job=job).distinct().prefetch_related(
+                    Prefetch(
+                        'skill_set',
+                        queryset=Skill.objects.filter(jobskills__job=job).distinct()
+                    )
+                )
             ),
         ).annotate(
             total_significance=Sum('skills__jobskills__significance'),

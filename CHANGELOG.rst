@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.37.1] - 2023-03-31
+---------------------
+* feat: making sub_category skills to job specific in career tab.
+
 [1.37.0] - 2023-03-31
 ---------------------
 * Added the ability to remove unused jobs from django admin.
