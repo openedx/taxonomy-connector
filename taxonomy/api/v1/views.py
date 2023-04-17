@@ -2,9 +2,11 @@
 Taxonomy API views.
 """
 from collections import OrderedDict
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.filters import OrderingFilter
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,6 +18,7 @@ from django.shortcuts import get_object_or_404
 from taxonomy.api.filters import SkillNameFilter, XBlocksFilter
 from taxonomy.api.permissions import IsOwner
 from taxonomy.api.v1.serializers import (
+    JobPathSerializer,
     JobPostingsSerializer,
     JobSkillCategorySerializer,
     JobsListSerializer,
@@ -264,3 +267,26 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
                 queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False),
             ),
         )
+
+
+class JobPathAPIView(TaxonomyAPIViewSetMixin, RetrieveAPIView):
+    """
+    APIView to return job-job path description.
+    """
+
+    def get(self, request):
+        """
+        Example URL: GET https://discovery.edx.org/taxonomy/api/v1/job-path/?current_job=1111&future_job=2222
+
+        `current_job` and `future_job` params represent external id of a job.
+
+        Example Response:
+        {
+            "description": "To become a hero, you should expect to lose everything."
+        }
+        """
+
+        serializer = JobPathSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        job_path = serializer.save()
+        return Response({"description": job_path.description})

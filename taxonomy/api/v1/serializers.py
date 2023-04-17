@@ -1,12 +1,15 @@
 """
 Taxonomy API serializers.
 """
+import logging
+
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from taxonomy.models import (
     CourseSkills,
     Job,
+    JobPath,
     JobPostings,
     JobSkills,
     Skill,
@@ -16,6 +19,9 @@ from taxonomy.models import (
     XBlockSkillData,
     XBlockSkills,
 )
+from taxonomy.utils import generate_and_store_job_to_job_description
+
+LOGGER = logging.getLogger(__name__)
 
 
 class JobSerializer(ModelSerializer):
@@ -147,3 +153,52 @@ class JobSkillCategorySerializer(ModelSerializer):
         return SkillCategorySerializer(
             self.context['skill_categories'], many=True
         ).data
+
+
+class JobPathSerializer(serializers.Serializer):
+    """
+    Serializer for JobPathAPIView.
+    """
+    current_job = serializers.SlugRelatedField(
+        queryset=Job.objects.all(),
+        required=True,
+        slug_field='external_id',
+        error_messages={
+            'does_not_exist': 'Job with external_id={value} does not exist.',
+        }
+    )
+    future_job = serializers.SlugRelatedField(
+        queryset=Job.objects.all(),
+        required=True,
+        slug_field='external_id',
+        error_messages={
+            'does_not_exist': 'Job with external_id={value} does not exist.',
+        }
+    )
+
+    def validate(self, data):
+        """
+        Validates that current job and future job must not be same.
+        """
+        if data['current_job'] == data['future_job']:
+            raise serializers.ValidationError(
+                'Current and Future jobs can not be same.'
+            )
+        return data
+
+    def create(self, validated_data):
+        """
+        Create JobPath objects.
+        """
+        current_job = validated_data['current_job']
+        future_job = validated_data['future_job']
+
+        try:
+            return JobPath.objects.get(current_job=current_job, future_job=future_job)
+        except JobPath.DoesNotExist:
+            LOGGER.info(
+                "JobPath does not exist. CurrentJob: [%s], FutureJob: [%s]",
+                current_job.name,
+                future_job.name
+            )
+            return generate_and_store_job_to_job_description(current_job, future_job)

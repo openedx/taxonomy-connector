@@ -105,3 +105,17 @@ def update_xblock_skills_verification_counts(xblock_uuid, verified_skills, ignor
     LOGGER.info('[TAXONOMY] update_xblock_skills_verification_counts task triggered')
     utils.update_xblock_skills_verification_counts(xblock_uuid, verified_skills, ignored_skills)
     LOGGER.info('[TAXONOMY] update_xblock_skills_verification_counts task completed')
+
+
+@shared_task()
+def generate_job_description(external_id, name):
+    """
+    Task to generate and store job description.
+
+    Arguments:
+        external_id (str): Job external id
+        name (str): Job name
+    """
+    LOGGER.info('[TAXONOMY] generate_job_description triggered')
+    utils.generate_and_store_job_description(external_id, name)
+    LOGGER.info('[TAXONOMY] generate_job_description completed')

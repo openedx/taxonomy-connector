@@ -5,14 +5,17 @@ Tests for the taxonomy API views.
 import json
 from random import randint
 
+from mock import patch
 from pytest import mark
+from rest_framework import status
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Sum
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from taxonomy.models import JobSkills, Skill, SkillCategory
+from taxonomy.models import JobPath, JobSkills, Skill, SkillCategory
+from taxonomy.utils import generate_and_store_job_to_job_description
 from test_utils.factories import (
     CourseSkillsFactory,
     JobFactory,
@@ -553,3 +556,93 @@ class TestXBlockSkillsViewSet(TestCase):
             "usage_key": self.xblock_skills[0].usage_key,
         })
         self._verify_xblocks_data(api_response, self.xblock_skills[:1], verified=False)
+
+
+@mark.django_db
+class TestJobPathAPIView(TestCase):
+    """
+    Tests for ``JobPathAPIView`` APIView.
+    """
+
+    def setUp(self) -> None:
+        super(TestJobPathAPIView, self).setUp()
+
+        self.current_job = JobFactory()
+        self.future_job = JobFactory()
+
+        self.user = User.objects.create(username="rocky")
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.view_url = '/api/v1/job-path/'
+
+    @patch('taxonomy.openai.client.openai.ChatCompletion.create')
+    @patch(
+        'taxonomy.api.v1.serializers.generate_and_store_job_to_job_description',
+        wraps=generate_and_store_job_to_job_description
+    )
+    def test_job_path_api(   # pylint: disable=invalid-name
+            self,
+            mocked_generate_and_store_job_to_job_description,
+            mocked_chat_completion
+    ):
+        """
+        Verify that job path API returns the expected response.
+        """
+        ai_response = 'You can not switch from your current job to future job'
+        mocked_chat_completion.return_value = {
+            'choices': [{
+                'message': {
+                    'content': ai_response
+                }
+            }]
+        }
+
+        query_params = {
+            'current_job': self.current_job.external_id,
+            'future_job': self.future_job.external_id
+        }
+        api_response = self.client.get(self.view_url, query_params)
+        response_data = api_response.json()
+        assert response_data['description'] == ai_response
+        mocked_generate_and_store_job_to_job_description.assert_called_once_with(self.current_job, self.future_job)
+
+        assert JobPath.objects.count() == 1
+        assert JobPath.objects.first().description == ai_response
+
+        # reset mock to verify that util method is not called when job path description is returned from database
+        mocked_generate_and_store_job_to_job_description.reset_mock()
+
+        # call api again and verify that now description is returned from our database instead of calling chatGPT
+        api_response = self.client.get(self.view_url, query_params)
+        response_data = api_response.json()
+        assert response_data['description'] == ai_response
+
+        mocked_generate_and_store_job_to_job_description.assert_not_called()
+
+    def test_job_path_api_with_same_current_and_future_jobs(self):
+        """
+        Verify that job path API returns bad request status if current and future jobs are same.
+        """
+        query_params = {
+            'current_job': self.current_job.external_id,
+            'future_job': self.current_job.external_id
+        }
+        api_response = self.client.get(self.view_url, query_params)
+        assert api_response.status_code == status.HTTP_400_BAD_REQUEST
+        assert api_response.json() == {'non_field_errors': ['Current and Future jobs can not be same.']}
+
+    def test_job_path_api_with_invalid_job_external_ids(self):
+        """
+        Verify that job path API returns bad request status if current and future job external ids are wrong.
+        """
+        query_params = {
+            'current_job': '1111',
+            'future_job': '2222'
+        }
+        api_response = self.client.get(self.view_url, query_params)
+        assert api_response.status_code == status.HTTP_400_BAD_REQUEST
+        response_data = api_response.json()
+        assert response_data['current_job'] == ['Job with external_id=1111 does not exist.']
+        assert response_data['future_job'] == ['Job with external_id=2222 does not exist.']

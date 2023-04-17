@@ -10,7 +10,7 @@ from django.contrib import admin
 from django.contrib import messages
 
 from taxonomy.models import (
-    CourseSkills, Job, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
+    CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
     SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
     XBlockSkills, XBlockSkillData
 )
@@ -93,6 +93,16 @@ class JobAdmin(admin.ModelAdmin):
         messages.info(request, f'Successfully Deleted {delete_count} jobs.')
 
     remove_unused_jobs.short_description = 'Remove Jobs that are not used anywhere'
+
+
+@admin.register(JobPath)
+class JobPathAdmin(admin.ModelAdmin):
+    """
+    Administrative view for JobPath model.
+    """
+
+    list_display = ('id', 'created', 'current_job', 'future_job')
+    search_fields = ('current_job__name', 'future_job__name',)
 
 
 @admin.register(JobSkills)

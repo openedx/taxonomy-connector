@@ -2,11 +2,18 @@
 """
 Tests for the taxonomy models.
 """
+from unittest.mock import patch
+
+import pytest
 from pytest import mark
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from taxonomy.models import Industry, Job, JobPostings
+from taxonomy.signals.handlers import generate_job_description
+from taxonomy.utils import generate_and_store_job_description
 from test_utils import factories
 
 
@@ -305,10 +312,130 @@ class TestJob(TestCase):
         """
         job = factories.JobFactory()
         expected_str = '<Job title={}>'.format(job.name)
-        expected_repr = '<Job id="{}" name="{}" external_id="{}" >'.format(job.id, job.name, job.external_id)
+        expected_repr = '<Job id="{}" name="{}" external_id="{}" description="{}">'.format(
+            job.id,
+            job.name,
+            job.external_id,
+            job.description
+        )
 
         assert expected_str == job.__str__()
         assert expected_repr == job.__repr__()
+
+    @pytest.mark.use_signals
+    @patch('taxonomy.openai.client.openai.ChatCompletion.create')
+    @patch('taxonomy.utils.generate_and_store_job_description', wraps=generate_and_store_job_description)
+    @patch('taxonomy.signals.handlers.generate_job_description.delay', wraps=generate_job_description)
+    def test_chat_completion_is_called(   # pylint: disable=invalid-name
+            self,
+            mocked_generate_job_description_task,
+            mocked_generate_and_store_job_description,
+            mocked_chat_completion
+    ):
+        """
+        Verify that complete flow works as expected when a Job model object is created.
+        """
+        ai_response = 'One who manages a Computer Network.'
+        mocked_chat_completion.return_value = {
+            'choices': [{
+                'message': {
+                    'content': ai_response
+                }
+            }]
+        }
+
+        job_external_id = '1111'
+        job_name = 'Network Admin'
+        prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job_name)
+
+        Job(external_id=job_external_id, name=job_name).save()
+        job = Job.objects.get(external_id=job_external_id)
+
+        assert job.description == ai_response
+        mocked_generate_job_description_task.assert_called_once_with(job_external_id, job_name)
+        mocked_generate_and_store_job_description.assert_called_once_with(job_external_id, job_name)
+        mocked_chat_completion.assert_called_once_with(
+            model='gpt-3.5-turbo',
+            messages=[{'role': 'user', 'content': prompt}]
+        )
+
+    @pytest.mark.use_signals
+    @patch('taxonomy.utils.chat_completion')
+    @patch('taxonomy.utils.generate_and_store_job_description', wraps=generate_and_store_job_description)
+    @patch('taxonomy.signals.handlers.generate_job_description.delay', wraps=generate_job_description)
+    def test_multiple_job_creation(   # pylint: disable=invalid-name
+            self,
+            mocked_generate_job_description_task,
+            mocked_generate_and_store_job_description,
+            mocked_chat_completion
+    ):
+        """
+        Verify that complete flow works as expected when a Job model object is created.
+        """
+        mocked_chat_completion.side_effect = lambda prompt: prompt
+
+        factories.JobFactory.create_batch(10)
+
+        assert Job.objects.count() == 10
+
+        for job in Job.objects.all():
+            prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job.name)
+            assert job.description == prompt
+
+            assert mocked_generate_and_store_job_description.call_count == 10
+            assert mocked_chat_completion.call_count == 10
+            mocked_generate_job_description_task.assert_any_call(job.external_id, job.name)
+            mocked_generate_and_store_job_description.assert_any_call(job.external_id, job.name)
+            mocked_chat_completion.assert_any_call(prompt)
+
+
+@mark.django_db
+class TestJobPath(TestCase):
+    """
+    Tests for the ``JobPath`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the JobPath model.
+        """
+        job_path = factories.JobPathFactory()
+        expected_str = 'Job path from "{}" to "{}" is "{}")'.format(
+            job_path.current_job,
+            job_path.future_job,
+            job_path.description
+        )
+        expected_repr = 'JobPath(current_job="{}", future_job="{}", description="{}")'.format(
+            job_path.current_job,
+            job_path.future_job,
+            job_path.description
+        )
+
+        assert expected_str == job_path.__str__()
+        assert expected_repr == job_path.__repr__()
+
+    def test_current_and_future_should_be_different(self):
+        """
+        Verify that correct exception has raised if current and future job are same.
+        """
+        job = factories.JobFactory()
+        with pytest.raises(ValidationError) as raised_exception:
+            factories.JobPathFactory(current_job=job, future_job=job)
+
+        assert raised_exception.value.args[0]['__all__'][0].message == 'Current and Future jobs can not be same.'
+
+    def test_unique_together(self):
+        """
+        Verify that unique_together constraint works as expected.
+        """
+        current_job = factories.JobFactory(external_id='1111')
+        future_job = factories.JobFactory(external_id='2222')
+        with pytest.raises(ValidationError) as raised_exception:
+            factories.JobPathFactory(current_job=current_job, future_job=future_job)
+            factories.JobPathFactory(current_job=current_job, future_job=future_job)
+
+        error_message = 'Job Path Description with this Current job and Future job already exists.'
+        assert raised_exception.value.messages[0] == error_message
 
 
 @mark.django_db
