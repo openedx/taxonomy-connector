@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+* Switch from ``edx-sphinx-theme`` to ``sphinx-book-theme`` since the former is
+  deprecated.  See https://github.com/openedx/edx-sphinx-theme/issues/184 for
+  more details.
+
 [1.37.1] - 2023-03-31
 ---------------------
 * feat: making sub_category skills to job specific in career tab.
