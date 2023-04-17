@@ -4,19 +4,23 @@ This module contains taxonomy related signals handlers.
 
 import logging
 
-from django.dispatch import receiver
 from openedx_events.content_authoring.data import DuplicatedXBlockData, XBlockData
 from openedx_events.content_authoring.signals import XBLOCK_DELETED, XBLOCK_DUPLICATED, XBLOCK_PUBLISHED
 from openedx_events.learning.data import XBlockSkillVerificationData
 from openedx_events.learning.signals import XBLOCK_SKILL_VERIFIED
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from taxonomy.models import Job
 from taxonomy.tasks import (
     delete_xblock_skills,
     duplicate_xblock_skills,
+    generate_job_description,
     update_course_skills,
     update_program_skills,
     update_xblock_skills,
-    update_xblock_skills_verification_counts
+    update_xblock_skills_verification_counts,
 )
 
 from .signals import UPDATE_COURSE_SKILLS, UPDATE_PROGRAM_SKILLS, UPDATE_XBLOCK_SKILLS
@@ -108,3 +112,13 @@ def handle_xblock_verified(**kwargs):
         xblock_data.verified_skills,
         xblock_data.ignored_skills,
     )
+
+
+@receiver(post_save, sender=Job)
+def handle_generate_job_description(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
+    """
+    Handler for post_save signal for Job model.
+    """
+    LOGGER.info('[TAXONOMY] Job post_save signal received. Job: [%s]', instance.name)
+    if created:
+        generate_job_description.delay(instance.external_id, instance.name)

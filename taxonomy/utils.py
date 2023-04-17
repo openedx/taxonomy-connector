@@ -3,26 +3,33 @@ Utils for taxonomy.
 """
 import logging
 from typing import List, Union
-import boto3
 
+import boto3
 from bs4 import BeautifulSoup
+from edx_django_utils.cache import TieredCache, get_cache_key
+from edx_django_utils.cache.utils import hashlib
+
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F
 from django.utils.timezone import now
-from edx_django_utils.cache import get_cache_key, TieredCache
-from edx_django_utils.cache.utils import hashlib
 
 from taxonomy.choices import ProductTypes
-from taxonomy.constants import (
-    AMAZON_TRANSLATION_ALLOWED_SIZE,
-    AUTO,
-    ENGLISH,
-    REGION,
-    TRANSLATE_SERVICE,
-)
+from taxonomy.constants import AMAZON_TRANSLATION_ALLOWED_SIZE, AUTO, ENGLISH, REGION, TRANSLATE_SERVICE
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import CourseSkills, ProgramSkill, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
+from taxonomy.models import (
+    CourseSkills,
+    Job,
+    JobPath,
+    JobSkills,
+    ProgramSkill,
+    Skill,
+    Translation,
+    XBlockSkillData,
+    XBlockSkills,
+)
+from taxonomy.openai.client import chat_completion
 from taxonomy.serializers import SkillSerializer
 
 LOGGER = logging.getLogger(__name__)
@@ -688,3 +695,46 @@ def update_xblock_skills_verification_counts(usage_key: str, verified_skills: Li
         skill_id__in=ignored_skills,
         is_blacklisted=False,
     ).update(ignored_count=F('ignored_count') + 1)
+
+
+def generate_and_store_job_description(job_external_id, job_name):
+    """
+    Generate and store a job description.
+
+    Arguments:
+        job_external_id (str): Lightcast job id
+        job_name (str): Job name
+    """
+    prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job_name)
+    description = chat_completion(prompt)
+    Job.objects.filter(external_id=job_external_id).update(description=description)
+    LOGGER.info('Generated description for Job: [%s], Prompt: [%s]', job_name, prompt)
+
+
+def generate_and_store_job_to_job_description(current_job, future_job):
+    """
+    Generate and store a job-to-job description.
+
+    Arguments:
+        current_job (Job): Current job object
+        future_job (Job): Future job object
+    """
+    prompt = settings.JOB_TO_JOB_DESCRIPTION_PROMPT.format(
+        current_job_name=current_job.name,
+        future_job_name=future_job.name
+    )
+    description = chat_completion(prompt)
+    job_path, __ = JobPath.objects.get_or_create(
+        current_job=current_job,
+        future_job=future_job,
+        defaults={
+            'description': description
+        }
+    )
+    LOGGER.info(
+        'Generated description for job-to-job path. CurrentJob: [%s], FutureJob: [%s], Prompt: [%s]',
+        current_job.name,
+        future_job.name,
+        prompt
+    )
+    return job_path

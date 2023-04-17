@@ -9,12 +9,27 @@ import factory
 from faker import Factory as FakerFactory
 from faker import Faker
 
-from taxonomy.models import (
-    CourseSkills, Job, JobPostings, JobSkills, Skill, Translation, SkillCategory, SkillSubCategory, ProgramSkill,
-    SkillsQuiz, RefreshCourseSkillsConfig, RefreshProgramSkillsConfig, RefreshXBlockSkillsConfig, Industry,
-    IndustryJobSkill, XBlockSkillData, XBlockSkills
-)
 from taxonomy.choices import UserGoal
+from taxonomy.models import (
+    CourseSkills,
+    Industry,
+    IndustryJobSkill,
+    Job,
+    JobPath,
+    JobPostings,
+    JobSkills,
+    ProgramSkill,
+    RefreshCourseSkillsConfig,
+    RefreshProgramSkillsConfig,
+    RefreshXBlockSkillsConfig,
+    Skill,
+    SkillCategory,
+    SkillsQuiz,
+    SkillSubCategory,
+    Translation,
+    XBlockSkillData,
+    XBlockSkills,
+)
 
 FAKER = FakerFactory.create()
 FAKER_OBJECT = Faker()
@@ -224,6 +239,21 @@ class JobFactory(factory.django.DjangoModelFactory):
 
     external_id = factory.Sequence('JOB-{}'.format)
     name = factory.LazyAttribute(lambda x: FAKER_OBJECT.unique.job())
+    description = ''
+
+
+class JobPathFactory(factory.django.DjangoModelFactory):
+    """
+        Factory class for JobPath model.
+    """
+
+    class Meta:
+
+        model = JobPath
+
+    current_job = factory.SubFactory(JobFactory)
+    future_job = factory.SubFactory(JobFactory)
+    description = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=100))
 
 
 class IndustryFactory(factory.django.DjangoModelFactory):

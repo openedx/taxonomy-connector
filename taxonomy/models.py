@@ -8,10 +8,12 @@ import uuid
 
 from solo.models import SingletonModel
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from model_utils.models import TimeStampedModel
+
 from taxonomy.choices import UserGoal
 
 
@@ -458,6 +460,7 @@ class Job(TimeStampedModel):
             'The title of job.'
         )
     )
+    description = models.TextField(default='', help_text='AI generated job description.')
 
     class Meta:
         """
@@ -477,7 +480,81 @@ class Job(TimeStampedModel):
         """
         Create a unique string representation of the object.
         """
-        return '<Job id="{}" name="{}" external_id="{}" >'.format(self.id, self.name, self.external_id)
+        return '<Job id="{}" name="{}" external_id="{}" description="{}">'.format(
+            self.id,
+            self.name,
+            self.external_id,
+            self.description
+        )
+
+
+class JobPath(TimeStampedModel):
+    """
+    Current job to new job path description.
+
+    .. no_pii:
+    """
+
+    current_job = models.ForeignKey(
+        Job,
+        to_field='external_id',
+        related_name='+',
+        blank=False,
+        null=False,
+        on_delete=models.deletion.CASCADE,
+        help_text=_('The external id of the current job.')
+    )
+
+    future_job = models.ForeignKey(
+        Job,
+        to_field='external_id',
+        related_name='+',
+        blank=False,
+        null=False,
+        on_delete=models.deletion.CASCADE,
+        help_text=_('The external id of the future job.')
+    )
+
+    description = models.TextField(help_text='AI generated current job to future job path description.')
+
+    class Meta:
+        """
+        Metadata for the JobPath model.
+        """
+
+        verbose_name = 'Job Path Description'
+        verbose_name_plural = 'Job Path Descriptions'
+        ordering = ('created',)
+        unique_together = ('current_job', 'future_job')
+        app_label = 'taxonomy'
+
+    def clean(self):
+        """
+        Add validation to raise an exception if current and future jobs are same.
+        """
+        if self.current_job.external_id == self.future_job.external_id:
+            raise ValidationError('Current and Future jobs can not be same.')
+
+    def save(self, *args, **kwargs):
+        """
+        Override to ensure that model.clean is always called.
+        """
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return 'Job path from "{}" to "{}" is "{}")'.format(self.current_job, self.future_job, self.description)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return 'JobPath(current_job="{}", future_job="{}", description="{}")'.format(
+            self.current_job, self.future_job, self.description
+        )
 
 
 class BaseJobSkill(TimeStampedModel):
