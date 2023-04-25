@@ -90,7 +90,7 @@ setup(
     long_description=README + "\n\n" + CHANGELOG,
     author='edX',
     author_email='oscm@edx.org',
-    url='https://github.com/edx/taxonomy-connector',
+    url='https://github.com/openedx/taxonomy-connector',
     license='MIT',
     install_requires=REQUIREMENTS,
     classifiers=[
