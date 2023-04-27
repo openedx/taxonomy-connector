@@ -17,6 +17,10 @@ Unreleased
   deprecated.  See https://github.com/openedx/edx-sphinx-theme/issues/184 for
   more details.
 
+[1.38.0] - 2023-05-03
+---------------------
+* feat: Added a new attribute (`b2c_opt_in`) to the JobSerializer
+
 [1.37.3] - 2023-05-03
 ---------------------
 * feat: generate job description only if job has name and description is empty
