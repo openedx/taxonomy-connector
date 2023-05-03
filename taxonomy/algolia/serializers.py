@@ -7,6 +7,8 @@ This module depends on serializers provided by django-rest-framework.
 
 from rest_framework import serializers
 
+from django.conf import settings
+
 from taxonomy.algolia.constants import EMBEDDED_OBJECT_LENGTH_CAP
 from taxonomy.models import Job, JobPostings, JobSkills, IndustryJobSkill
 
@@ -41,11 +43,12 @@ class JobSerializer(serializers.ModelSerializer):
     industry_names = serializers.SerializerMethodField()
     industries = serializers.SerializerMethodField()
     similar_jobs = serializers.SerializerMethodField()
+    b2c_opt_in = serializers.SerializerMethodField(source="get_b2c_opt_in")
 
     class Meta:
         model = Job
         fields = ('id', 'external_id', 'name', 'description', 'skills', 'job_postings', 'objectID', 'industry_names',
-                  'industries', 'similar_jobs')
+                  'industries', 'similar_jobs', 'b2c_opt_in')
         read_only_fields = fields
 
     def get_objectID(self, obj):  # pylint: disable=invalid-name
@@ -131,6 +134,19 @@ class JobSerializer(serializers.ModelSerializer):
         """
         recommendations_data = self.context.get('jobs_with_recommendations', None)
         return self.extract_similar_jobs(recommendations_data, obj.name)
+
+    def get_b2c_opt_in(self, obj):
+        """
+        Checks to see if the job is present on our job allowlist. This attribute will be primarily used to filter the
+        list of available jobs a learner can select from in the B2C Skills Builder.
+
+        Arguments:
+            obj (Job): Job instance, used so we can compare its external id to the items on the allowlist
+        """
+        if hasattr(settings, "TAXONOMY_B2C_JOB_ALLOWLIST"):
+            allowlist = settings.TAXONOMY_B2C_JOB_ALLOWLIST
+            return obj.external_id in allowlist
+        return False
 
 
 class JobSkillSerializer(serializers.ModelSerializer):
