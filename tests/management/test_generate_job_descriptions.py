@@ -59,3 +59,12 @@ class TestGenerateJobDescriptions(TransactionTestCase):
 
         job = Job.objects.get(external_id=existing_job.external_id)
         assert job.description == existing_job.description
+
+    @mock.patch('taxonomy.management.commands.generate_job_descriptions.generate_and_store_job_description')  # pylint: disable=invalid-name
+    def test_command_with_job_without_name(self, mocked_generate_and_store_job_description):
+        """
+        Test `generate_job_descriptions` management command works correctly if job has no name.
+        """
+        Job(external_id='11111').save()
+        call_command(self.command)
+        mocked_generate_and_store_job_description.assert_not_called()

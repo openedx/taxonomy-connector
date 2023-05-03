@@ -17,6 +17,10 @@ Unreleased
   deprecated.  See https://github.com/openedx/edx-sphinx-theme/issues/184 for
   more details.
 
+[1.37.3] - 2023-05-03
+---------------------
+* feat: generate job description only if job has name and description is empty
+
 [1.37.2] - 2023-04-27
 ---------------------
 * feat: Generate ai based job descriptions

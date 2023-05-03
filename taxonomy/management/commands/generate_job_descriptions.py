@@ -30,7 +30,7 @@ class Command(BaseCommand):
         LOGGER.info('Command started. Generating job descriptions for all jobs.')
 
         with ThreadPoolExecutor(max_workers=40) as executor:
-            for job in Job.objects.filter(description=''):
+            for job in Job.objects.exclude(name__isnull=True).filter(description=''):
                 executor.submit(generate_and_store_job_description, job.external_id, job.name)
 
         LOGGER.info('Command completed. Successfully generated job descriptions for all jobs.')
