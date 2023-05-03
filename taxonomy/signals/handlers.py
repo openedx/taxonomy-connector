@@ -120,5 +120,6 @@ def handle_generate_job_description(sender, instance, created, **kwargs):  # pyl
     Handler for post_save signal for Job model.
     """
     LOGGER.info('[TAXONOMY] Job post_save signal received. Job: [%s]', instance.name)
-    if created:
+    # Trigger celery task only if job name exists and description is missing
+    if instance.name and not instance.description:
         generate_job_description.delay(instance.external_id, instance.name)

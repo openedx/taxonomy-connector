@@ -388,6 +388,24 @@ class TestJob(TestCase):
             mocked_generate_and_store_job_description.assert_any_call(job.external_id, job.name)
             mocked_chat_completion.assert_any_call(prompt)
 
+    @pytest.mark.use_signals
+    @patch('taxonomy.signals.handlers.generate_job_description.delay')
+    def test_task_triggered_only_if_job_has_name(self, mocked_generate_job_description_task):
+        """
+        Verify that celery task triggers only when a job has name.
+        """
+        Job(external_id='11111').save()
+        mocked_generate_job_description_task.assert_not_called()
+
+    @pytest.mark.use_signals
+    @patch('taxonomy.signals.handlers.generate_job_description.delay')
+    def test_task_does_not_triggered_if_job_has_description(self, mocked_generate_job_description_task):
+        """
+        Verify that celery task does not triggered when a job already has description.
+        """
+        Job(external_id='11111', name='job name', description='I am description').save()
+        mocked_generate_job_description_task.assert_not_called()
+
 
 @mark.django_db
 class TestJobPath(TestCase):
