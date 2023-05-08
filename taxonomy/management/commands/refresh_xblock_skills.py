@@ -14,7 +14,8 @@ from taxonomy import utils
 from taxonomy.choices import ProductTypes
 from taxonomy.exceptions import InvalidCommandOptionsError, XBlockMetadataNotFoundError
 from taxonomy.models import RefreshXBlockSkillsConfig
-from taxonomy.providers.utils import get_course_metadata_provider, get_xblock_metadata_provider
+from taxonomy.providers.course_run_metadata import CourseRunContent
+from taxonomy.providers.utils import get_course_run_metadata_provider, get_xblock_metadata_provider
 
 LOGGER = logging.getLogger(__name__)
 
@@ -112,9 +113,9 @@ class Command(BaseCommand):
         xblocks_from_args = []
         xblock_provider = get_xblock_metadata_provider()
         if options['all']:
-            courses = get_course_metadata_provider().get_all_courses()
+            courses = get_course_run_metadata_provider().get_all_course_runs()
         elif options['course']:
-            courses = [{"key": course} for course in options['course']]
+            courses = [CourseRunContent(course_key=course, course_id=course) for course in options['course']]
         elif options['xblock']:
             valid_usage_keys = set(key for key in options['xblock'] if self.is_valid_key(key, UsageKey, "UsageKey"))
             xblocks_from_args = xblock_provider.get_xblocks(xblock_ids=list(valid_usage_keys))
@@ -126,10 +127,9 @@ class Command(BaseCommand):
             raise InvalidCommandOptionsError('Either course, xblock or --all argument must be provided.')
 
         for course in courses:
-            course_key = course.get("key")
-            if self.is_valid_key(course_key, CourseKey, "CourseKey"):
-                xblocks = xblock_provider.get_all_xblocks_in_course(course_key)
-                LOGGER.info('[TAXONOMY] Refresh xblocks skills process started for course: {course_key}.')
+            if self.is_valid_key(course.course_key, CourseKey, "CourseKey"):
+                xblocks = xblock_provider.get_all_xblocks_in_course(course.course_key)
+                LOGGER.info(f'[TAXONOMY] Refresh xblocks skills process started for course: {course.course_key}.')
                 utils.refresh_product_skills(xblocks, options['commit'], self.product_type)
 
         if xblocks_from_args:

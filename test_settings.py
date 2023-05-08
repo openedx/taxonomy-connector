@@ -64,6 +64,7 @@ EMSI_CLIENT_ID = 'test-client'
 EMSI_CLIENT_SECRET = 'test-secret'
 
 TAXONOMY_COURSE_METADATA_PROVIDER = 'test_utils.providers.DiscoveryCourseMetadataProvider'
+TAXONOMY_COURSE_RUN_METADATA_PROVIDER = 'test_utils.providers.DiscoveryCourseRunMetadataProvider'
 TAXONOMY_PROGRAM_METADATA_PROVIDER = 'test_utils.providers.DiscoveryProgramMetadataProvider'
 TAXONOMY_XBLOCK_METADATA_PROVIDER = 'test_utils.providers.DiscoveryXBlockMetadataProvider'
 

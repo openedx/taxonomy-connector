@@ -10,7 +10,7 @@ from django.contrib import admin
 from django.contrib import messages
 
 from taxonomy.models import (
-    CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
+    CourseRunXBlockSkillsTracker, CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
     SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
     XBlockSkills, XBlockSkillData
 )
@@ -200,3 +200,13 @@ class XBlockSkillDataAdmin(admin.ModelAdmin):
 
     list_display = ('xblock', 'skill', 'verified_count', 'verified', 'created', 'modified', 'is_blacklisted')
     search_fields = ('skill__name',)
+
+
+@admin.register(CourseRunXBlockSkillsTracker)
+class CourseRunXBlockSkillsTrackeAdmin(admin.ModelAdmin):
+    """
+    Admin view for CourseRunXBlockSkillsTracker model.
+    """
+
+    list_display = ('course_run_key',)
+    search_fields = ('course_run_key',)
