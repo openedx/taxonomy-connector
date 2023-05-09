@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.39.0] - 2023-05-09
+---------------------
+* feat: Added CourseRunMetadataProvider to fetch course run info.
+* feat: Added CourseRunXBlockSkillsTracker model to track xblock tagging under courses.
 * Switch from ``edx-sphinx-theme`` to ``sphinx-book-theme`` since the former is
   deprecated.  See https://github.com/openedx/edx-sphinx-theme/issues/184 for
   more details.
