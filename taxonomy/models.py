@@ -114,7 +114,7 @@ class CourseRunXBlockSkillsTracker(TimeStampedModel):
     course_run_key = models.CharField(
         unique=True,
         max_length=255,
-        help_text=_('The key of the course run.')
+        help_text=_('Course run key of the course under which all xblocks were tagged.')
     )
 
     class Meta:

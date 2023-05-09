@@ -12,6 +12,21 @@ FAKER = Faker()
 DEFAULT = object()
 
 
+class MockCourseRun(MagicMock):
+    """
+    Mock object for course run.
+    """
+    # pylint: disable=keyword-arg-before-vararg
+    def __init__(self, course_key=DEFAULT, course_id=DEFAULT, *args, **kwargs):
+        """
+        Initialize course related attributes.
+        """
+        super().__init__(*args, spec=dict, **kwargs)
+
+        self.course_key = course_key if course_key is not DEFAULT else 'course-v1:{}'.format("+".join(FAKER.words(3)))
+        self.course_id = course_id if course_id is not DEFAULT else "+".join(FAKER.words(2))
+
+
 class MockCourse(MagicMock):
     """
     Mock object for course.
@@ -27,7 +42,7 @@ class MockCourse(MagicMock):
         super().__init__(*args, spec=dict, **kwargs)
 
         self.uuid = uuid if uuid is not DEFAULT else uuid4()
-        self.key = key if key is not DEFAULT else 'course-v1:{}'.format("+".join(FAKER.words(3)))
+        self.key = key if key is not DEFAULT else  "+".join(FAKER.words(2))
         self.title = title if title is not DEFAULT else 'Test Course {}'.format(FAKER.sentence())
         self.short_description = short_description if short_description is not DEFAULT else FAKER.sentence(nb_words=10)
         self.full_description = full_description if full_description is not DEFAULT else FAKER.sentence(nb_words=50)

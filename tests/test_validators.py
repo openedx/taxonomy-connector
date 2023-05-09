@@ -6,10 +6,11 @@ validation logic inside host platform.
 """
 from taxonomy.validators import (
     CourseMetadataProviderValidator,
+    CourseRunMetadataProviderValidator,
     ProgramMetadataProviderValidator,
     XBlockMetadataProviderValidator,
 )
-from test_utils.mocks import MockCourse, MockProgram, MockXBlock
+from test_utils.mocks import MockCourse, MockCourseRun, MockProgram, MockXBlock
 from test_utils.testcase import TaxonomyTestCase
 
 
@@ -34,6 +35,29 @@ class TestCourseMetadataProviderValidator(TaxonomyTestCase):
         Validate that code runs without any errors.
         """
         self.course_metadata_validator.validate()
+
+
+class TestCourseRunMetadataProviderValidator(TaxonomyTestCase):
+    """
+    Validate that validation logic does not have any errors.
+    """
+
+    def setUp(self):
+        """
+        Instantiate an instance of CourseMetadataProviderValidator for use inside tests.
+        """
+        super(TestCourseRunMetadataProviderValidator, self).setUp()
+        self.course = MockCourseRun()
+
+        self.course_run_metadata_validator = CourseRunMetadataProviderValidator(
+            [str(self.course.course_key)]
+        )
+
+    def test_validate(self):
+        """
+        Validate that code runs without any errors.
+        """
+        self.course_run_metadata_validator.validate()
 
 
 class TestProgramMetadataProviderValidator(TaxonomyTestCase):

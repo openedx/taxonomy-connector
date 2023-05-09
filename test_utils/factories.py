@@ -11,6 +11,7 @@ from faker import Faker
 
 from taxonomy.choices import UserGoal
 from taxonomy.models import (
+    CourseRunXBlockSkillsTracker,
     CourseSkills,
     Industry,
     IndustryJobSkill,
@@ -148,6 +149,25 @@ class SkillFactory(factory.django.DjangoModelFactory):
     description = factory.LazyAttribute(lambda x: FAKER.text(max_nb_chars=200))
     category = factory.SubFactory(SkillCategoryFactory)
     subcategory = factory.SubFactory(SkillSubCategoryFactory)
+
+
+# pylint: disable=no-member
+class CourseRunXBlockSkillsTrackerFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for CourseRunXBlockSkillsTracker model.
+    """
+
+    class Meta:
+        """
+        Meta for ``CourseRunXBlockSkillsTracker``.
+        """
+
+        model = CourseRunXBlockSkillsTracker
+        django_get_or_create = ('course_run_key',)
+
+    course_run_key = factory.LazyAttribute(
+        lambda x: "course-v1:edx+%(key)s+%(key)s" % {"key": FAKER.slug()},
+    )
 
 
 # pylint: disable=no-member

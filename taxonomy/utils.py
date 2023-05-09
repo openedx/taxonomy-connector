@@ -2,7 +2,7 @@
 Utils for taxonomy.
 """
 import logging
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import boto3
 from bs4 import BeautifulSoup
@@ -269,7 +269,7 @@ def _convert_product_to_dict(product: Union[dict, tuple]):
     return product_dict
 
 
-def refresh_product_skills(products, should_commit_to_db, product_type):
+def refresh_product_skills(products, should_commit_to_db, product_type) -> Tuple[int, int]:
     """
     Refresh the skills associated with the provided products.
     """
@@ -347,6 +347,7 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
         skipped_count,
         len(all_failures),
     )
+    return success_count, len(all_failures)
 
 
 def blacklist_course_skill(course_key, skill_id):

@@ -10,8 +10,8 @@ from django.contrib import admin
 from django.contrib import messages
 
 from taxonomy.models import (
-    CourseRunXBlockSkillsTracker, CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill, Translation, SkillCategory,
-    SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
+    CourseRunXBlockSkillsTracker, CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill,
+    Translation, SkillCategory, SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
     XBlockSkills, XBlockSkillData
 )
 

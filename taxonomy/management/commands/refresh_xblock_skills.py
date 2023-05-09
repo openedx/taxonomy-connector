@@ -6,6 +6,7 @@ Management command for refreshing the skills associated with xblocks.
 import logging
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.utils.translation import gettext as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey, UsageKey
@@ -13,7 +14,7 @@ from opaque_keys.edx.keys import CourseKey, UsageKey
 from taxonomy import utils
 from taxonomy.choices import ProductTypes
 from taxonomy.exceptions import InvalidCommandOptionsError, XBlockMetadataNotFoundError
-from taxonomy.models import RefreshXBlockSkillsConfig
+from taxonomy.models import CourseRunXBlockSkillsTracker, RefreshXBlockSkillsConfig
 from taxonomy.providers.course_run_metadata import CourseRunContent
 from taxonomy.providers.utils import get_course_run_metadata_provider, get_xblock_metadata_provider
 
@@ -65,6 +66,13 @@ class Command(BaseCommand):
             help=_('Create xblock skill mapping for all xblocks in all the courses.'),
         )
         parser.add_argument(
+            '--success_threshold',
+            metavar=_('SUCCESS_THRESHOLD'),
+            type=float,
+            help=_('Threshold to mark course as completely tagged, i.e. all xblocks are tagged.'),
+            default=getattr(settings, "TAXONOMY_XBLOCK_TAGGING_SUCCESS_THRESHOLD", 0.9),
+        )
+        parser.add_argument(
             '--commit',
             action='store_true',
             default=False,
@@ -91,6 +99,32 @@ class Command(BaseCommand):
         except InvalidKeyError:
             LOGGER.error('[TAXONOMY] Invalid %s: [%s]', key_cls_str, key)
         return False
+
+    @staticmethod
+    def is_course_already_processed(course_run_key: str):
+        return CourseRunXBlockSkillsTracker.objects.filter(course_run_key=course_run_key).exists()
+
+    @staticmethod
+    def mark_course_completed(course_run_key: str, success_count: int, failure_count: int, threshold: float) -> bool:
+        """
+        Add entry in this table marking the course complete if the ratio of
+        success_count/total > threshold
+        """
+        total = success_count + failure_count
+        success_ratio = success_count / total if total else 0
+        if success_ratio < threshold:
+            return False
+        LOGGER.info(
+            '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] is greater than threshold: [%s]',
+            course_run_key,
+            success_ratio,
+            threshold
+        )
+        CourseRunXBlockSkillsTracker.objects.update_or_create(
+            course_run_key=course_run_key,
+            defaults={"course_run_key": course_run_key}
+        )
+        return True
 
     def handle(self, *args, **options):
         """
@@ -127,10 +161,21 @@ class Command(BaseCommand):
             raise InvalidCommandOptionsError('Either course, xblock or --all argument must be provided.')
 
         for course in courses:
-            if self.is_valid_key(course.course_key, CourseKey, "CourseKey"):
+            if (self.is_valid_key(course.course_key, CourseKey, "CourseKey")
+                    and not self.is_course_already_processed(course.course_key)):
                 xblocks = xblock_provider.get_all_xblocks_in_course(course.course_key)
                 LOGGER.info(f'[TAXONOMY] Refresh xblocks skills process started for course: {course.course_key}.')
-                utils.refresh_product_skills(xblocks, options['commit'], self.product_type)
+                success_count, failure_count = utils.refresh_product_skills(
+                    xblocks,
+                    options['commit'],
+                    self.product_type
+                )
+                self.mark_course_completed(
+                    course.course_key,
+                    success_count,
+                    failure_count,
+                    options['success_threshold']
+                )
 
         if xblocks_from_args:
             LOGGER.info('[TAXONOMY] Refresh XBlock skills process started for xblocks: [%s]', options['xblock'])
