@@ -248,6 +248,33 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
 
         self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 0)
 
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_xblock_skill_not_marked_complete_if_commit_not_set(
+            self,
+            get_product_skills_mock,
+            get_course_run_provider_mock,
+            get_xblock_provider_mock,
+    ):
+        """
+        Test that the command does not mark course as complete if success_ratio is less than threshold.
+        """
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
+        get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=4)
+        self.assert_xblock_skill_count(0, 0, 0)
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            call_command(self.command, '--all')
+            messages = [record.msg for record in log_capture.records]
+            self.assertIn(
+                "[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] > threshold: [%s]",
+                messages
+            )
+
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 0)
+
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
