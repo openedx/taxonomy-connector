@@ -37,7 +37,7 @@ class DiscoveryCourseRunMetadataProvider(CourseRunMetadataProvider):
         ]
 
 
-    def get_all_course_runs(self):
+    def get_all_published_course_runs(self):
         """
         Get iterator of all the courses
         """

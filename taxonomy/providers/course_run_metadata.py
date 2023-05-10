@@ -38,9 +38,9 @@ class CourseRunMetadataProvider:
         """
 
     @abstractmethod
-    def get_all_course_runs(self):
+    def get_all_published_course_runs(self):
         """
-        Get iterator for all the course runs.
+        Get iterator for all published course runs.
 
         Returns:
           iterator<CourseRunContent>: A iterator of CourseRunContent objects.

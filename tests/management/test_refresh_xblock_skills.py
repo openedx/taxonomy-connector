@@ -237,7 +237,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
             get_xblock_provider_mock,
     ):
         """
-        Test that the command creates a Skill and many XBlockSkillData records using --all param.
+        Test that the command does not mark course as complete if success_ratio is less than threshold.
         """
         get_product_skills_mock.side_effect = TaxonomyAPIError()
         get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])

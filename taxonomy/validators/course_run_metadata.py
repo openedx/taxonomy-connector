@@ -32,7 +32,7 @@ class CourseRunMetadataProviderValidator:
         this method is responsible for calling the rest of the validation functions.
         """
         self.validate_get_course_runs()
-        self.validate_get_all_course_runs()
+        self.validate_get_all_published_course_runs()
 
     def validate_get_course_runs(self):
         """
@@ -45,11 +45,11 @@ class CourseRunMetadataProviderValidator:
         for course in courses:
             assert isinstance(course, CourseRunContent)
 
-    def validate_get_all_course_runs(self):
+    def validate_get_all_published_course_runs(self):
         """
         Validate `get_all_courses` methods has the correct interface implemented.
         """
-        courses = self.course_run_metadata_provider.get_all_course_runs()
+        courses = self.course_run_metadata_provider.get_all_published_course_runs()
 
         for course in courses:
             assert isinstance(course, CourseRunContent)

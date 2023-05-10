@@ -105,26 +105,28 @@ class Command(BaseCommand):
         return CourseRunXBlockSkillsTracker.objects.filter(course_run_key=course_run_key).exists()
 
     @staticmethod
-    def mark_course_completed(course_run_key: str, success_count: int, failure_count: int, threshold: float) -> bool:
+    def mark_course_completed(
+            course_run_key: str,
+            success_count: int,
+            failure_count: int,
+            threshold: float,
+            commit: bool
+    ):
         """
-        Add entry in this table marking the course complete if the ratio of
-        success_count/total > threshold
+        Add an entry to CourseRunXBlockSkillsTracker table marking the course
+        as complete if the ratio of success_count/total > threshold
         """
         total = success_count + failure_count
         success_ratio = success_count / total if total else 0
-        if success_ratio < threshold:
-            return False
-        LOGGER.info(
-            '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] is greater than threshold: [%s]',
-            course_run_key,
-            success_ratio,
-            threshold
-        )
-        CourseRunXBlockSkillsTracker.objects.update_or_create(
-            course_run_key=course_run_key,
-            defaults={"course_run_key": course_run_key}
-        )
-        return True
+        if success_ratio > threshold:
+            LOGGER.info(
+                '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] > threshold: [%s]',
+                course_run_key,
+                success_ratio,
+                threshold
+            )
+            if commit:
+                CourseRunXBlockSkillsTracker.objects.get_or_create(course_run_key=course_run_key)
 
     def handle(self, *args, **options):
         """
@@ -147,7 +149,7 @@ class Command(BaseCommand):
         xblocks_from_args = []
         xblock_provider = get_xblock_metadata_provider()
         if options['all']:
-            courses = get_course_run_metadata_provider().get_all_course_runs()
+            courses = get_course_run_metadata_provider().get_all_published_course_runs()
         elif options['course']:
             courses = [CourseRunContent(course_key=course, course_id=course) for course in options['course']]
         elif options['xblock']:
@@ -174,7 +176,8 @@ class Command(BaseCommand):
                     course.course_key,
                     success_count,
                     failure_count,
-                    options['success_threshold']
+                    options['success_threshold'],
+                    options['commit']
                 )
 
         if xblocks_from_args:
