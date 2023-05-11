@@ -17,6 +17,10 @@ Unreleased
   deprecated.  See https://github.com/openedx/edx-sphinx-theme/issues/184 for
   more details.
 
+[1.38.1] - 2023-05-11
+---------------------
+* fix: Update the `attributesForFaceting` list to include the `b2c_opt_in` field
+
 [1.38.0] - 2023-05-03
 ---------------------
 * feat: Added a new attribute (`b2c_opt_in`) to the JobSerializer
