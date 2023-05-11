@@ -110,7 +110,6 @@ class Command(BaseCommand):
             success_count: int,
             failure_count: int,
             threshold: float,
-            commit: bool
     ):
         """
         Add an entry to CourseRunXBlockSkillsTracker table marking the course
@@ -125,8 +124,7 @@ class Command(BaseCommand):
                 success_ratio,
                 threshold
             )
-            if commit:
-                CourseRunXBlockSkillsTracker.objects.get_or_create(course_run_key=course_run_key)
+            CourseRunXBlockSkillsTracker.objects.get_or_create(course_run_key=course_run_key)
 
     def handle(self, *args, **options):
         """
@@ -172,13 +170,13 @@ class Command(BaseCommand):
                     options['commit'],
                     self.product_type
                 )
-                self.mark_course_completed(
-                    course.course_key,
-                    success_count,
-                    failure_count,
-                    options['success_threshold'],
-                    options['commit']
-                )
+                if options['commit']:
+                    self.mark_course_completed(
+                        course.course_key,
+                        success_count,
+                        failure_count,
+                        options['success_threshold'],
+                    )
 
         if xblocks_from_args:
             LOGGER.info('[TAXONOMY] Refresh XBlock skills process started for xblocks: [%s]', options['xblock'])

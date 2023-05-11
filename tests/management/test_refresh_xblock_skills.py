@@ -158,7 +158,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         with LogCapture(level=logging.INFO) as log_capture:
             call_command(self.command, '--all', '--commit')
             messages = [record.msg for record in log_capture.records]
-            # self.assertEqual(len(log_capture.records), 2)
+            self.assertEqual(len(log_capture.records), 2)
             self.assertEqual(
                 messages,
                 [
@@ -264,15 +264,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])
         get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=4)
         self.assert_xblock_skill_count(0, 0, 0)
-
-        with LogCapture(level=logging.INFO) as log_capture:
-            call_command(self.command, '--all')
-            messages = [record.msg for record in log_capture.records]
-            self.assertIn(
-                "[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] > threshold: [%s]",
-                messages
-            )
-
+        call_command(self.command, '--all')
         self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 0)
 
     @responses.activate
