@@ -13,9 +13,9 @@ class CourseRunContent(NamedTuple):
     NamedTuple to store xblock content.
     """
     # Course run key
+    course_run_key: str
+    # Course key
     course_key: str
-    # Course id
-    course_id: str
 
 
 class CourseRunMetadataProvider:
@@ -26,12 +26,12 @@ class CourseRunMetadataProvider:
     """
 
     @abstractmethod
-    def get_course_runs(self, course_keys):
+    def get_course_runs(self, course_run_keys):
         """
         Get a list of course runs matching the course keys provided in the argument.
 
         Arguments:
-          course_keys(list<str>): A list of course_keys in the form of a string.
+          course_run_keys(list<str>): A list of course_run_keys in the form of a string..
 
         Returns:
           list<CourseRunContent>: A list of CourseRunContent objects.

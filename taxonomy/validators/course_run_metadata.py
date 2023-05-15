@@ -13,15 +13,15 @@ class CourseRunMetadataProviderValidator:
     Validate that the interface requirement for course run metadata provider matches with the implementation.
     """
 
-    def __init__(self, test_courses):
+    def __init__(self, test_course_runs):
         """
         Setup an instance of course run metadata provider.
 
         Since, these tests will run inside host application, list of test courses will also provided by the host.
         Args:
-            test_courses (list<str>): List of course run keys in the form of string.
+            test_course_runs (list<str>): List of course run keys in the form of string.
         """
-        self.test_courses = test_courses
+        self.test_course_runs = test_course_runs
         self.course_run_metadata_provider = get_course_run_metadata_provider()
 
     def validate(self):
@@ -38,18 +38,18 @@ class CourseRunMetadataProviderValidator:
         """
         Validate `get_course_runs` methods has the correct interface implemented.
         """
-        courses = self.course_run_metadata_provider.get_course_runs(self.test_courses)
+        course_runs = self.course_run_metadata_provider.get_course_runs(self.test_course_runs)
 
-        assert len(courses) == len(self.test_courses)
+        assert len(course_runs) == len(self.test_course_runs)
 
-        for course in courses:
-            assert isinstance(course, CourseRunContent)
+        for course_run in course_runs:
+            assert isinstance(course_run, CourseRunContent)
 
     def validate_get_all_published_course_runs(self):
         """
         Validate `get_all_courses` methods has the correct interface implemented.
         """
-        courses = self.course_run_metadata_provider.get_all_published_course_runs()
+        course_runs = self.course_run_metadata_provider.get_all_published_course_runs()
 
-        for course in courses:
-            assert isinstance(course, CourseRunContent)
+        for course_run in course_runs:
+            assert isinstance(course_run, CourseRunContent)

@@ -42,8 +42,8 @@ class Command(BaseCommand):
         Add arguments to the command parser.
         """
         parser.add_argument(
-            '--course',
-            metavar=_('COURSE_KEY'),
+            '--course_run',
+            metavar=_('COURSE_RUN_KEY'),
             action='append',
             help=_('Update skills for XBlocks under given course keys. For eg. course-v1:edX+DemoX.1+2014'),
             default=[],
@@ -101,11 +101,11 @@ class Command(BaseCommand):
         return False
 
     @staticmethod
-    def is_course_already_processed(course_run_key: str):
+    def is_course_run_processed(course_run_key: str):
         return CourseRunXBlockSkillsTracker.objects.filter(course_run_key=course_run_key).exists()
 
     @staticmethod
-    def mark_course_completed(
+    def mark_course_run_completed(
             course_run_key: str,
             success_count: int,
             failure_count: int,
@@ -130,7 +130,7 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        if not (options['args_from_database'] or options['all'] or options['course'] or options['xblock']):
+        if not (options['args_from_database'] or options['all'] or options['course_run'] or options['xblock']):
             raise InvalidCommandOptionsError(
                 'Either course, xblock, args_from_database or all argument must be provided.',
             )
@@ -138,7 +138,7 @@ class Command(BaseCommand):
         if options['args_from_database']:
             options = self.get_args_from_database()
 
-        if options['course'] and options['xblock']:
+        if options['course_run'] and options['xblock']:
             raise InvalidCommandOptionsError('Either course or xblock argument should be provided and not both.')
 
         LOGGER.info('[TAXONOMY] Refresh XBlock Skills. Options: [%s]', options)
@@ -148,8 +148,8 @@ class Command(BaseCommand):
         xblock_provider = get_xblock_metadata_provider()
         if options['all']:
             courses = get_course_run_metadata_provider().get_all_published_course_runs()
-        elif options['course']:
-            courses = [CourseRunContent(course_key=course, course_id=course) for course in options['course']]
+        elif options['course_run']:
+            courses = [CourseRunContent(course_run_key=course, course_key='') for course in options['course_run']]
         elif options['xblock']:
             valid_usage_keys = set(key for key in options['xblock'] if self.is_valid_key(key, UsageKey, "UsageKey"))
             xblocks_from_args = xblock_provider.get_xblocks(xblock_ids=list(valid_usage_keys))
@@ -161,18 +161,18 @@ class Command(BaseCommand):
             raise InvalidCommandOptionsError('Either course, xblock or --all argument must be provided.')
 
         for course in courses:
-            if (self.is_valid_key(course.course_key, CourseKey, "CourseKey")
-                    and not self.is_course_already_processed(course.course_key)):
-                xblocks = xblock_provider.get_all_xblocks_in_course(course.course_key)
-                LOGGER.info(f'[TAXONOMY] Refresh xblocks skills process started for course: {course.course_key}.')
+            if (self.is_valid_key(course.course_run_key, CourseKey, "CourseKey")
+                    and not self.is_course_run_processed(course.course_run_key)):
+                xblocks = xblock_provider.get_all_xblocks_in_course(course.course_run_key)
+                LOGGER.info(f'[TAXONOMY] Refresh xblocks skills process started for course: {course.course_run_key}.')
                 success_count, failure_count = utils.refresh_product_skills(
                     xblocks,
                     options['commit'],
                     self.product_type
                 )
                 if options['commit']:
-                    self.mark_course_completed(
-                        course.course_key,
+                    self.mark_course_run_completed(
+                        course.course_run_key,
                         success_count,
                         failure_count,
                         options['success_threshold'],

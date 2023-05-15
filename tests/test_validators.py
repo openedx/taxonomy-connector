@@ -50,7 +50,7 @@ class TestCourseRunMetadataProviderValidator(TaxonomyTestCase):
         self.course = MockCourseRun()
 
         self.course_run_metadata_validator = CourseRunMetadataProviderValidator(
-            [str(self.course.course_key)]
+            [str(self.course.course_run_key)]
         )
 
     def test_validate(self):

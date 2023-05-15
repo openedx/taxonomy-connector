@@ -89,7 +89,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         Test that the command raises an error with both course and xblock arguments.
         """
         with self.assertRaises(InvalidCommandOptionsError) as assert_context:
-            call_command(self.command, '--course', self.course_1.course_key, '--xblock', self.xblock_2.key)
+            call_command(self.command, '--course', self.course_1.course_run_key, '--xblock', self.xblock_2.key)
             self.assertEqual(
                 assert_context.exception.args[0],
                 'Either course or xblock argument should be provided and not both.'
@@ -149,7 +149,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         """
         Test that command logs error and skips processing for it if course key is missing.
         """
-        self.course_1.course_key = None
+        self.course_1.course_run_key = None
         get_course_run_metadata_provider.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])
         get_xblock_metadata_provider.return_value = DiscoveryXBlockMetadataProvider([self.xblock_1])
 
@@ -182,9 +182,9 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         call_command(
             self.command,
             '--course',
-            self.course_1.course_key,
+            self.course_1.course_run_key,
             '--course',
-            self.course_2.course_key,
+            self.course_2.course_run_key,
             '--commit'
         )
 
@@ -194,9 +194,9 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         call_command(
             self.command,
             '--course',
-            self.course_3.course_key,
+            self.course_3.course_run_key,
             '--course',
-            self.course_1.course_key,
+            self.course_1.course_run_key,
             '--commit'
         )
 

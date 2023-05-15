@@ -17,14 +17,18 @@ class MockCourseRun(MagicMock):
     Mock object for course run.
     """
     # pylint: disable=keyword-arg-before-vararg
-    def __init__(self, course_key=DEFAULT, course_id=DEFAULT, *args, **kwargs):
+    def __init__(self, course_run_key=DEFAULT, course_key=DEFAULT, *args, **kwargs):
         """
         Initialize course related attributes.
         """
         super().__init__(*args, spec=dict, **kwargs)
 
-        self.course_key = course_key if course_key is not DEFAULT else 'course-v1:{}'.format("+".join(FAKER.words(3)))
-        self.course_id = course_id if course_id is not DEFAULT else "+".join(FAKER.words(2))
+        # example: course-v1:edx+DemoX+DemoCourse
+        self.course_run_key = course_run_key if course_run_key is not DEFAULT else 'course-v1:{}'.format(
+            "+".join(FAKER.words(3))
+        )
+        # example: edx+DemoX
+        self.course_key = course_key if course_key is not DEFAULT else "+".join(FAKER.words(2))
 
 
 class MockCourse(MagicMock):

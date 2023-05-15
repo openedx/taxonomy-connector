@@ -26,27 +26,30 @@ class DiscoveryCourseRunMetadataProvider(CourseRunMetadataProvider):
         super(DiscoveryCourseRunMetadataProvider, self).__init__()
         self.mock_courses = mock_courses
 
-    def get_course_runs(self, course_keys):
+    def get_course_runs(self, course_run_keys):
+        """
+        Get list of passed course runs.
+        """
         if self.mock_courses is not None:
             courses = self.mock_courses
         else:
-            courses = [MockCourseRun(course_key=course_key) for course_key in course_keys]
+            courses = [MockCourseRun(course_run_key=course_key) for course_key in course_run_keys]
         return [
-            CourseRunContent(course_key=course.course_key, course_id=course.course_id)
+            CourseRunContent(course_run_key=course.course_run_key, course_key=course.course_key)
             for course in courses
         ]
 
 
     def get_all_published_course_runs(self):
         """
-        Get iterator of all the courses
+        Get iterator of all the course runs.
         """
         if self.mock_courses is not None:
             courses = self.mock_courses
         else:
             courses = [MockCourseRun() for _ in range(5)]
         for course in courses:
-            yield CourseRunContent(course_key=course.course_key, course_id=course.course_id)
+            yield CourseRunContent(course_run_key=course.course_run_key, course_key=course.course_key)
 
 
 class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
