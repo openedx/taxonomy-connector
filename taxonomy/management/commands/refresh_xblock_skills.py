@@ -33,6 +33,8 @@ class Command(BaseCommand):
         $ ./manage.py refresh_xblock_skills --args-from-database
         $ # To update all xblocks in all the courses
         $ ./manage.py refresh_xblock_skills --all --commit
+        $ # To update all xblocks in all the courses and mark course completely tagged even if 90% of blocks are tagged.
+        $ ./manage.py refresh_xblock_skills --all --commit --success_threshold 0.9
     """
     help = 'Refreshes the skills associated with XBlocks.'
     product_type = ProductTypes.XBlock
@@ -70,7 +72,7 @@ class Command(BaseCommand):
             metavar=_('SUCCESS_THRESHOLD'),
             type=float,
             help=_('Threshold to mark course as completely tagged, i.e. all xblocks are tagged.'),
-            default=getattr(settings, "TAXONOMY_XBLOCK_TAGGING_SUCCESS_THRESHOLD", 0.9),
+            default=getattr(settings, "TAXONOMY_XBLOCK_TAGGING_SUCCESS_THRESHOLD", 1.0),
         )
         parser.add_argument(
             '--commit',
@@ -113,11 +115,11 @@ class Command(BaseCommand):
     ):
         """
         Add an entry to CourseRunXBlockSkillsTracker table marking the course
-        as complete if the ratio of success_count/total > threshold
+        as complete if the ratio of success_count/total >= threshold
         """
         total = success_count + failure_count
         success_ratio = success_count / total if total else 0
-        if success_ratio > threshold:
+        if success_ratio >= threshold:
             LOGGER.info(
                 '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] > threshold: [%s]',
                 course_run_key,
