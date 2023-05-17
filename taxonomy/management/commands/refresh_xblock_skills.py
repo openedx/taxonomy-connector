@@ -17,6 +17,7 @@ from taxonomy.exceptions import InvalidCommandOptionsError, XBlockMetadataNotFou
 from taxonomy.models import CourseRunXBlockSkillsTracker, RefreshXBlockSkillsConfig
 from taxonomy.providers.course_run_metadata import CourseRunContent
 from taxonomy.providers.utils import get_course_run_metadata_provider, get_xblock_metadata_provider
+from taxonomy.providers.xblock_metadata import XBlockMetadataProvider
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +34,8 @@ class Command(BaseCommand):
         $ ./manage.py refresh_xblock_skills --args-from-database
         $ # To update all xblocks in all the courses
         $ ./manage.py refresh_xblock_skills --all --commit
+        $ # To update all xblocks in 10 unprocessed course runs from discovery
+        $ ./manage.py refresh_xblock_skills --all --commit --limit 10
         $ # To update all xblocks in all the courses and mark course completely tagged even if 90% of blocks are tagged.
         $ ./manage.py refresh_xblock_skills --all --commit --success_threshold 0.9
     """
@@ -73,6 +76,13 @@ class Command(BaseCommand):
             type=float,
             help=_('Threshold to mark course as completely tagged, i.e. all xblocks are tagged.'),
             default=getattr(settings, "TAXONOMY_XBLOCK_TAGGING_SUCCESS_THRESHOLD", 1.0),
+        )
+        parser.add_argument(
+            '--limit',
+            metavar=_('LIMIT'),
+            type=int,
+            help=_('Only works with --all flag, limits the number of course runs to this number.'),
+            default=0,
         )
         parser.add_argument(
             '--commit',
@@ -128,6 +138,30 @@ class Command(BaseCommand):
             )
             CourseRunXBlockSkillsTracker.objects.get_or_create(course_run_key=course_run_key)
 
+    def process_course_run(self, course_run: CourseRunContent, xblock_provider: XBlockMetadataProvider, cmd_args: dict):
+        """
+        Tag all xblocks under given course_run.
+
+        Args:
+            course_run: CourseRunContent containing course_run_key.
+            xblock_provider: Provider implementation of xblock metadata.
+            cmd_args: command line arguments.
+        """
+        LOGGER.info(f'[TAXONOMY] Refresh xblocks skills process started for course: {course_run.course_run_key}.')
+        xblocks = xblock_provider.get_all_xblocks_in_course(course_run.course_run_key)
+        success_count, failure_count = utils.refresh_product_skills(
+            xblocks,
+            cmd_args['commit'],
+            self.product_type
+        )
+        if cmd_args['commit']:
+            self.mark_course_run_completed(
+                course_run.course_run_key,
+                success_count,
+                failure_count,
+                cmd_args['success_threshold'],
+            )
+
     def handle(self, *args, **options):
         """
         Entry point for management command execution.
@@ -145,13 +179,13 @@ class Command(BaseCommand):
 
         LOGGER.info('[TAXONOMY] Refresh XBlock Skills. Options: [%s]', options)
 
-        courses = []
+        course_runs = []
         xblocks_from_args = []
         xblock_provider = get_xblock_metadata_provider()
         if options['all']:
-            courses = get_course_run_metadata_provider().get_all_published_course_runs()
+            course_runs = get_course_run_metadata_provider().get_all_published_course_runs()
         elif options['course_run']:
-            courses = [CourseRunContent(course_run_key=course, course_key='') for course in options['course_run']]
+            course_runs = [CourseRunContent(course_run_key=course, course_key='') for course in options['course_run']]
         elif options['xblock']:
             valid_usage_keys = set(key for key in options['xblock'] if self.is_valid_key(key, UsageKey, "UsageKey"))
             xblocks_from_args = xblock_provider.get_xblocks(xblock_ids=list(valid_usage_keys))
@@ -162,23 +196,15 @@ class Command(BaseCommand):
         else:
             raise InvalidCommandOptionsError('Either course, xblock or --all argument must be provided.')
 
-        for course in courses:
-            if (self.is_valid_key(course.course_run_key, CourseKey, "CourseKey")
-                    and not self.is_course_run_processed(course.course_run_key)):
-                xblocks = xblock_provider.get_all_xblocks_in_course(course.course_run_key)
-                LOGGER.info(f'[TAXONOMY] Refresh xblocks skills process started for course: {course.course_run_key}.')
-                success_count, failure_count = utils.refresh_product_skills(
-                    xblocks,
-                    options['commit'],
-                    self.product_type
-                )
-                if options['commit']:
-                    self.mark_course_run_completed(
-                        course.course_run_key,
-                        success_count,
-                        failure_count,
-                        options['success_threshold'],
-                    )
+        processed_course_run_count = 0
+        for course_run in course_runs:
+            if (self.is_valid_key(course_run.course_run_key, CourseKey, "CourseKey")
+                    and not self.is_course_run_processed(course_run.course_run_key)):
+                self.process_course_run(course_run, xblock_provider, options)
+                processed_course_run_count += 1
+                if processed_course_run_count >= options["limit"] > 0:
+                    LOGGER.info('[TAXONOMY] Completed processing for %s course runs.')
+                    break
 
         if xblocks_from_args:
             LOGGER.info('[TAXONOMY] Refresh XBlock skills process started for xblocks: [%s]', options['xblock'])
