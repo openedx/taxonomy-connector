@@ -14,9 +14,15 @@ from testfixtures import LogCapture
 from django.core.management import call_command
 
 from taxonomy.exceptions import InvalidCommandOptionsError, TaxonomyAPIError, XBlockMetadataNotFoundError
-from taxonomy.models import Skill, RefreshXBlockSkillsConfig, XBlockSkillData, XBlockSkills
-from test_utils.mocks import MockCourse, MockXBlock, mock_as_dict
-from test_utils.providers import DiscoveryCourseMetadataProvider, DiscoveryXBlockMetadataProvider
+from taxonomy.models import (
+    CourseRunXBlockSkillsTracker,
+    Skill,
+    RefreshXBlockSkillsConfig,
+    XBlockSkillData,
+    XBlockSkills
+)
+from test_utils.mocks import MockCourseRun, MockXBlock, mock_as_dict
+from test_utils.providers import DiscoveryCourseRunMetadataProvider, DiscoveryXBlockMetadataProvider
 from test_utils.sample_responses.skills import MISSING_NAME_SKILLS, SKILLS_EMSI_CLIENT_RESPONSE, TYPE_ERROR_SKILLS
 from test_utils.testcase import TaxonomyTestCase
 
@@ -33,9 +39,9 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         self.skills_emsi_client_response = SKILLS_EMSI_CLIENT_RESPONSE
         self.missing_skills = MISSING_NAME_SKILLS
         self.type_error_skills = TYPE_ERROR_SKILLS
-        self.course_1 = mock_as_dict(MockCourse())
-        self.course_2 = mock_as_dict(MockCourse())
-        self.course_3 = mock_as_dict(MockCourse())
+        self.course_1 = mock_as_dict(MockCourseRun())
+        self.course_2 = mock_as_dict(MockCourseRun())
+        self.course_3 = mock_as_dict(MockCourseRun())
         self.xblock_1 = mock_as_dict(MockXBlock())
         self.xblock_2 = mock_as_dict(MockXBlock())
         self.xblock_3 = mock_as_dict(MockXBlock())
@@ -83,7 +89,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         Test that the command raises an error with both course and xblock arguments.
         """
         with self.assertRaises(InvalidCommandOptionsError) as assert_context:
-            call_command(self.command, '--course', self.course_1.key, '--xblock', self.xblock_2.key)
+            call_command(self.command, '--course', self.course_1.course_run_key, '--xblock', self.xblock_2.key)
             self.assertEqual(
                 assert_context.exception.args[0],
                 'Either course or xblock argument should be provided and not both.'
@@ -138,13 +144,13 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_metadata_provider')
-    def test_missing_course_key_with_all(self, get_course_metadata_provider, get_xblock_metadata_provider):
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
+    def test_missing_course_key_with_all(self, get_course_run_metadata_provider, get_xblock_metadata_provider):
         """
         Test that command logs error and skips processing for it if course key is missing.
         """
-        self.course_1.key = None
-        get_course_metadata_provider.return_value = DiscoveryCourseMetadataProvider([self.course_1])
+        self.course_1.course_run_key = None
+        get_course_run_metadata_provider.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])
         get_xblock_metadata_provider.return_value = DiscoveryXBlockMetadataProvider([self.xblock_1])
 
         self.assert_xblock_skill_count(0, 0, 0)
@@ -170,46 +176,123 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
         Test that the command creates a Skill and many XBlockSkillData records.
         """
         get_product_skills_mock.return_value = self.skills_emsi_client_response
-        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(
-            [self.xblock_1, self.xblock_2]
-        )
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=1)
         self.assert_xblock_skill_count(0, 0, 0)
 
-        call_command(self.command, '--course', self.course_1.key, '--course', self.course_2.key, '--commit')
+        call_command(
+            self.command,
+            '--course',
+            self.course_1.course_run_key,
+            '--course',
+            self.course_2.course_run_key,
+            '--commit'
+        )
 
         self.assert_xblock_skill_count(4, 2, 8)
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 2)
 
-        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(
-            [self.xblock_3, self.xblock_1]
+        call_command(
+            self.command,
+            '--course',
+            self.course_3.course_run_key,
+            '--course',
+            self.course_1.course_run_key,
+            '--commit'
         )
-        call_command(self.command, '--course', self.course_3.key, '--course', self.course_1.key, '--commit')
 
         self.assert_xblock_skill_count(4, 3, 12)
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 3)
 
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
-    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
     def test_course_xblock_skill_saved_with_all_param(
             self,
             get_product_skills_mock,
-            get_course_provider_mock,
+            get_course_run_provider_mock,
             get_xblock_provider_mock,
     ):
         """
         Test that the command creates a Skill and many XBlockSkillData records using --all param.
         """
         get_product_skills_mock.return_value = self.skills_emsi_client_response
-        get_course_provider_mock.return_value = DiscoveryCourseMetadataProvider(
+        get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider(
             [self.course_1, self.course_2, self.course_3]
         )
-        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(
-            [self.xblock_3, self.xblock_1, self.xblock_2]
-        )
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=1)
         self.assert_xblock_skill_count(0, 0, 0)
 
         call_command(self.command, '--all', '--commit')
 
         self.assert_xblock_skill_count(4, 3, 12)
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 3)
+
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_limit_number_of_courses_with_all_param(
+            self,
+            get_product_skills_mock,
+            get_course_run_provider_mock,
+            get_xblock_provider_mock,
+    ):
+        """
+        Test that the command creates a Skill and many XBlockSkillData records using --all param.
+        """
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
+        get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider(
+            [self.course_1, self.course_2, self.course_3]
+        )
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=1)
+        self.assert_xblock_skill_count(0, 0, 0)
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            call_command(self.command, '--all', '--commit', '--limit', 2)
+            messages = [record.msg for record in log_capture.records]
+            self.assertIn('[TAXONOMY] Completed processing for %s course runs.', messages)
+
+        self.assert_xblock_skill_count(4, 2, 8)
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 2)
+
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_xblock_skill_not_marked_complete_if_success_ratio_less_than_threshold(
+            self,
+            get_product_skills_mock,
+            get_course_run_provider_mock,
+            get_xblock_provider_mock,
+    ):
+        """
+        Test that the command does not mark course as complete if success_ratio is less than threshold.
+        """
+        get_product_skills_mock.side_effect = TaxonomyAPIError()
+        get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=4)
+        self.assert_xblock_skill_count(0, 0, 0)
+
+        call_command(self.command, '--all', '--commit')
+
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 0)
+
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_xblock_skill_not_marked_complete_if_commit_not_set(
+            self,
+            get_product_skills_mock,
+            get_course_run_provider_mock,
+            get_xblock_provider_mock,
+    ):
+        """
+        Test that the command does not mark course as complete if success_ratio is less than threshold.
+        """
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
+        get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider([self.course_1])
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=4)
+        self.assert_xblock_skill_count(0, 0, 0)
+        call_command(self.command, '--all')
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 0)
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')

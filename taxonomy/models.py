@@ -104,6 +104,42 @@ class Skill(TimeStampedModel):
         app_label = 'taxonomy'
 
 
+class CourseRunXBlockSkillsTracker(TimeStampedModel):
+    """
+    Model to track completion of tagging of xblocks in courses.
+
+    .. no_pii:
+    """
+
+    course_run_key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text=_('Course run key of the course under which all xblocks were tagged.')
+    )
+
+    class Meta:
+        """
+        Meta configuration for XBlockSkills model.
+        """
+
+        verbose_name = 'Course run xblock skills tracker'
+        verbose_name_plural = 'Course run xblock skills tracker'
+        ordering = ('created', )
+        app_label = 'taxonomy'
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<CourseRunXBlockSkillsTracker course_run_key="{}">'.format(self.course_run_key)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<CourseRunXBlockSkillsTracker id="{0}">'.format(self.id)
+
+
 class XBlockSkills(TimeStampedModel):
     """
     Skills that will be learnt by completing xblock.

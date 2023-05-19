@@ -2,7 +2,7 @@
 Utils for taxonomy.
 """
 import logging
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import boto3
 from bs4 import BeautifulSoup
@@ -269,9 +269,17 @@ def _convert_product_to_dict(product: Union[dict, tuple]):
     return product_dict
 
 
-def refresh_product_skills(products, should_commit_to_db, product_type):
+def refresh_product_skills(products, should_commit_to_db: bool, product_type) -> Tuple[int, int]:
     """
     Refresh the skills associated with the provided products.
+
+    Args:
+        products (list or iterator of products): Products can include courses, programs or xblocks.
+        should_commit_to_db (bool): Flag to store skills to database.
+        product_type (ProductTypes): Any one choice from ProductTypes
+
+    Returns:
+        Tuple of success_count and failure_count.
     """
     all_failures = []
     success_count = 0
@@ -347,6 +355,7 @@ def refresh_product_skills(products, should_commit_to_db, product_type):
         skipped_count,
         len(all_failures),
     )
+    return success_count, len(all_failures)
 
 
 def blacklist_course_skill(course_key, skill_id):

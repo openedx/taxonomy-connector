@@ -96,6 +96,26 @@ class TestCourseSkills(TestCase):
 
 
 @mark.django_db
+class TestCourseRunXBlockSkillsTracker(TestCase):
+    """
+    Tests for the ``CourseRunXBlockSkillsTracker`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the CourseSkill model.
+        """
+        course_run = factories.CourseRunXBlockSkillsTrackerFactory()
+        expected_str = '<CourseRunXBlockSkillsTracker course_run_key="{}">'.format(
+            course_run.course_run_key
+        )
+        expected_repr = '<CourseRunXBlockSkillsTracker id="{0}">'.format(course_run.id)
+
+        assert expected_str == course_run.__str__()
+        assert expected_repr == course_run.__repr__()
+
+
+@mark.django_db
 class TestXBlockSkills(TestCase):
     """
     Tests for the ``XBlockSkills`` model.

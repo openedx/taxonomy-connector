@@ -22,6 +22,16 @@ def get_course_metadata_provider(*args, **kwargs):
     return import_string(settings.TAXONOMY_COURSE_METADATA_PROVIDER)(*args, **kwargs)
 
 
+def get_course_run_metadata_provider(*args, **kwargs):
+    """
+    Load and return an instance of course run metadata provider.
+
+    Load course metadata provider class through `TAXONOMY_COURSE_RUN_METADATA_PROVIDER`, instantiate it using
+    the `*args` and `**kwargs` provided in the function arguments and return the instance.
+    """
+    return import_string(settings.TAXONOMY_COURSE_RUN_METADATA_PROVIDER)(*args, **kwargs)
+
+
 def get_program_metadata_provider(*args, **kwargs):
     """
     Load and return an instance of program metadata provider.
