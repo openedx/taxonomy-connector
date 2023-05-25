@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.40.0] - 2023-06-02
+---------------------
+* feat: Added JobHolderUsernamesAPIView to fetch current job of learners by LMS.
+
 [1.39.0] - 2023-05-09
 ---------------------
 * feat: Added CourseRunMetadataProvider to fetch course run info.

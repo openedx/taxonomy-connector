@@ -213,6 +213,55 @@ class SkillsQuizViewSet(TaxonomyAPIViewSetMixin, ModelViewSet):
         return queryset.all().select_related('current_job').prefetch_related('skills', 'future_jobs')
 
 
+class LearnersCurrentJobAPIView(APIView):
+    """
+    This API exposes a GET endpoint to provide a list of dictionaries of
+    username and latest current job for all the learners who have taken
+    the skills quiz. This API is used by the LMS to import the current
+    job data for all the learners who have taken skills quiz.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_scope = 'taxonomy-api-throttle-scope'
+
+    def get(self, request):
+        """
+        Example URL: GET https://discovery.edx.org/taxonomy/api/v1/learners-current-job/
+
+        Example Response:
+        [
+            {
+                "username": "user1",
+                "current_job": 1,
+            },
+            {
+                "username": "user2",
+                "current_job": 2,
+            },
+            ... // more learner and their current job data
+        ]
+        """
+        skills_quiz_attempts = SkillsQuiz.objects.order_by(
+            'username', 'created'
+        ).values_list(
+            'username', 'current_job'
+        )
+
+        # Remove the duplicate skills quiz attempts of learners by generating
+        # a dictionary of skills quiz attempts with username as key then
+        # converting it back to a list of dictionary values.
+        learner_and_current_job = list(
+            {
+                skills_quiz_attempt[0]: {
+                    "username": skills_quiz_attempt[0],
+                    "current_job": skills_quiz_attempt[1]
+                }
+                for skills_quiz_attempt in skills_quiz_attempts
+            }.values()
+        )
+
+        return Response(learner_and_current_job)
+
+
 class JobHolderUsernamesAPIView(APIView):
     """
     THis API takes a job id as input and returns a list of 100 usernames

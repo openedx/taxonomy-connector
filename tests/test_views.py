@@ -416,6 +416,55 @@ class TestJobTopSkillCategoriesAPIView(TestCase):
 
 
 @mark.django_db
+class TestLearnersCurrentJobAPIView(TestCase):
+    """
+    Tests for `LearnersCurrentJobAPIView` API view.
+    """
+
+    def setUp(self) -> None:
+        """
+        Setup env.
+        """
+        super(TestLearnersCurrentJobAPIView, self).setUp()
+        self.user = User.objects.create(username="rocky", is_staff=True)
+        self.user.set_password(USER_PASSWORD)
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.job = JobFactory()
+
+        self.view_url = reverse('learners_current_job')
+
+    def test_unauthenticated_user_failure(self):
+        """
+        Test that non-staff user should not access this API.
+        """
+        client = Client()
+        api_response = client.get(self.view_url)
+        assert api_response.status_code == 403
+
+    def test_success(self):
+        """
+        Test success response for the API.
+        """
+        SkillsQuizFactory(username="user1")
+        SkillsQuizFactory(username="user1")
+        SkillsQuizFactory(username="user2")
+        SkillsQuizFactory(username="user2")
+        SkillsQuizFactory(username="user3")
+
+        with self.assertNumQueries(3):
+            api_response = self.client.get(self.view_url)
+
+        # assert that we get status code 200
+        assert api_response.status_code == 200
+        data = api_response.json()
+
+        # assert that usernames list has size of 100
+        assert len(data) == 3
+
+
+@mark.django_db
 class TestJobHolderUsernamesAPIView(TestCase):
     """
     Tests for `JobHolderUsernamesAPIView` API view.

@@ -11,6 +11,7 @@ from taxonomy.api.v1.views import (
     JobPostingsViewSet,
     JobsViewSet,
     JobTopSkillCategoriesAPIView,
+    LearnersCurrentJobAPIView,
     SkillsQuizViewSet,
     SkillViewSet,
     XBlockSkillsViewSet,
@@ -22,6 +23,7 @@ urlpatterns = [
     path(r'job-top-subcategories/<int:job_id>/', JobTopSkillCategoriesAPIView.as_view(), name='job_top_subcategories'),
     path(r'job-holder-usernames/<int:job_id>/', JobHolderUsernamesAPIView.as_view(), name='job_holder_usernames'),
     path(r'job-path/', JobPathAPIView.as_view(), name='job_path'),
+    path(r'learners-current-job/', LearnersCurrentJobAPIView.as_view(), name='learners_current_job'),
 ]
 
 ROUTER.register(r'skills', SkillViewSet, basename='skill')
