@@ -125,10 +125,11 @@ class Command(BaseCommand):
     ):
         """
         Add an entry to CourseRunXBlockSkillsTracker table marking the course
-        as complete if the ratio of success_count/total >= threshold
+        as complete if the ratio of success_count/total >= threshold.
+        Marks course complete if total == 0.
         """
         total = success_count + failure_count
-        success_ratio = success_count / total if total else 0
+        success_ratio = success_count / total if total else 1
         if success_ratio >= threshold:
             LOGGER.info(
                 '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] > threshold: [%s]',

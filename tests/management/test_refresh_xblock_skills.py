@@ -237,7 +237,7 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
             get_xblock_provider_mock,
     ):
         """
-        Test that the command creates a Skill and many XBlockSkillData records using --all param.
+        Test that the command creates a Skill and many XBlockSkillData records using --all & --limit param.
         """
         get_product_skills_mock.return_value = self.skills_emsi_client_response
         get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider(
@@ -253,6 +253,36 @@ class RefreshXBlockSkillsCommandTests(TaxonomyTestCase):
 
         self.assert_xblock_skill_count(4, 2, 8)
         self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 2)
+
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_xblock_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_xblock_skill_marked_complete_if_no_xblocks_found(
+            self,
+            get_product_skills_mock,
+            get_course_run_provider_mock,
+            get_xblock_provider_mock,
+    ):
+        """
+        Test that the command marks course run as processed if all xblocks are skipped or no xblocks are found.
+        """
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
+        get_course_run_provider_mock.return_value = DiscoveryCourseRunMetadataProvider(
+            [self.course_1, self.course_2, self.course_3]
+        )
+        get_xblock_provider_mock.return_value = DiscoveryXBlockMetadataProvider(block_count=0)
+        self.assert_xblock_skill_count(0, 0, 0)
+
+        with LogCapture(level=logging.INFO) as log_capture:
+            call_command(self.command, '--all', '--commit')
+            messages = [record.msg for record in log_capture.records]
+            self.assertIn(
+                '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] >= threshold: [%s]',
+                messages
+            )
+
+        self.assert_xblock_skill_count(0, 0, 0)
+        self.assertEqual(CourseRunXBlockSkillsTracker.objects.count(), 3)
 
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_xblock_metadata_provider')
     @mock.patch('taxonomy.management.commands.refresh_xblock_skills.get_course_run_metadata_provider')
