@@ -537,10 +537,18 @@ class TestXBlockSkillsViewSet(TestCase):
             False,
             3,
             verified=False,
-            xblock=self.xblock_skills[0],
+            xblock=self.xblock_skills[1],
         ))
-        XBlockSkillDataFactory.simple_generate_batch(False, 5, xblock=self.xblock_skills[1])
         for i, xblock_skill_data in enumerate(self.xblock_skill_data_objs):
+            xblock_skill_data.skill = self.skills[i]
+            xblock_skill_data.save()
+        self.xblock_skill_data_objs.extend(XBlockSkillDataFactory.simple_generate_batch(
+            False,
+            2,
+            verified=False,
+            xblock=self.xblock_skills[2],
+        ))
+        for i, xblock_skill_data in enumerate(self.xblock_skill_data_objs[5:]):
             xblock_skill_data.skill = self.skills[i]
             xblock_skill_data.save()
         self.user = User.objects.create(username="rocky")

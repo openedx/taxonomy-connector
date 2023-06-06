@@ -305,7 +305,7 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
         return XBlockSkills.objects.all().prefetch_related(
             Prefetch(
                 'skills',
-                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False),
+                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False).distinct(),
             ),
         )
 
