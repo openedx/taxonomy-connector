@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.40.1] - 2023-06-06
+---------------------
+* feat: Added pagination in JobHolderUsernamesAPIView API.
+
 [1.40.0] - 2023-06-02
 ---------------------
 * feat: Added JobHolderUsernamesAPIView to fetch current job of learners by LMS.
