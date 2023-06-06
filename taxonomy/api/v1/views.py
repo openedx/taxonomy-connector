@@ -6,7 +6,7 @@ from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404
 from taxonomy.api.filters import SkillNameFilter, XBlocksFilter
 from taxonomy.api.permissions import IsOwner
 from taxonomy.api.v1.serializers import (
+    CurrentJobSerializer,
     JobPathSerializer,
     JobPostingsSerializer,
     JobSkillCategorySerializer,
@@ -213,7 +214,7 @@ class SkillsQuizViewSet(TaxonomyAPIViewSetMixin, ModelViewSet):
         return queryset.all().select_related('current_job').prefetch_related('skills', 'future_jobs')
 
 
-class LearnersCurrentJobAPIView(APIView):
+class LearnersCurrentJobAPIView(TaxonomyAPIViewSetMixin, ListAPIView):
     """
     This API exposes a GET endpoint to provide a list of dictionaries of
     username and latest current job for all the learners who have taken
@@ -221,24 +222,12 @@ class LearnersCurrentJobAPIView(APIView):
     job data for all the learners who have taken skills quiz.
     """
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CurrentJobSerializer
     throttle_scope = 'taxonomy-api-throttle-scope'
 
-    def get(self, request):
+    def get_queryset(self):
         """
-        Example URL: GET https://discovery.edx.org/taxonomy/api/v1/learners-current-job/
-
-        Example Response:
-        [
-            {
-                "username": "user1",
-                "current_job": 1,
-            },
-            {
-                "username": "user2",
-                "current_job": 2,
-            },
-            ... // more learner and their current job data
-        ]
+        Get all the username and current job of learners who have taken the skills quiz.
         """
         skills_quiz_attempts = SkillsQuiz.objects.order_by(
             'username', 'created'
@@ -249,7 +238,7 @@ class LearnersCurrentJobAPIView(APIView):
         # Remove the duplicate skills quiz attempts of learners by generating
         # a dictionary of skills quiz attempts with username as key then
         # converting it back to a list of dictionary values.
-        learner_and_current_job = list(
+        learner_and_current_jobs = list(
             {
                 skills_quiz_attempt[0]: {
                     "username": skills_quiz_attempt[0],
@@ -258,8 +247,11 @@ class LearnersCurrentJobAPIView(APIView):
                 for skills_quiz_attempt in skills_quiz_attempts
             }.values()
         )
-
-        return Response(learner_and_current_job)
+        learner_and_current_jobs = [learner_and_current_job
+                                    for learner_and_current_job in learner_and_current_jobs
+                                    if learner_and_current_job['current_job'] is not None
+                                    ]  # Remove the learners who have not provided their current job.
+        return learner_and_current_jobs
 
 
 class JobHolderUsernamesAPIView(APIView):

@@ -95,6 +95,18 @@ class SkillsQuizSerializer(ModelSerializer):
         read_only_fields = ('username', )
 
 
+class CurrentJobSerializer(ModelSerializer):
+    """
+    Serializer to get only id and name of current job.
+    """
+
+    current_job = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = SkillsQuiz
+        fields = ('username', 'current_job')
+
+
 class ShortSkillSerializer(ModelSerializer):
     """
     Serializer to get only id and name of skills.
