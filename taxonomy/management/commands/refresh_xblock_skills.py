@@ -132,7 +132,7 @@ class Command(BaseCommand):
         success_ratio = success_count / total if total else 1
         if success_ratio >= threshold:
             LOGGER.info(
-                '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] > threshold: [%s]',
+                '[TAXONOMY] Marking course run: [%s] as complete as success ratio: [%s] >= threshold: [%s]',
                 course_run_key,
                 success_ratio,
                 threshold
