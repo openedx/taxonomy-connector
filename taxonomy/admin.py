@@ -12,7 +12,7 @@ from django.contrib import messages
 from taxonomy.models import (
     CourseRunXBlockSkillsTracker, CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill,
     Translation, SkillCategory, SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
-    XBlockSkills, XBlockSkillData
+    XBlockSkills, XBlockSkillData, B2CJobAllowList
 )
 
 
@@ -210,3 +210,19 @@ class CourseRunXBlockSkillsTrackeAdmin(admin.ModelAdmin):
 
     list_display = ('course_run_key',)
     search_fields = ('course_run_key',)
+
+
+@admin.register(B2CJobAllowList)
+class B2CJobAllowListAdmin(admin.ModelAdmin):
+    """
+    Admin model for B2C Job Allow list
+    """
+
+    list_display = ('id', 'name', 'external_id')
+
+    def name(self, obj):
+        job = Job.objects.filter(external_id = obj.external_id).first()
+        name = ''
+        if job is not None:
+            name = job.name
+        return name
