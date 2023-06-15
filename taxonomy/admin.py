@@ -215,17 +215,26 @@ class CourseRunXBlockSkillsTrackeAdmin(admin.ModelAdmin):
 @admin.register(B2CJobAllowList)
 class B2CJobAllowListAdmin(admin.ModelAdmin):
     """
-    Admin model for B2C Job Allow list
+    Admin model for B2C Job Allow list.
     """
 
-    list_display = ('id', 'name', 'external_id')
+    list_display = ('id', 'external_id', 'job_name',)
+    search_fields = ('job__name', 'job__external_id',)
 
-    def name(self, obj):
+    @admin.display(
+        description='External ID',
+    )
+    def external_id(self, obj):
         """
-        Map the job name to the entry for readability
+        External Id of the related job.
         """
-        job = Job.objects.filter(external_id=obj.external_id).first()
-        name = ''
-        if job is not None:
-            name = job.name
-        return name
+        return obj.job.external_id
+
+    @admin.display(
+        description='Job Name',
+    )
+    def job_name(self, obj):
+        """
+        Name of the related job.
+        """
+        return obj.job.name

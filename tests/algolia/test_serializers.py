@@ -76,7 +76,7 @@ class TestJobSerializer(TaxonomyTestCase, TestCase):
     def test_job_allowlist_attribute(self):
         allowlisted_job = factories.JobFactory.create(external_id="ET123456789")
         other_jobs = factories.JobFactory.create_batch(4)
-        factories.B2CJobAllowlistFactory.create(external_id="ET123456789")
+        factories.B2CJobAllowlistFactory.create(job=allowlisted_job)
         job_list = [allowlisted_job] + other_jobs
         job_skills = []
         for job in job_list:

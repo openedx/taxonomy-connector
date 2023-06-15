@@ -144,7 +144,7 @@ class JobSerializer(serializers.ModelSerializer):
         Returns:
             True if the job is listed on the allowlist, False if not.
         """
-        return B2CJobAllowList.objects.filter(external_id=obj.external_id).exists()
+        return B2CJobAllowList.objects.filter(job=obj).exists()
 
 
 class JobSkillSerializer(serializers.ModelSerializer):
