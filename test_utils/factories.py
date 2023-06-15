@@ -407,5 +407,5 @@ class B2CJobAllowlistFactory(factory.django.DjangoModelFactory):
     """
     class Meta:
         model = B2CJobAllowList
-    
+
     external_id = factory.Sequence('JOB-{}'.format)

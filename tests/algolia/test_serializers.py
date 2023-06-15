@@ -1,7 +1,7 @@
 """
 Tests for algolia serializers.
 """
-from django.test import TestCase, override_settings
+from django.test import TestCase
 import mock
 from pytest import mark
 

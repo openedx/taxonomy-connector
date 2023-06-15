@@ -7,8 +7,6 @@ This module depends on serializers provided by django-rest-framework.
 
 from rest_framework import serializers
 
-from django.conf import settings
-
 from taxonomy.algolia.constants import EMBEDDED_OBJECT_LENGTH_CAP
 from taxonomy.models import Job, JobPostings, JobSkills, IndustryJobSkill, B2CJobAllowList
 
@@ -145,7 +143,6 @@ class JobSerializer(serializers.ModelSerializer):
 
         Returns:
             True if the job is listed on the allowlist, False if not.
-            
         """
         return B2CJobAllowList.objects.filter(external_id=obj.external_id).exists()
 
