@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from taxonomy.models import Industry, Job, JobPostings
+from taxonomy.models import Industry, Job, JobPostings, B2CJobAllowList
 from taxonomy.signals.handlers import generate_job_description
 from taxonomy.utils import generate_and_store_job_description
 from test_utils import factories
@@ -533,3 +533,23 @@ class TestIndustry(TestCase):
 
         assert expected_str == industry.__str__()
         assert expected_repr == industry.__repr__()
+
+
+@mark.django_db
+class TestB2CJobAllowlist(TestCase):
+    """
+    Tests for the ``B2CJobAllowList`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the B2CJobAllowList model.
+        """
+        allowlisted_job = factories.JobFactory.create(external_id="ET123456789", name="AllowlistTestJob")
+        factories.B2CJobAllowlistFactory.create(job=allowlisted_job)
+        allowList_entry = B2CJobAllowList.objects.first()
+        expected_str = '<External Id = "{}" Job ="{}">'.format(allowList_entry.job.external_id, allowList_entry.job)
+        expected_repr = '<External Id = "{}" Job ="{}">'.format(allowList_entry.job.external_id, allowList_entry.job)
+
+        assert expected_str == allowList_entry.__str__()
+        assert expected_repr == allowList_entry.__repr__()
