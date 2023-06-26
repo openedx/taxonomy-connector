@@ -1042,3 +1042,42 @@ class Industry(models.Model):
         app_label = 'taxonomy'
         verbose_name = 'Industry'
         verbose_name_plural = 'Industries'
+
+
+class B2CJobAllowList(models.Model):
+    """
+    Model for storing admin configuration for B2C Job Allowlist entries.
+
+    .. no_pii:
+    """
+
+    job = models.ForeignKey(
+        Job,
+        to_field='external_id',
+        related_name='+',
+        blank=False,
+        null=False,
+        on_delete=models.deletion.CASCADE,
+        help_text=_('The job to add to the allowlist for B2C Job listings.')
+    )
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return '<External Id = "{}" Job ="{}">'.format(self.job.external_id, self.job)
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<External Id = "{}" Job ="{}">'.format(self.job.external_id, self.job)
+
+    class Meta:
+        """
+        Meta configuration for B2C Job Allow List model.
+        """
+
+        app_label = 'taxonomy'
+        verbose_name = 'B2C Job Allow List entry'
+        verbose_name_plural = 'B2C Job Allow List entries'

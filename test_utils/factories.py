@@ -30,6 +30,7 @@ from taxonomy.models import (
     Translation,
     XBlockSkillData,
     XBlockSkills,
+    B2CJobAllowList,
 )
 
 FAKER = FakerFactory.create()
@@ -399,3 +400,12 @@ class SkillsQuizFactory(factory.django.DjangoModelFactory):
                 self.future_jobs.add(future_job)
         else:
             self.future_jobs.add(JobFactory.create())
+
+class B2CJobAllowlistFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for B2CJobsAllowlist model.
+    """
+    class Meta:
+        model = B2CJobAllowList
+
+    job = factory.SubFactory(JobFactory)

@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.41.0] - 2023-06-14
+---------------------
+* feat: change B2C Job Allowlist to admin config.
+
 [1.40.1] - 2023-06-06
 ---------------------
 * feat: Added pagination in JobHolderUsernamesAPIView API.

@@ -1,7 +1,7 @@
 """
 Tests for algolia serializers.
 """
-from django.test import TestCase, override_settings
+from django.test import TestCase
 import mock
 from pytest import mark
 
@@ -73,11 +73,10 @@ class TestJobSerializer(TaxonomyTestCase, TestCase):
         assert all('b2c_opt_in' in job_data for job_data in jobs_data)
         assert all(not job_data['b2c_opt_in'] for job_data in jobs_data)
 
-    @override_settings(TAXONOMY_B2C_JOB_ALLOWLIST=["ET123456789"])
     def test_job_allowlist_attribute(self):
         allowlisted_job = factories.JobFactory.create(external_id="ET123456789")
         other_jobs = factories.JobFactory.create_batch(4)
-
+        factories.B2CJobAllowlistFactory.create(job=allowlisted_job)
         job_list = [allowlisted_job] + other_jobs
         job_skills = []
         for job in job_list:
