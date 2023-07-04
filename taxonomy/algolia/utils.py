@@ -156,6 +156,21 @@ def combine_industry_skills():
     return industries_and_skills
 
 
+def get_job_ids(qs):
+    """
+     Get a set of all the job id.
+    """
+    batch_size = 20000
+    jobs = set()
+
+    offset, limit = 0, batch_size
+    qs = qs.all()
+    while qs[offset:offset + limit].exists():
+        jobs = jobs.union(qs[offset:offset + limit].values_list('job_id', flat=True))
+        offset = offset + limit
+    return jobs
+
+
 def fetch_jobs_data():
     """
     Construct a list of all the jobs from the database.
@@ -194,7 +209,9 @@ def fetch_jobs_data():
             many=True,
             context={
                 'jobs_with_recommendations': jobs_with_recommendations,
-                'industry_skills': industry_skills
+                'industry_skills': industry_skills,
+                'jobs_having_job_skills': get_job_ids(JobSkills.objects),
+                'jobs_having_industry_skills': get_job_ids(IndustryJobSkill.objects),
             },
         )
         jobs.extend(job_serializer.data)

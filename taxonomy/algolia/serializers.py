@@ -8,6 +8,7 @@ This module depends on serializers provided by django-rest-framework.
 from rest_framework import serializers
 
 from taxonomy.algolia.constants import EMBEDDED_OBJECT_LENGTH_CAP
+from taxonomy.constants import JOB_SOURCE_COURSE_SKILL, JOB_SOURCE_INDUSTRY
 from taxonomy.models import Job, JobPostings, JobSkills, IndustryJobSkill, B2CJobAllowList
 
 
@@ -42,11 +43,14 @@ class JobSerializer(serializers.ModelSerializer):
     industries = serializers.SerializerMethodField()
     similar_jobs = serializers.SerializerMethodField()
     b2c_opt_in = serializers.SerializerMethodField(source="get_b2c_opt_in")
+    job_sources = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
-        fields = ('id', 'external_id', 'name', 'description', 'skills', 'job_postings', 'objectID', 'industry_names',
-                  'industries', 'similar_jobs', 'b2c_opt_in')
+        fields = (
+            'id', 'external_id', 'name', 'description', 'skills', 'job_postings', 'objectID', 'industry_names',
+            'industries', 'similar_jobs', 'b2c_opt_in', 'job_sources',
+        )
         read_only_fields = fields
 
     def get_objectID(self, obj):  # pylint: disable=invalid-name
@@ -145,6 +149,19 @@ class JobSerializer(serializers.ModelSerializer):
             True if the job is listed on the allowlist, False if not.
         """
         return B2CJobAllowList.objects.filter(job=obj).exists()
+
+    def get_job_sources(self, obj):
+        """
+        Get the source of the job in our system. i.e. if it was populated because of a course skill or industry data.
+        """
+        jobs_having_job_skills = self.context.get('jobs_having_job_skills', set())
+        jobs_having_industry_skills = self.context.get('jobs_having_industry_skills', set())
+        job_sources = []
+        if obj.id in jobs_having_job_skills:
+            job_sources.append(JOB_SOURCE_COURSE_SKILL)
+        if obj.id in jobs_having_industry_skills:
+            job_sources.append(JOB_SOURCE_INDUSTRY)
+        return job_sources
 
 
 class JobSkillSerializer(serializers.ModelSerializer):

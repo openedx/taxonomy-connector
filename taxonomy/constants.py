@@ -141,3 +141,6 @@ MIN_VOTES_FOR_SKILLS = settings.MIN_VOTES_FOR_SKILLS \
     if hasattr(settings, "MIN_VOTES_FOR_SKILLS") else None
 RATIO_THRESHOLD_FOR_SKILLS = settings.RATIO_THRESHOLD_FOR_SKILLS \
     if hasattr(settings, "RATIO_THRESHOLD_FOR_SKILLS") else None
+
+JOB_SOURCE_COURSE_SKILL = 'course_skill'
+JOB_SOURCE_INDUSTRY = 'industry'
