@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.42.0] - 2023-07-04
+---------------------
+* feat: Added a new field `job_sources` in job's algolia index.
+
 [1.41.0] - 2023-06-14
 ---------------------
 * feat: change B2C Job Allowlist to admin config.
