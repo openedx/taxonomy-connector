@@ -6,7 +6,6 @@ Only the models that have administration requirements are exposed via the django
 """
 from __future__ import unicode_literals
 
-from django import forms
 from django.contrib import admin
 from django.contrib import messages
 
