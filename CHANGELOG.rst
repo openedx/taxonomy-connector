@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.42.0] - 2023-07-06
+---------------------
+* fix: Use autocomplete field for selecting job in B2CJobAllowlist.
+
 [1.42.0] - 2023-07-04
 ---------------------
 * feat: Added a new field `job_sources` in job's algolia index.
