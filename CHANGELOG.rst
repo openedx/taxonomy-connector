@@ -13,7 +13,7 @@ Change Log
 
 Unreleased
 
-[1.42.0] - 2023-07-06
+[1.42.1] - 2023-07-06
 ---------------------
 * fix: Use autocomplete field for selecting job in B2CJobAllowlist.
 
