@@ -220,6 +220,7 @@ class B2CJobAllowListAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'external_id', 'job_name',)
     search_fields = ('job__name', 'job__external_id',)
+    autocomplete_fields = ('job',)
 
     @admin.display(
         description='External ID',
