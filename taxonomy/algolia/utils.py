@@ -120,11 +120,19 @@ def calculate_job_recommendations(jobs):
             matching_jobs.append(candidate_job['name'])
             jaccard_similarities.append(jaccard_similarity)
 
-    similar_jobs = pd.DataFrame({
-        'job': candidate_jobs,
-        'matching_job': matching_jobs,
-        'jaccard_similarity': jaccard_similarities,
-    })
+    dtype_dict = {
+        'job': "category",
+        'matching_job': "category",
+        'jaccard_similarity': "float16",
+    }
+
+    similar_jobs = pd.DataFrame(
+        {
+            'job': candidate_jobs,
+            'matching_job': matching_jobs,
+            'jaccard_similarity': jaccard_similarities,
+        },
+    ).astype(dtype_dict)
 
     similar_jobs['rank'] = similar_jobs.groupby('job')['jaccard_similarity'].rank(method='first', ascending=False)
     mask = (similar_jobs['rank'] <= 3)
