@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.42.2] - 2023-07-14
+---------------------
+* perf: pandas dataframe loading memory optimisation
+
 [1.42.1] - 2023-07-06
 ---------------------
 * fix: Use autocomplete field for selecting job in B2CJobAllowlist.
