@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.42.3] - 2023-07-14
+---------------------
+* perf: memory optimisation for job recommendations.
+
 [1.42.2] - 2023-07-14
 ---------------------
 * perf: pandas dataframe loading memory optimisation
