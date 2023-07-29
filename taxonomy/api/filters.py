@@ -55,5 +55,5 @@ class XBlocksFilter(filters.FilterSet):
                 queryset=Skill.objects.filter(
                     xblockskilldata__is_blacklisted=False,
                     xblockskilldata__verified=value,
-                ),
+                ).distinct(),
             ))

@@ -8,14 +8,14 @@ import ddt
 import mock
 import responses
 from edx_django_utils.cache import TieredCache
-from pytest import fixture, mark
+from pytest import fixture, mark, raises
 from testfixtures import LogCapture
 
 from taxonomy import models, utils
 from taxonomy.choices import ProductTypes
 from taxonomy.constants import ENGLISH
 from taxonomy.emsi.client import EMSISkillsApiClient
-from taxonomy.exceptions import TaxonomyAPIError
+from taxonomy.exceptions import SkipProductProcessingError, TaxonomyAPIError
 from taxonomy.models import CourseSkills, Industry, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
 from test_utils import factories
 from test_utils.constants import COURSE_KEY, PROGRAM_UUID, USAGE_KEY
@@ -772,41 +772,57 @@ class TestUtils(TaxonomyTestCase):
         assert translation_record.translated_text == new_course_description
         assert translate_mocked.call_count == 3
 
-    def test_process_skill_attr_text(self):
+    def test_xblock_update_with_no_changes(self):
         """
-        Validate process_skill_attr_text and skip_product_processing returns correct data and flag.
+        Validate extract_metadata_from_attr_text and
+        verify_xblock_existence_and_content_changes returns correct data and
+        flag.
         """
         text = 'some text'
         xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
-        extra_data = utils.process_skill_attr_text(text, ProductTypes.XBlock)
-        skip = utils.skip_product_processing(extra_data, USAGE_KEY, ProductTypes.XBlock)
-        # XBlock with new text should not skip.
-        assert not skip
+        extra_data = utils.extract_metadata_from_attr_text(text, ProductTypes.XBlock)
+        # XBlock with new text should not raise skip processing error.
+        utils.verify_xblock_existence_and_content_changes(extra_data, USAGE_KEY)
         assert 'hash_content' in extra_data
         xblock.hash_content = extra_data['hash_content']
         xblock.auto_processed = True
         xblock.save()
 
         # xblock with same content should skip processing.
-        extra_data = utils.process_skill_attr_text(text, ProductTypes.XBlock)
-        skip = utils.skip_product_processing(extra_data, USAGE_KEY, ProductTypes.XBlock)
-        assert skip
+        with raises(SkipProductProcessingError):
+            utils.verify_xblock_existence_and_content_changes(extra_data, USAGE_KEY)
+
+    def test_skills_from_similar_product(self):
+        """
+        Check that skills from product with same content is reused.
+        """
+        text = 'some text'
+        xblock = factories.XBlockSkillsFactory(usage_key=USAGE_KEY)
+        extra_data = utils.extract_metadata_from_attr_text(text, ProductTypes.XBlock)
+        xblock.hash_content = extra_data['hash_content']
+        xblock.auto_processed = True
+        xblock.save()
+        # XBlock with new text should not raise skip processing error.
+        other_usage_key = USAGE_KEY.replace("edx", "xde")
+        skills = utils.xblock_with_same_content(extra_data, other_usage_key)
+        assert skills is not None
 
     @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
     @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
-    def test_refresh_xblock_skills_no_change_skipped(
+    def test_refresh_xblock_skills_no_change_or_invalid_product_type_skipped(
             self,
             get_translated_description_mock,
             get_xblock_skills_mock
     ):
         """
-        Validate that `refresh_product_skills` only calls API if content has changed.
+        Validate that `refresh_product_skills` only calls API if content has
+        changed and if product is valid.
         """
         get_xblock_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
         get_translated_description_mock.return_value = None
         product_type = ProductTypes.XBlock
 
-        xblocks = []
+        xblocks = ["invalid_product_type"]
         xblock = mock_as_dict(MockXBlock())
         for _ in range(3):
             xblocks.append({
@@ -819,7 +835,7 @@ class TestUtils(TaxonomyTestCase):
 
         assert get_translated_description_mock.call_count == 0
         # it should be processed only once as the same content for same xblock
-        # is passed multiple times
+        # is passed multiple times for valid ProductTypes
         assert get_xblock_skills_mock.call_count == 1
 
         # changed content should trigger processing
@@ -831,6 +847,73 @@ class TestUtils(TaxonomyTestCase):
 
         utils.refresh_product_skills(new_data, True, product_type)
         assert get_xblock_skills_mock.call_count == 2
+
+    @mock.patch('taxonomy.utils.EMSISkillsApiClient.get_product_skills')
+    @mock.patch('taxonomy.utils.get_translated_skill_attribute_val')
+    def test_refresh_xblock_skills_same_content_reuse_skills(
+            self,
+            get_translated_description_mock,
+            get_xblock_skills_mock
+    ):
+        """
+        Validate that `refresh_product_skills` reuses skills from other xblock
+        if it has same content.
+        """
+        get_xblock_skills_mock.return_value = SKILLS_EMSI_CLIENT_RESPONSE
+        get_translated_description_mock.return_value = None
+        product_type = ProductTypes.XBlock
+
+        xblocks = []
+        for _ in range(4):
+            xblock = mock_as_dict(MockXBlock())
+            xblocks.append(
+                {'key': xblock.key, 'content_type': xblock.content_type, 'content': xblock.content},
+            )
+        # update last xblock content to be same as the first one.
+        xblocks[-1]['content'] = xblocks[0]['content']
+
+        success_count, failure_count = utils.refresh_product_skills(xblocks, True, product_type)
+        assert get_translated_description_mock.call_count == 0
+        # it should be call the api for last xblock.
+        assert get_xblock_skills_mock.call_count == 3
+        self.assertEqual(failure_count, 0)
+        self.assertEqual(success_count, 4)
+
+        def compare_xblocks(xblock_key_1, xblock_key_2):
+            xblock_skill_1 = XBlockSkills.objects.get(usage_key=xblock_key_1)
+            xblock_skill_2 = XBlockSkills.objects.get(usage_key=xblock_key_2)
+            self.assertListEqual(list(xblock_skill_1.skills.values()), list(xblock_skill_2.skills.values()))
+            fields_to_compare = (
+                "skill",
+                "verified_count",
+                "ignored_count",
+                "confidence",
+                "verified",
+                "is_blacklisted"
+            )
+            self.assertListEqual(
+                list(xblock_skill_1.xblockskilldata_set.values(*fields_to_compare)),
+                list(xblock_skill_2.xblockskilldata_set.values(*fields_to_compare))
+            )
+        compare_xblocks(xblocks[0]['key'], xblocks[-1]['key'])
+
+        # update existing xblock with content similar to any other xblock
+        # it should reuse the tags from the other xblock
+        xblocks[1]['content'] = xblocks[2]['content']
+        # update verification data to verified that it is also copied over.
+        XBlockSkillData.objects.filter(xblock__usage_key=xblocks[2]['key']).update(
+            verified_count=10,
+            ignored_count=1,
+            verified=True
+        )
+
+        success_count, failure_count = utils.refresh_product_skills([xblocks[1]], True, product_type)
+        # translation as well as api should not be called
+        assert get_translated_description_mock.call_count == 0
+        assert get_xblock_skills_mock.call_count == 3
+        self.assertEqual(failure_count, 0)
+        self.assertEqual(success_count, 1)
+        compare_xblocks(xblocks[1]['key'], xblocks[2]['key'])
 
     @mock_api_response(
         method=responses.POST,

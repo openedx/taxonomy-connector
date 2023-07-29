@@ -13,6 +13,12 @@ Change Log
 
 Unreleased
 
+[1.43.0] - 2023-07-07
+---------------------
+* feat: reuse tags from similar product for xblock skills.
+* fix: remove duplicates from xblocks skills api.
+* refactor: update logic to mark course run complete in refresh_xblock_skills command.
+
 [1.42.3] - 2023-07-14
 ---------------------
 * perf: memory optimisation for job recommendations.

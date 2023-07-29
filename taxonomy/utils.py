@@ -17,7 +17,7 @@ from django.utils.timezone import now
 from taxonomy.choices import ProductTypes
 from taxonomy.constants import AMAZON_TRANSLATION_ALLOWED_SIZE, AUTO, ENGLISH, REGION, TRANSLATE_SERVICE
 from taxonomy.emsi.client import EMSISkillsApiClient
-from taxonomy.exceptions import TaxonomyAPIError
+from taxonomy.exceptions import SkipProductProcessingError, TaxonomyAPIError
 from taxonomy.models import (
     CourseSkills,
     Job,
@@ -222,7 +222,7 @@ def get_hash(text_data: str):
     return hashlib.md5(processed_text.encode()).hexdigest()
 
 
-def process_skill_attr_text(text_data: str, product_type: ProductTypes) -> dict:
+def extract_metadata_from_attr_text(text_data: str, product_type: ProductTypes) -> dict:
     """
     Return metadata for text_data.
     """
@@ -234,39 +234,64 @@ def process_skill_attr_text(text_data: str, product_type: ProductTypes) -> dict:
     return extra_data
 
 
-def skip_product_processing(extra_data: dict, key_or_uuid: str, product_type: ProductTypes) -> bool:
+def xblock_with_same_content(extra_data: dict, usage_key: str):
     """
-    Check whether to skip processing.
-    """
-    # currently only xblock text is checked
-    if product_type != ProductTypes.XBlock:
-        return False
+    Return identifier of the first xblock with same content that is already tagged.
 
-    if not extra_data:
-        return True
-    model, identifier = get_product_skill_model_and_identifier(product_type)
+    Args:
+        extra_data: dictionary containing hash of the xblock content.
+        usage_key: xblock usage_key
+
+    Returns:
+        xblock usage_key.
+    """
+    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    similar_product = model.objects.filter(
+        **{'auto_processed': True, **extra_data}
+    ).exclude(
+        **{identifier: usage_key}
+    ).first()
+    return getattr(similar_product, identifier, None)
+
+
+def verify_xblock_existence_and_content_changes(extra_data: dict, usage_key: str):
+    """
+    Raise SkipProductProcessingError if product has been already tagged and content has not changed.
+    """
+    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
     skill_filter = {
-        identifier: key_or_uuid,
+        identifier: usage_key,
         'auto_processed': True,
         **extra_data,
     }
     no_change = model.objects.filter(**skill_filter).exists()
     if no_change:
         # text with same hash exists, so skip further processing
-        return True
-    return False
+        raise SkipProductProcessingError
 
 
 def _convert_product_to_dict(product: Union[dict, tuple]):
     """
     Convert product data to dict.
     """
-    product_dict = None
     if isinstance(product, dict):
-        product_dict = product
+        return product
     elif isinstance(product, tuple) and hasattr(product, '_asdict'):
-        product_dict = product._asdict()
-    return product_dict
+        return product._asdict()
+    raise SkipProductProcessingError
+
+
+def get_skill_attr_value(product, product_type, skill_extraction_attr):
+    """
+    Fetch text repr of the product.
+    """
+    if product_type == ProductTypes.Course:
+        skill_attr_val = get_course_metadata_fields_text(skill_extraction_attr, product)
+    else:
+        skill_attr_val = product[skill_extraction_attr]
+    if not skill_attr_val:
+        raise SkipProductProcessingError
+    return skill_attr_val
 
 
 def refresh_product_skills(products, should_commit_to_db: bool, product_type) -> Tuple[int, int]:
@@ -289,57 +314,64 @@ def refresh_product_skills(products, should_commit_to_db: bool, product_type) ->
     client = EMSISkillsApiClient()
 
     for product in products:
-        product = _convert_product_to_dict(product)
-        if product is None:
+        # check if product cannot be processed or we can reuse skills from similar product
+        try:
+            product = _convert_product_to_dict(product)
+            skill_attr_val = get_skill_attr_value(product, product_type, skill_extraction_attr)
+            # get metadata of skill_attr_val
+            extra_data = extract_metadata_from_attr_text(skill_attr_val, product_type)
+            if product_type == ProductTypes.XBlock and extra_data:
+                verify_xblock_existence_and_content_changes(extra_data, product[key_or_uuid])
+                similar_xblock_key = xblock_with_same_content(extra_data, product[key_or_uuid])
+                if similar_xblock_key:
+                    duplicate_xblock_skills(similar_xblock_key, product[key_or_uuid], replace=True)
+                    LOGGER.info(
+                        '[TAXONOMY] Copied skills from other xblock: [%s] with same content',
+                        similar_xblock_key
+                    )
+                    success_count += 1
+                    continue
+        except SkipProductProcessingError:
             skipped_count += 1
             continue
-        if product_type == ProductTypes.Course:
-            skill_attr_val = get_course_metadata_fields_text(skill_extraction_attr, product)
-        else:
-            skill_attr_val = product[skill_extraction_attr]
-        if skill_attr_val:
-            # get metadata of skill_attr_val
-            extra_data = process_skill_attr_text(skill_attr_val, product_type)
-            if skip_product_processing(extra_data, product[key_or_uuid], product_type):
-                skipped_count += 1
-                continue
-            # TODO: Skip translation for xblock text till we find better way to
-            # handle huge amounts of text
-            if product_type == ProductTypes.XBlock:
-                # TODO: make sure that skill_attr_val is in english
-                translated_skill_attr = skill_attr_val
-            else:
-                translated_skill_attr = get_translated_skill_attribute_val(
-                    product[key_or_uuid], skill_attr_val, product_type
-                )
-            try:
-                skills = client.get_product_skills(translated_skill_attr)
-            except TaxonomyAPIError:
-                message = f'[TAXONOMY] API Error for key: {product[key_or_uuid]}'
-                LOGGER.error(message)
-                all_failures.append((product[key_or_uuid], message))
-                continue
 
-            try:
-                failures = process_skills_data(
-                    product,
-                    skills,
-                    should_commit_to_db,
-                    product_type,
-                    **extra_data
-                )
-                if failures:
-                    LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
-                    all_failures += failures
-                else:
-                    success_count += 1
-            except Exception as ex:  # pylint: disable=broad-except
-                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
-                message = f'[TAXONOMY] Exception for key: {product[key_or_uuid]} Error: {ex}'
-                LOGGER.error(message)
-                all_failures.append((product[key_or_uuid], message))
+        # Translate and fetch skills from external API.
+        # TODO: Skip translation for xblock text till we find better way to
+        # handle huge amounts of text
+        if product_type == ProductTypes.XBlock:
+            # TODO: make sure that skill_attr_val is in english
+            translated_skill_attr = skill_attr_val
         else:
-            skipped_count += 1
+            translated_skill_attr = get_translated_skill_attribute_val(
+                product[key_or_uuid], skill_attr_val, product_type
+            )
+        try:
+            skills = client.get_product_skills(translated_skill_attr)
+        except TaxonomyAPIError:
+            message = f'[TAXONOMY] API Error for key: {product[key_or_uuid]}'
+            LOGGER.error(message)
+            all_failures.append((product[key_or_uuid], message))
+            continue
+
+        # Process the skills from external API and insert it into db.
+        try:
+            failures = process_skills_data(
+                product,
+                skills,
+                should_commit_to_db,
+                product_type,
+                **extra_data
+            )
+            if failures:
+                LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
+                all_failures += failures
+            else:
+                success_count += 1
+        except Exception as ex:  # pylint: disable=broad-except
+            LOGGER.info('[TAXONOMY] Skills data received from EMSI. Skills: [%s]', skills)
+            message = f'[TAXONOMY] Exception for key: {product[key_or_uuid]} Error: {ex}'
+            LOGGER.error(message)
+            all_failures.append((product[key_or_uuid], message))
 
     LOGGER.info(
         '[TAXONOMY] Refresh %s skills process completed. \n'
@@ -646,12 +678,13 @@ def delete_product(key_or_uuid: str, product_type: ProductTypes):
     product_model.objects.filter(**{identifier: key_or_uuid}).delete()
 
 
-def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid):
+def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid, replace=False):
     """
     Duplicate xblock and its skills if source xblock exists.
 
         source_xblock_uuid (str): source xblock usage key.
         xblock_uuid (str): new xblock usage key.
+        replace (bool): replace destination block if exists.
     """
     # get source xblock_skill instance.
     source_xblock = XBlockSkills.objects.filter(usage_key=source_xblock_uuid).first()
@@ -659,10 +692,12 @@ def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid):
         LOGGER.info(f'[TAXONOMY] Source xblock: {source_xblock_uuid} not found')
         return
 
-    # just in case xblock_skill with new usage_key exists, stop execution.
+    # if xblock_skill with new usage_key exists, stop execution or delete it.
     if XBlockSkills.objects.filter(usage_key=xblock_uuid).exists():
         LOGGER.error(f'[TAXONOMY] XBlock with usage_key: {xblock_uuid} already exists!')
-        return
+        if not replace:
+            return
+        delete_product(xblock_uuid, ProductTypes.XBlock)
 
     # fetch source xblock skills.
     source_xblock_skills = XBlockSkillData.objects.filter(xblock=source_xblock).all()

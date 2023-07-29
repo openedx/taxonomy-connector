@@ -32,3 +32,9 @@ class InvalidCommandOptionsError(Exception):
     """
     Exception to raise when incorrect command options are provided.
     """
+
+
+class SkipProductProcessingError(Exception):
+    """
+    Exception to raise when we want to skip product processing.
+    """
