@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.43.1] - 2023-07-31
+---------------------
+* perf: Performance enhancements in job recomendations calculation.
+
 [1.43.0] - 2023-07-07
 ---------------------
 * feat: reuse tags from similar product for xblock skills.

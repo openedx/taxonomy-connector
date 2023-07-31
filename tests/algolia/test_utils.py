@@ -1,11 +1,19 @@
 """
 Tests for algolia utility functions.
 """
+from collections import deque
+
 import mock
 from pytest import mark
 
 from taxonomy.algolia.constants import ALGOLIA_JOBS_INDEX_SETTINGS
-from taxonomy.algolia.utils import calculate_jaccard_similarity, fetch_jobs_data, index_jobs_data_in_algolia
+from taxonomy.algolia.utils import (
+    JobRecommendation,
+    calculate_jaccard_similarity,
+    fetch_jobs_data,
+    index_jobs_data_in_algolia,
+    insert_item_in_ordered_queue,
+)
 from test_utils import factories
 from test_utils.testcase import TaxonomyTestCase
 
@@ -211,3 +219,56 @@ class TestUtils(TaxonomyTestCase):
 
         set_settings_mock.assert_called_once_with(ALGOLIA_JOBS_INDEX_SETTINGS)
         replace_all_objects_mock.assert_called_once_with(mock.ANY, mock.ANY)
+
+    def test_insert_item_in_ordered_queue(self):
+        """
+        Test insert_item_in_ordered_queue works as expected.
+        """
+        queue = deque([], maxlen=3)
+
+        # Insert first 3 jobs and make sure they are get inserted in the right order.
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-2', 2), key=lambda job: job.similarity)
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-1', 1), key=lambda job: job.similarity)
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-3', 3), key=lambda job: job.similarity)
+
+        assert queue[0].name == 'job-3'
+        assert queue[1].name == 'job-2'
+        assert queue[2].name == 'job-1'
+
+        # Now, insert an element in the start and make sure it is inserted in the correct spot.
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-4', 4), key=lambda job: job.similarity)
+        assert len(queue) == 3
+        assert queue[0].name == 'job-4'
+        assert queue[1].name == 'job-3'
+        assert queue[2].name == 'job-2'
+
+        # Now, insert an element in the middle and make sure it is inserted in the correct spot.
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-3.5', 3.5), key=lambda job: job.similarity)
+        assert len(queue) == 3
+        assert queue[0].name == 'job-4'
+        assert queue[1].name == 'job-3.5'
+        assert queue[2].name == 'job-3'
+
+        # Now, insert an element in the end and make sure it is inserted in the correct spot.
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-3.1', 3.1), key=lambda job: job.similarity)
+        assert len(queue) == 3
+        assert queue[0].name == 'job-4'
+        assert queue[1].name == 'job-3.5'
+        assert queue[2].name == 'job-3.1'
+
+        # Now, try to insert an element that should not be added and make sure it is not inserted.
+        insert_item_in_ordered_queue(queue, JobRecommendation('job-2', 2), key=lambda job: job.similarity)
+        assert len(queue) == 3
+        assert queue[0].name == 'job-4'
+        assert queue[1].name == 'job-3.5'
+        assert queue[2].name == 'job-3.1'
+
+        # test with default key
+        queue = deque([], maxlen=3)
+        insert_item_in_ordered_queue(queue, 1)
+        insert_item_in_ordered_queue(queue, 3)
+        insert_item_in_ordered_queue(queue, 2)
+
+        assert queue[0] == 3
+        assert queue[1] == 2
+        assert queue[2] == 1
