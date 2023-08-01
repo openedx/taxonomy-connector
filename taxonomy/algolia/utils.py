@@ -3,7 +3,7 @@
 Utility functions related to algolia indexing.
 """
 import logging
-import datetime
+from datetime import datetime
 from collections import deque, namedtuple
 
 from django.conf import settings
@@ -17,6 +17,32 @@ from taxonomy.models import Job, Industry, JobSkills, IndustryJobSkill
 LOGGER = logging.getLogger(__name__)
 
 JobRecommendation = namedtuple('JobRecommendation', 'name similarity')
+
+
+class LogTime:
+    """
+    Context manager to calculate and log the time taken by a piece of code.
+    """
+    start = None
+
+    def __init__(self, message_prefix):
+        """
+        Initialize the context with the message prefix.
+        """
+        self.message_prefix = message_prefix
+
+    def __enter__(self):
+        """
+        Start tracking the time.
+        """
+        self.start = datetime.now()
+
+    def __exit__(self, *args, **kwargs):
+        """
+        End time tracking and log the time taken by a piece of code.
+        """
+        end = datetime.now()
+        LOGGER.info('%s: %s', self.message_prefix, end - self.start)
 
 
 def index_jobs_data_in_algolia():
@@ -57,27 +83,85 @@ def calculate_jaccard_similarity(set_a, set_b):
         return float(0)
 
 
-def combine_jobs_and_skills_data(jobs_qs):
+def calculate_job_skills(jobs_qs):
     """
-    Combine jobs and skills data.
+    Fetch and skills for each job.
 
     Arguments:
         jobs_qs (QuerySet): Django queryset of Job model that will be used as a starting point to fetch skills data.
 
     Returns:
-        (list<dict>): A list of dicts containing job and their skills in a list.
+        (dict<str: dict>): A dictionary with job name as the key and the value against each key is a dict containing
+            job details, including `skills`.
     """
-    all_job_and_skills_data = []
+    job_details = {}
     for job in jobs_qs.all():
-        skills = list(
+        skills = set(
             JobSkills.objects.filter(job=job).values_list('skill__name', flat=True)
         )
-        all_job_and_skills_data.append({
-            'name': job.name,
+        job_details[job.name] = {
             'skills': skills,
-        })
+        }
 
-    return all_job_and_skills_data
+    return job_details
+
+
+def calculate_job_recommendations(jobs_data):
+    """
+    Calculate job recommendations.
+
+    Note: `jobs_data` will be treated as mutable (instead of creating a new dict to return)
+        to reduce memory footprint of this function.
+
+    Args:
+        jobs_data (dict<str: dict>): A dictionary containing jobs data like skills. key of the dict is jobs name and
+            the value dict should at-least contain a set of skills against `skills` key.
+
+    Returns:
+        (dict<str: dict>): The same dict from the argument, with `similar_jobs` added against each job.
+    """
+    SIMILAR_JOBS_COUNT = 3
+    job_recommendations = deque([], maxlen=SIMILAR_JOBS_COUNT)
+    for job_name, job in jobs_data.items():
+        for candidate_job_name, candidate_job in jobs_data.items():
+            if job_name == candidate_job_name:
+                continue
+
+            jaccard_similarity = calculate_jaccard_similarity(job['skills'], candidate_job['skills'])
+
+            insert_item_in_ordered_queue(
+                queue=job_recommendations,
+                item=JobRecommendation(job_name, jaccard_similarity),
+                key=lambda item: item.similarity,
+            )
+
+        jobs_data[job_name]['similar_jobs'] = [item.name for item in job_recommendations]
+
+    return jobs_data
+
+
+def fetch_and_combine_job_details(jobs_qs):
+    """
+    Fetch data related to jobs, combine it in the form of a dict and return.
+
+    The jobs data that we are interested in is listed below.
+    1. skills: A set of skills that are associated with the corresponding job.
+    2. similar_jobs: Other jobs that are similar to the corresponding job.
+
+    Arguments:
+        jobs_qs (QuerySet): Django queryset of Job model that will be used as a starting point to fetch skills data.
+
+    Returns:
+        (dict<str: dict>): A dictionary with job name as the key and the value against each key is a dict containing
+            job details, including `skills` and `similar_jobs`.
+    """
+    with LogTime('[TAXONOMY] Time taken to fetch and combine skills data for jobs'):
+        jobs_data = calculate_job_skills(jobs_qs)
+
+    with LogTime('[TAXONOMY] Time taken to fetch and combine job recommendations'):
+        jobs_data = calculate_job_recommendations(jobs_data=jobs_data)
+
+    return jobs_data
 
 
 def insert_item_in_ordered_queue(queue, item, key=lambda arg: arg):
@@ -108,46 +192,6 @@ def insert_item_in_ordered_queue(queue, item, key=lambda arg: arg):
     if len(queue) != queue.maxlen:
         queue.append(item)
         return
-
-
-def calculate_job_recommendations(jobs):
-    """
-    Calculate job recommendations.
-
-    Args:
-        jobs (list<dict>): A list of dicts containing job and their skills in a list.
-
-    Returns:
-        (list<dict>): A list of dicts containing jobs and their recommended jobs.
-    """
-    SIMILAR_JOBS_COUNT = 3
-    job_recommendations = deque([], maxlen=SIMILAR_JOBS_COUNT)
-    jobs_and_recommendations = []
-
-    # converting skills list into set, to avoid repeated converting in the nested loop.
-    jobs = [
-        {'name': job['name'], 'skills': set(job['skills'])} for job in jobs
-    ]
-
-    for job in jobs:
-        for candidate_job in jobs:
-            if job['name'] == candidate_job['name']:
-                continue
-
-            jaccard_similarity = calculate_jaccard_similarity(job['skills'], candidate_job['skills'])
-
-            insert_item_in_ordered_queue(
-                queue=job_recommendations,
-                item=JobRecommendation(job['name'], jaccard_similarity),
-                key=lambda item: item.similarity,
-            )
-
-        jobs_and_recommendations.append({
-            'name': job['name'],
-            'similar_jobs': [item.name for item in job_recommendations],
-        })
-
-    return jobs_and_recommendations
 
 
 def combine_industry_skills():
@@ -196,25 +240,12 @@ def fetch_jobs_data():
     """
     qs = Job.objects.exclude(name__isnull=True)
 
-    combine_start_time = datetime.datetime.now()
-    LOGGER.info('[TAXONOMY] Started combining Jobs and their skills for recommendations calculation.')
-    all_job_and_skills = combine_jobs_and_skills_data(qs)
-    industry_skills = combine_industry_skills()
-    combine_end_time = datetime.datetime.now()
-    LOGGER.info(
-        '[TAXONOMY] Time taken to combine jobs and skills data: %s',
-        combine_end_time - combine_start_time
-    )
+    LOGGER.info('[TAXONOMY] Started combining skills and recommendations data for the jobs.')
+    jobs_data = fetch_and_combine_job_details(qs)
+    LOGGER.info('[TAXONOMY] Finished calculating job recommendations and skills.')
 
-    recommendations_start_time = datetime.datetime.now()
-    LOGGER.info('[TAXONOMY] Started calculating Job recommendations.')
-    jobs_with_recommendations = calculate_job_recommendations(all_job_and_skills)
-    recommendations_end_time = datetime.datetime.now()
-
-    LOGGER.info(
-        '[TAXONOMY] Time taken to combine jobs and skills data: %s',
-        recommendations_end_time - recommendations_start_time
-    )
+    with LogTime('[TAXONOMY] Time taken to combine industry skills data'):
+        industry_skills = combine_industry_skills()
 
     start, page_size = 0, JOBS_PAGE_SIZE
     jobs = []
@@ -224,7 +255,7 @@ def fetch_jobs_data():
             qs[start:start + page_size],
             many=True,
             context={
-                'jobs_with_recommendations': jobs_with_recommendations,
+                'jobs_data': jobs_data,
                 'industry_skills': industry_skills,
                 'jobs_having_job_skills': get_job_ids(JobSkills.objects),
                 'jobs_having_industry_skills': get_job_ids(IndustryJobSkill.objects),

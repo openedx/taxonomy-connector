@@ -19,18 +19,6 @@ class TestJobSerializer(TaxonomyTestCase, TestCase):
     def setUp(self):
         super().setUp()
         Job.objects.all().delete()
-        self.data = {
-            'jobs_with_recommendations': [
-                {
-                    "name": "Job Name 1",
-                    "similar_jobs": ["Job A", "Job B", "Job C"]
-                },
-                {
-                    "name": "Job Name 2",
-                    "similar_jobs": ["Job A", "Job B", "Job C"]
-                },
-            ]
-        }
 
     @mock.patch('taxonomy.algolia.utils.JOBS_PAGE_SIZE', 5)  # this is done to trigger the pagination flow.
     def test_jobs_data(self):
@@ -42,7 +30,12 @@ class TestJobSerializer(TaxonomyTestCase, TestCase):
         for job_skill in job_skills:
             factories.JobPostingsFactory.create(job=job_skill.job)
 
-        job_serializer = JobSerializer(Job.objects, context=self.data, many=True)
+        context = {
+            'jobs_data': {
+                job_skill.job.name: {'similar_jobs': ["Job A", "Job B", "Job C"]} for job_skill in job_skills
+            }
+        }
+        job_serializer = JobSerializer(Job.objects, context=context, many=True)
         jobs_data = job_serializer.data
 
         # Assert all jobs are included in the data returned by the serializer
@@ -83,7 +76,14 @@ class TestJobSerializer(TaxonomyTestCase, TestCase):
             job_skills.append(factories.JobSkillFactory.create(job=job))
         for job_skill in job_skills:
             factories.JobPostingsFactory.create(job=job_skill.job)
-        job_serializer = JobSerializer(Job.objects, context=self.data, many=True)
+
+        context = {
+            'jobs_data': {
+                job_skill.job.name: {
+                    'similar_jobs': ["Job A", "Job B", "Job C"]} for job_skill in job_skills
+            }
+        }
+        job_serializer = JobSerializer(Job.objects, context=context, many=True)
         jobs_data = job_serializer.data
         for job in jobs_data:
             if job["external_id"] == "ET123456789":
