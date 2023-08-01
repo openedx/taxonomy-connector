@@ -16,7 +16,7 @@ class JobPostingSerializer(serializers.ModelSerializer):
     """
     JobPosting serializer for algolia index.
 
-    This serializer will contain all of the metadata related to the job posting.
+    This serializer will contain all the metadata related to the job posting.
     """
     class Meta:
         model = JobPostings
@@ -30,7 +30,7 @@ class JobSerializer(serializers.ModelSerializer):
     """
     Job serializer for algolia index.
 
-    This serializer will contain all of the metadata related to jobs and will also included metadata for skills and
+    This serializer will contain all the metadata related to jobs and will also include metadata for skills and
     courses.
     """
     skills = serializers.SerializerMethodField()
@@ -96,9 +96,15 @@ class JobSerializer(serializers.ModelSerializer):
         Arguments:
             obj (Job): Job instance whose industries need to be fetched.
         """
-        return list(IndustryJobSkill.objects.filter(job=obj)
-                    .order_by("industry__name")
-                    .values_list('industry__name', flat=True).distinct())
+        return list(
+            IndustryJobSkill.objects.filter(
+                job=obj
+            ).order_by(
+                'industry__name'
+            ).values_list(
+                'industry__name', flat=True
+            ).distinct()
+        )
 
     def get_industries(self, obj):
         """
@@ -107,35 +113,26 @@ class JobSerializer(serializers.ModelSerializer):
             obj (Job): Job instance whose industries need to be fetched.
         """
         industries = []
-        job_industries = list(IndustryJobSkill.objects.filter(job=obj).order_by("industry__name").
-                              values_list('industry__name', flat=True).distinct())
+        job_industries = list(
+            IndustryJobSkill.objects.filter(
+                job=obj
+            ).order_by(
+                'industry__name'
+            ).values_list(
+                'industry__name', flat=True
+            ).distinct()
+        )
         for industry_name in job_industries:
             industry_skills = self.context.get('industry_skills')[industry_name]
             industries.append({'name': industry_name, 'skills': industry_skills})
         return industries
 
-    @staticmethod
-    def extract_similar_jobs(recommendations, name):
-        """
-        Extract similar jobs from recommendations.
-
-        Arguments:
-            recommendations (list): List containing dictionaries of job names and recommendations.
-            name (str): Name of the job for which recommendations are being extracted.
-        """
-        similar_jobs = []
-        for recommendation in recommendations:
-            if recommendation['name'] == name:
-                similar_jobs = recommendation['similar_jobs']
-                break
-        return similar_jobs
-
     def get_similar_jobs(self, obj):
         """
         Get a list of recommendations.
         """
-        recommendations_data = self.context.get('jobs_with_recommendations', None)
-        return self.extract_similar_jobs(recommendations_data, obj.name)
+        jobs_data = self.context.get('jobs_data', {})
+        return jobs_data[obj.name]['similar_jobs']
 
     def get_b2c_opt_in(self, obj):
         """
@@ -168,7 +165,7 @@ class JobSkillSerializer(serializers.ModelSerializer):
     """
     JobSkill serializer for algolia index.
 
-    This serializer will contain all of the metadata related to the skill and will also included metadata for skills and
+    This serializer will contain all the metadata related to the skill and will also include metadata for skills and
     courses.
     """
     external_id = serializers.CharField(source='skill.external_id', default=None)

@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.43.2] - 2023-08-01
+---------------------
+* perf: Further performance enhancements for the algolia index command.
+
 [1.43.1] - 2023-07-31
 ---------------------
 * perf: Performance enhancements in job recomendations calculation.
