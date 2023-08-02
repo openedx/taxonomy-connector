@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.43.3] - 2023-08-02
+---------------------
+* fix: Fixed some implementation issues in job recommendation logic.
+
 [1.43.2] - 2023-08-01
 ---------------------
 * perf: Further performance enhancements for the algolia index command.

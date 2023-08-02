@@ -113,7 +113,7 @@ def calculate_job_recommendations(jobs_data):
     Note: `jobs_data` will be treated as mutable (instead of creating a new dict to return)
         to reduce memory footprint of this function.
 
-    Args:
+    Arguments:
         jobs_data (dict<str: dict>): A dictionary containing jobs data like skills. key of the dict is jobs name and
             the value dict should at-least contain a set of skills against `skills` key.
 
@@ -121,8 +121,8 @@ def calculate_job_recommendations(jobs_data):
         (dict<str: dict>): The same dict from the argument, with `similar_jobs` added against each job.
     """
     SIMILAR_JOBS_COUNT = 3
-    job_recommendations = deque([], maxlen=SIMILAR_JOBS_COUNT)
     for job_name, job in jobs_data.items():
+        job_recommendations = deque([], maxlen=SIMILAR_JOBS_COUNT)
         for candidate_job_name, candidate_job in jobs_data.items():
             if job_name == candidate_job_name:
                 continue
@@ -131,7 +131,7 @@ def calculate_job_recommendations(jobs_data):
 
             insert_item_in_ordered_queue(
                 queue=job_recommendations,
-                item=JobRecommendation(job_name, jaccard_similarity),
+                item=JobRecommendation(candidate_job_name, jaccard_similarity),
                 key=lambda item: item.similarity,
             )
 
