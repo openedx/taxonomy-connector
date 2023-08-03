@@ -15,8 +15,8 @@ ALGOLIA_JOBS_INDEX_SETTINGS = {
         'searchable(name)',
         'searchable(skills.name)',
         'searchable(industry_names)',
-        'searchable(b2c_opt_in)'
-        'searchable(job_sources)'
+        'searchable(b2c_opt_in)',
+        'searchable(job_sources)',
     ],
 }
 

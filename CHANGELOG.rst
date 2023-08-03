@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.43.4] - 2023-08-02
+---------------------
+* fix: Added missing comma in algolia constants that was masking the b2c_opt_in attribute.
+
 [1.43.3] - 2023-08-02
 ---------------------
 * fix: Fixed some implementation issues in job recommendation logic.
