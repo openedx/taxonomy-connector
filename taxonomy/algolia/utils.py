@@ -3,16 +3,21 @@
 Utility functions related to algolia indexing.
 """
 import logging
-from datetime import datetime
 from collections import deque, namedtuple
+from datetime import datetime
 
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Q, Sum
 
 from taxonomy.algolia.client import AlgoliaClient
-from taxonomy.algolia.constants import ALGOLIA_JOBS_INDEX_SETTINGS, JOBS_PAGE_SIZE, EMBEDDED_OBJECT_LENGTH_CAP
+from taxonomy.algolia.constants import (
+    ALGOLIA_JOBS_INDEX_SETTINGS,
+    EMBEDDED_OBJECT_LENGTH_CAP,
+    JOBS_PAGE_SIZE,
+    JOBS_TO_IGNORE,
+)
 from taxonomy.algolia.serializers import JobSerializer
-from taxonomy.models import Job, Industry, JobSkills, IndustryJobSkill
+from taxonomy.models import Industry, IndustryJobSkill, Job, JobSkills
 
 LOGGER = logging.getLogger(__name__)
 
@@ -238,7 +243,7 @@ def fetch_jobs_data():
     Returns:
         (list<dict>): A list of dicts containing job data.
     """
-    qs = Job.objects.exclude(name__isnull=True)
+    qs = Job.objects.exclude(Q(name__isnull=True) | Q(external_id__in=JOBS_TO_IGNORE))
 
     LOGGER.info('[TAXONOMY] Started combining skills and recommendations data for the jobs.')
     jobs_data = fetch_and_combine_job_details(qs)

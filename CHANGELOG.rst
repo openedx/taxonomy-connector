@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.44.0] - 2023-08-09
+---------------------
+* feat: Added the ability to ignore unrelated jobs from being indexed on algolia.
+
 [1.43.4] - 2023-08-02
 ---------------------
 * fix: Added missing comma in algolia constants that was masking the b2c_opt_in attribute.
