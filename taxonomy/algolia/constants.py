@@ -24,3 +24,8 @@ JOBS_PAGE_SIZE = 1000
 
 # This is the maximum number of objects that should be embedded inside an algolia record.
 EMBEDDED_OBJECT_LENGTH_CAP = 20
+
+# External ID of all the jobs that should not be indexed on algolia.
+JOBS_TO_IGNORE = [
+    'ET0000000000000000',  # 'Unclassified' job
+]
