@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.44.1] - 2023-08-25
+---------------------
+* feat: add prefetch related to the whitelisted product skills
+
 [1.44.0] - 2023-08-09
 ---------------------
 * feat: Added the ability to ignore unrelated jobs from being indexed on algolia.
