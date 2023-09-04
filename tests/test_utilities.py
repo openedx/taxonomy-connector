@@ -379,6 +379,20 @@ class TestUtils(TaxonomyTestCase):
             skill_ids = [course_skill.skill.id for course_skill in blacklisted_course_skills]
             assert len(skill_ids) == 10
 
+    def test_query_count_for_whitelisted_course_retrival(self):
+        """
+        Validate that `get_whitelisted_serialized_skills` retrieves all course related data in single query.
+        """
+        factories.CourseSkillsFactory.create_batch(
+            2,
+            course_key=COURSE_KEY,
+            is_blacklisted=False,
+            skill__category=None,
+            skill__subcategory=None
+        )
+        with self.django_assert_num_queries(1):
+            utils.get_whitelisted_serialized_skills(key_or_uuid=COURSE_KEY, product_type=ProductTypes.Course)
+
     def test_get_whitelisted_serialized_skills(self):
         """
         Validate that `get_whitelisted_serialized_skills` returns serialized skills in expected format.
