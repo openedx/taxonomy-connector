@@ -1,10 +1,10 @@
 """openai client"""
 
-import openai
+import litellm
 
 from django.conf import settings
 
-openai.api_key = settings.OPENAI_API_KEY
+litellm.api_key = settings.OPENAI_API_KEY
 
 
 def chat_completion(prompt):
@@ -14,7 +14,7 @@ def chat_completion(prompt):
     Arguments:
         prompt (str): chatGPT prompt
     """
-    response = openai.ChatCompletion.create(
+    response = litellm.completion(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt},
