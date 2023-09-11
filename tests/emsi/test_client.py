@@ -157,7 +157,15 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of client while fetching product skills.
         """
+
+        max_data_size = self.client.MAX_LIGHTCAST_DATA_SIZE
+        # Chunk larger-sized data according to the maximum supported size
+        truncated_text_data = (SKILL_TEXT_DATA * max_data_size)[:max_data_size]
+
         skills = self.client.get_product_skills(SKILL_TEXT_DATA)
+
+        # Validate that the larger data has been chunked according to the maximum supported size
+        assert len(truncated_text_data) == max_data_size
 
         assert skills == SKILLS_EMSI_CLIENT_RESPONSE
 

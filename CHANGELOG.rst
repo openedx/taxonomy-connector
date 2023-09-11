@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.44.2] - 2023-09-11
+---------------------
+* fix: chunked data at 50000 byte in EMSI client for xblock-skills job
+
 [1.44.1] - 2023-08-25
 ---------------------
 * feat: add prefetch related to the whitelisted product skills
