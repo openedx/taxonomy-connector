@@ -5,6 +5,8 @@ Tests for the `taxonomy-connector` emsi client.
 
 import logging
 from time import time
+from unittest import mock
+from faker import Faker
 
 import responses
 from pytest import raises
@@ -157,17 +159,24 @@ class TestEMSISkillsApiClient(TaxonomyTestCase):
         """
         Validate that the behavior of client while fetching product skills.
         """
-
-        max_data_size = self.client.MAX_LIGHTCAST_DATA_SIZE
-        # Chunk larger-sized data according to the maximum supported size
-        truncated_text_data = (SKILL_TEXT_DATA * max_data_size)[:max_data_size]
-
         skills = self.client.get_product_skills(SKILL_TEXT_DATA)
 
-        # Validate that the larger data has been chunked according to the maximum supported size
-        assert len(truncated_text_data) == max_data_size
-
         assert skills == SKILLS_EMSI_CLIENT_RESPONSE
+
+    def test_get_product_skills_large_text(self):
+        """
+        Validate that the behavior of client while fetching product skills for very large text.
+        """
+        api_response = mock.Mock()
+        api_response.json.return_value = SKILLS_EMSI_RESPONSE
+        self.client.is_token_expired = mock.Mock(return_value=False)
+        self.client.client = mock.MagicMock(post=mock.Mock(return_value=api_response))
+
+        max_data_size = self.client.MAX_LIGHTCAST_DATA_SIZE
+        skill_text_data = Faker().text(max_data_size + max_data_size * 0.1)
+        self.client.get_product_skills(skill_text_data)
+
+        assert len(self.client.client.post.call_args_list[0][1]['json']['text']) == max_data_size
 
     @mock_api_response(
         method=responses.POST,
