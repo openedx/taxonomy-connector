@@ -149,6 +149,7 @@ class XBlockSkills(TimeStampedModel):
 
     usage_key = models.CharField(
         unique=True,
+        db_index=True,
         max_length=255,
         help_text=_('The key of the xblock whose text was used for skills extraction.')
     )
