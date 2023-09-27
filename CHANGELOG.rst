@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.44.3] - 2023-09-20
+---------------------
+* perf: improve xblock skills api performance.
+
 [1.44.2] - 2023-09-11
 ---------------------
 * fix: chunked data at 50000 byte in EMSI client for xblock-skills job
