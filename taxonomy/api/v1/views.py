@@ -302,12 +302,15 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
         """
         Get all the xblocks skills with prefetch_related objects.
         """
-        return XBlockSkills.objects.all().prefetch_related(
+        return XBlockSkills.objects.prefetch_related(
             Prefetch(
                 'skills',
-                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False).distinct(),
+                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False).only(
+                    'id',
+                    'name'
+                ).distinct(),
             ),
-        )
+        ).only('id', 'skills', 'usage_key', 'requires_verification', 'auto_processed', 'hash_content')
 
 
 class JobPathAPIView(TaxonomyAPIViewSetMixin, RetrieveAPIView):
