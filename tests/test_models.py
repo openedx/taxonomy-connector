@@ -426,6 +426,184 @@ class TestJob(TestCase):
         Job(external_id='11111', name='job name', description='I am description').save()
         mocked_generate_job_description_task.assert_not_called()
 
+    def test_get_whitelisted_job_skills(self):
+        """
+        Validate get_whitelisted_job_skills returns only job skills that have not been blacklisted.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 5
+            assert len(industry_job_skills) == 5
+
+    def test_get_blacklisted_job_skills(self):
+        """
+        Validate get_blacklisted_job_skills returns only job skills that have been blacklisted.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 10
+            assert len(industry_job_skills) == 10
+
+    def test_get_skills_disabled_prefetch(self):
+        """
+        Validate get_blacklisted_job_skills makes multiple queries if user wants to disable prefetch.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(22):
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills(prefetch_skills=False)
+
+            assert len([job_skill.skill.id for job_skill in job_skills]) == 10
+            assert len([job_skill.skill.id for job_skill in industry_job_skills]) == 10
+
+        with self.assertNumQueries(12):
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills(prefetch_skills=False)
+
+            assert len([job_skill.skill.id for job_skill in job_skills]) == 5
+            assert len([job_skill.skill.id for job_skill in industry_job_skills]) == 5
+
+    def test_whitelist_job_skills(self):
+        """
+        Validate whitelist_job_skills removes skills from the blacklist.
+        """
+        job = factories.JobFactory.create()
+        blacklisted_job_skills = factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        blacklisted_industry_job_skills = factories.IndustryJobSkillFactory.create_batch(
+            5, job=job, is_blacklisted=True
+        )
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Assert initial data.
+        job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+        assert len(job_skills) == 5
+        assert len(industry_job_skills) == 5
+
+        # whitelist some of the job skills from JobSkill model.
+        skill_ids = [job_skill.skill.id for job_skill in blacklisted_job_skills][:3]
+        job.whitelist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 5
+
+        # Now whitelist some if the industry job skills.
+        skill_ids = [job_skill.skill.id for job_skill in blacklisted_industry_job_skills][:2]
+        job.whitelist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 7
+
+        # Now whitelist everything.
+        skill_ids = [job_skill.skill.id for job_skill in blacklisted_industry_job_skills]
+        skill_ids.extend([job_skill.skill.id for job_skill in blacklisted_job_skills])
+        job.whitelist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 10
+            assert len(industry_job_skills) == 10
+
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 0
+            assert len(industry_job_skills) == 0
+
+    def test_blacklist_job_skills(self):
+        """
+        Validate blacklist_job_skills removes skills from the blacklist.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=True)
+        whitelisted_job_skills = factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=True)
+        whitelisted_industry_job_skills = factories.IndustryJobSkillFactory.create_batch(
+            5, job=job, is_blacklisted=False
+        )
+
+        # Assert initial data.
+        job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+        assert len(job_skills) == 5
+        assert len(industry_job_skills) == 5
+
+        # blacklist some of the job skills from JobSkill model.
+        skill_ids = [job_skill.skill.id for job_skill in whitelisted_job_skills][:3]
+        job.blacklist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 5
+
+        # Now whitelist some if the industry job skills.
+        skill_ids = [job_skill.skill.id for job_skill in whitelisted_industry_job_skills][:2]
+        job.blacklist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 7
+
+        # Now whitelist everything.
+        skill_ids = [job_skill.skill.id for job_skill in whitelisted_industry_job_skills]
+        skill_ids.extend([job_skill.skill.id for job_skill in whitelisted_job_skills])
+        job.blacklist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 10
+            assert len(industry_job_skills) == 10
+
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 0
+            assert len(industry_job_skills) == 0
+
 
 @mark.django_db
 class TestJobPath(TestCase):

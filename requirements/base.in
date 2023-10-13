@@ -14,4 +14,4 @@ django-choices
 django-filter
 openedx-events
 openai
-pandas
+django-object-actions
