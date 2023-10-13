@@ -111,8 +111,9 @@ class JobSkillsAdmin(admin.ModelAdmin):
     Administrative view for Job Skills.
     """
 
-    list_display = ('id', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
+    list_display = ('id', 'is_blacklisted', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
     search_fields = ('name', 'significance',)
+    list_filter = ('is_blacklisted', )
 
 
 @admin.register(IndustryJobSkill)
@@ -121,7 +122,10 @@ class IndustryJobSkillAdmin(admin.ModelAdmin):
     Administrative view for Industry Job Skills.
     """
 
-    list_display = ('id', 'industry', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
+    list_display = (
+        'id', 'is_blacklisted', 'industry', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified',
+    )
+    list_filter = ('is_blacklisted', )
 
 
 @admin.register(JobPostings)

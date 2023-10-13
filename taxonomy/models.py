@@ -632,6 +632,7 @@ class BaseJobSkill(TimeStampedModel):
             'The unique_postings threshold of skill for the job.'
         )
     )
+    is_blacklisted = models.BooleanField(default=False, help_text=_('Should this job skill be ignored?'))
 
     class Meta:
         """
@@ -639,6 +640,24 @@ class BaseJobSkill(TimeStampedModel):
         """
 
         abstract = True
+
+    @classmethod
+    def get_whitelisted_job_skills(cls):
+        """
+        Get a QuerySet of whitelisted job skills.
+
+        White listed job skills are job skills with `is_blacklisted=False`.
+        """
+        return cls.objects.filter(is_blacklisted=False)
+
+    @classmethod
+    def get_blacklist_job_skill(cls):
+        """
+        Get a QuerySet of whitelisted job skills.
+
+        White listed job skills are job skills with `is_blacklisted=False`.
+        """
+        return cls.objects.filter(is_blacklisted=True)
 
 
 class JobSkills(BaseJobSkill):

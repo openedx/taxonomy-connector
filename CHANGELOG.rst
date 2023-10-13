@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.45.0] - 2023-10-13
+---------------------
+* feat: Added the ability to blacklist job-skill relationship.
+
 [1.44.3] - 2023-09-20
 ---------------------
 * perf: improve xblock skills api performance.
