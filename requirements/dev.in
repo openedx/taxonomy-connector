@@ -8,7 +8,6 @@
 edx-lint                  # edX pylint rules and plugins
 diff-cover                # Changeset diff test coverage
 edx-i18n-tools            # For i18n_tool dummy
-tox-battery               # Makes tox aware of requirements file changes
 pycodestyle               # PEP 8 compliance validation
 pydocstyle                # PEP 257 compliance validation
 isort                     # to standardize order of imports
