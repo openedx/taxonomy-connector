@@ -31,6 +31,7 @@ DATABASES = {
 }
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -53,6 +54,28 @@ MIDDLEWARE = (
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
 )
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': (
+            root('templates'),
+        ),
+        'OPTIONS': {
+            'context_processors': (
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+            ),
+            'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
+        }
+    },
+]
 # Settings related to LightCast (EMSI) client
 # API URLs are altered to avoid accidentally calling the API in tests
 # Original URL: https://auth.emsicloud.com/connect/token

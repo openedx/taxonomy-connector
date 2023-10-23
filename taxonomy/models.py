@@ -524,6 +524,49 @@ class Job(TimeStampedModel):
             self.description
         )
 
+    def get_whitelisted_job_skills(self, prefetch_skills=True):
+        """
+        Get a QuerySet of all the whitelisted skills associated with the job.
+        """
+        job_skill_qs = JobSkills.get_whitelisted_job_skill_qs().filter(job=self)
+        industry_job_skill_qs = IndustryJobSkill.get_whitelisted_job_skill_qs().filter(job=self)
+        if prefetch_skills:
+            job_skill_qs = job_skill_qs.select_related('skill')
+            industry_job_skill_qs = industry_job_skill_qs.select_related('skill')
+        return job_skill_qs, industry_job_skill_qs
+
+    def get_blacklisted_job_skills(self, prefetch_skills=True):
+        """
+        Get a QuerySet of all the whitelisted skills associated with the job.
+        """
+        job_skill_qs = JobSkills.get_blacklist_job_skill_qs().filter(job=self)
+        industry_job_skill_qs = IndustryJobSkill.get_blacklist_job_skill_qs().filter(job=self)
+
+        if prefetch_skills:
+            job_skill_qs = job_skill_qs.select_related('skill')
+            industry_job_skill_qs = industry_job_skill_qs.select_related('skill')
+        return job_skill_qs, industry_job_skill_qs
+
+    def blacklist_job_skills(self, skill_ids):
+        """
+        Black list all job skills with the given skill ids.
+
+        Arguments:
+            skill_ids (list<int>): A list of Skill ids that should be black list for the current job.
+        """
+        self.jobskills_set.filter(skill__id__in=skill_ids).update(is_blacklisted=True)
+        self.industryjobskill_set.filter(skill__id__in=skill_ids).update(is_blacklisted=True)
+
+    def whitelist_job_skills(self, skill_ids):
+        """
+        Remove all job skills with the given skill ids from the blacklist.
+
+        Arguments:
+            skill_ids (list<int>): A list of Skill ids that should be removed from the blacklist.
+        """
+        self.jobskills_set.filter(skill__id__in=skill_ids).update(is_blacklisted=False)
+        self.industryjobskill_set.filter(skill__id__in=skill_ids).update(is_blacklisted=False)
+
 
 class JobPath(TimeStampedModel):
     """
@@ -642,7 +685,7 @@ class BaseJobSkill(TimeStampedModel):
         abstract = True
 
     @classmethod
-    def get_whitelisted_job_skills(cls):
+    def get_whitelisted_job_skill_qs(cls):
         """
         Get a QuerySet of whitelisted job skills.
 
@@ -651,7 +694,7 @@ class BaseJobSkill(TimeStampedModel):
         return cls.objects.filter(is_blacklisted=False)
 
     @classmethod
-    def get_blacklist_job_skill(cls):
+    def get_blacklist_job_skill_qs(cls):
         """
         Get a QuerySet of whitelisted job skills.
 
