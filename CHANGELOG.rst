@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.46.0] - 2023-10-23
+---------------------
+* feat: Removed direct usages of JobSkills and IndustryJobSkills objects in favour of whitelisted or blacklisted query sets.
+
 [1.45.0] - 2023-10-13
 ---------------------
 * feat: Added the ability to blacklist job-skill relationship.

@@ -492,7 +492,7 @@ def get_course_jobs(course_key, product_type=ProductTypes.Course):
         list: A list of dicts where each dict contain information about a particular job.
     """
     course_skills = get_whitelisted_product_skills(course_key, product_type)
-    job_skills = JobSkills.objects.select_related(
+    job_skills = JobSkills.get_whitelisted_job_skill_qs().select_related(
         'skill',
         'job',
         'job__jobpostings',

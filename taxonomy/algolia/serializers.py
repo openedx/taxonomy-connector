@@ -73,7 +73,11 @@ class JobSerializer(serializers.ModelSerializer):
             obj (Job): Job instance whose skills need to be fetched.
         """
         # We only need to fetch up-to 20 skills per job.
-        qs = JobSkills.objects.filter(job=obj).select_related('skill')[:EMBEDDED_OBJECT_LENGTH_CAP]
+        qs = JobSkills.get_whitelisted_job_skill_qs().filter(
+            job=obj
+        ).select_related(
+            'skill'
+        )[:EMBEDDED_OBJECT_LENGTH_CAP]
         serializer = JobSkillSerializer(qs, many=True)
         return serializer.data
 
@@ -97,7 +101,7 @@ class JobSerializer(serializers.ModelSerializer):
             obj (Job): Job instance whose industries need to be fetched.
         """
         return list(
-            IndustryJobSkill.objects.filter(
+            IndustryJobSkill.get_whitelisted_job_skill_qs().filter(
                 job=obj
             ).order_by(
                 'industry__name'
@@ -114,7 +118,7 @@ class JobSerializer(serializers.ModelSerializer):
         """
         industries = []
         job_industries = list(
-            IndustryJobSkill.objects.filter(
+            IndustryJobSkill.get_whitelisted_job_skill_qs().filter(
                 job=obj
             ).order_by(
                 'industry__name'
