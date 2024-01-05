@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.46.1] - 2024-01-05
+---------------------
+* feat: Modify prefetch queryset to select related of whitelisted product skills.
+
 [1.46.0] - 2023-10-23
 ---------------------
 * feat: Removed direct usages of JobSkills and IndustryJobSkills objects in favour of whitelisted or blacklisted query sets.

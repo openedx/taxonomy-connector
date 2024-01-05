@@ -64,7 +64,7 @@ def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Cou
         return cached_response.value
 
     whitelisted_product_skills = get_whitelisted_product_skills(key_or_uuid, product_type)
-    product_skills = whitelisted_product_skills.prefetch_related('skill__category', 'skill__subcategory')
+    product_skills = whitelisted_product_skills.select_related('skill__category', 'skill__subcategory')
     skills = [product_skill.skill for product_skill in product_skills]
     skills_data = SkillSerializer(skills, many=True).data
     TieredCache.set_all_tiers(
