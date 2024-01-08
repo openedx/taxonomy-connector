@@ -15,7 +15,7 @@ Unreleased
 
 [1.46.1] - 2024-01-05
 ---------------------
-* feat: Modify prefetch queryset to select related of whitelisted product skills.
+* feat: Modify prefetch related to select related for whitelisted product skills.
 
 [1.46.0] - 2023-10-23
 ---------------------
