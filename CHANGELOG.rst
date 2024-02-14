@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.46.2] - 2024-02-14
+---------------------
+* feat: Optimized finalize_xblockskill_tags command for memory via chunking
+
 [1.46.1] - 2024-01-05
 ---------------------
 * feat: Modify prefetch related to select related for whitelisted product skills.
