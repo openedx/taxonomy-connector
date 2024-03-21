@@ -20,8 +20,9 @@ asgiref==3.8.0
     # via django
 attrs==23.2.0
     # via openedx-events
-backports-zoneinfo==0.2.1
+backports-zoneinfo==0.2.1 ; python_version < "3.9"
     # via
+    #   -c requirements/constraints.txt
     #   django
     #   djangorestframework
 beautifulsoup4==4.12.3
