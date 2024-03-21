@@ -95,6 +95,12 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                 'full_description': course.full_description,
             }
 
+    def skill_validation_disabled(self, course_run_key) -> bool:
+        """
+        Whether skill validation is disabled for the course.
+        """
+        return bool(course_run_key)
+
 
 class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
     """

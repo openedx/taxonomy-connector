@@ -617,6 +617,14 @@ class TestXBlockSkillsViewSet(TestCase):
         })
         self._verify_xblocks_data(api_response, self.xblock_skills[:1], verified=False)
 
+    def test_xblocks_api_with_skill_validation_disabled(self):
+        """
+        Verify that xblocks API return no result if skill validation is disabled for a course.
+        """
+        api_response = self.client.get(self.view_url, {"course_key": 'course-v1:edX+M12+1T2024'})
+        assert api_response.status_code == 200
+        assert api_response.json() == []
+
 
 @mark.django_db
 class TestJobPathAPIView(TestCase):

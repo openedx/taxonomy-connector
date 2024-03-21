@@ -4,6 +4,8 @@ Validator for course metadata provider.
 
 All host platform must run this validator to make sure providers are working as expected.
 """
+import inspect
+
 from taxonomy.providers.utils import get_course_metadata_provider
 
 
@@ -32,6 +34,7 @@ class CourseMetadataProviderValidator:
         """
         self.validate_get_courses()
         self.validate_get_all_courses()
+        self.validate_skill_validation_disabled()
 
     def validate_get_courses(self):
         """
@@ -60,3 +63,11 @@ class CourseMetadataProviderValidator:
             assert 'title' in course
             assert 'short_description' in course
             assert 'full_description' in course
+
+    def validate_skill_validation_disabled(self):
+        """
+        Validate `skill_validation_disabled` methods has the correct interface implemented.
+        """
+        skill_validation_disabled_func = getattr(self.course_metadata_provider, 'skill_validation_disabled')  # pylint: disable=literal-used-as-attribute
+        assert callable(skill_validation_disabled_func)
+        assert str(inspect.signature(skill_validation_disabled_func)) == '(course_run_key) -> bool'

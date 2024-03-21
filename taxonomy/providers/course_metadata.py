@@ -46,3 +46,15 @@ class CourseMetadataProvider:
             4. short_description: Course's short description
             5. full_description: Course's full description
         """
+
+    @abstractmethod
+    def skill_validation_disabled(self, course_run_key) -> bool:
+        """
+        Get whether skill validation is disabled for a course.
+
+        Arguments:
+          course_run_key(str): A course run key.
+
+        Returns:
+          bool: `True` if skill validation is disabled for the course run, `False` otherwise.
+        """

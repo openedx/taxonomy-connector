@@ -38,6 +38,7 @@ from taxonomy.models import (
     XBlockSkillData,
     XBlockSkills,
 )
+from taxonomy.providers.utils import get_course_metadata_provider
 
 
 class TaxonomyAPIViewSetMixin:
@@ -301,7 +302,14 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
     def get_queryset(self):
         """
         Get all the xblocks skills with prefetch_related objects.
+
+        If skill validation is disabled for a course, then return an empty queryset.
         """
+        course_run_key = self.request.query_params.get('course_key')
+        skill_validation_disabled = get_course_metadata_provider().skill_validation_disabled(course_run_key)
+        if skill_validation_disabled:
+            return XBlockSkills.objects.none()
+
         return XBlockSkills.objects.prefetch_related(
             Prefetch(
                 'skills',

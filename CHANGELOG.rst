@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.50.0] - 2024-03-21
+---------------------
+* feat: For taxonomy/api/v1/xblocks/ api, send no result if skill validation is disabled for the course.
+
 [1.46.2] - 2024-02-14
 ---------------------
 * feat: Optimized finalize_xblockskill_tags command for memory via chunking
