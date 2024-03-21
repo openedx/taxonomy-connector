@@ -12,7 +12,7 @@ from taxonomy.choices import ProductTypes
 from taxonomy.providers.utils import (
     get_course_metadata_provider,
     get_program_metadata_provider,
-    get_xblock_metadata_provider
+    get_xblock_metadata_provider,
 )
 
 LOGGER = logging.getLogger(__name__)

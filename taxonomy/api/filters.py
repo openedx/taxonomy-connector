@@ -2,8 +2,9 @@
 Filters for the Taxonomy connector APIs.
 """
 
-from django.db.models import Prefetch
 from django_filters import rest_framework as filters
+
+from django.db.models import Prefetch
 
 from taxonomy.models import Skill, XBlockSkills
 

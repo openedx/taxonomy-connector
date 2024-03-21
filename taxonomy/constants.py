@@ -6,6 +6,7 @@ Constants used by the taxonomy connector.
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
+
 from django.conf import settings
 
 

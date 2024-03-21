@@ -5,7 +5,7 @@ Clients for communicating with the EMSI Service.
 
 import logging
 from functools import wraps
-from time import time, sleep
+from time import sleep, time
 from urllib.parse import urljoin
 
 import requests
@@ -16,8 +16,8 @@ from urllib3 import Retry
 
 from django.conf import settings
 
-from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.constants import EMSI_API_RATE_LIMIT_PER_SEC
+from taxonomy.exceptions import TaxonomyAPIError
 
 LOGGER = logging.getLogger(__name__)
 

@@ -1,9 +1,10 @@
 """
 Tests for algolia serializers.
 """
-from django.test import TestCase
 import mock
 from pytest import mark
+
+from django.test import TestCase
 
 from taxonomy.algolia.serializers import JobSerializer
 from taxonomy.models import Job

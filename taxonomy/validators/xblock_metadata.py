@@ -4,8 +4,8 @@ Validator for xblock metadata provider.
 
 All host platform must run this validator to make sure providers are working as expected.
 """
-from taxonomy.providers.utils import get_xblock_metadata_provider
 from taxonomy.providers import XBlockContent
+from taxonomy.providers.utils import get_xblock_metadata_provider
 
 
 class XBlockMetadataProviderValidator:
