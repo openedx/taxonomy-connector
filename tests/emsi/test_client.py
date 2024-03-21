@@ -6,9 +6,9 @@ Tests for the `taxonomy-connector` emsi client.
 import logging
 from time import time
 from unittest import mock
-from faker import Faker
 
 import responses
+from faker import Faker
 from pytest import raises
 from requests import HTTPError
 from testfixtures import LogCapture

@@ -4,31 +4,31 @@
 #
 #    make upgrade
 #
-aiohttp==3.8.6
-    # via openai
-aiosignal==1.3.1
-    # via aiohttp
 algoliasearch==1.20.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
 amqp==2.6.1
     # via kombu
-asgiref==3.7.2
-    # via django
-async-timeout==4.0.3
-    # via aiohttp
-attrs==23.1.0
+annotated-types==0.6.0
+    # via pydantic
+anyio==4.3.0
     # via
-    #   aiohttp
-    #   openedx-events
-beautifulsoup4==4.12.2
+    #   httpx
+    #   openai
+asgiref==3.8.0
+    # via django
+attrs==23.2.0
+    # via openedx-events
+backports-zoneinfo==0.2.1
+    # via djangorestframework
+beautifulsoup4==4.12.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.28.68
+boto3==1.34.67
     # via django-ses
-botocore==1.31.68
+botocore==1.34.67
     # via
     #   boto3
     #   s3transfer
@@ -36,26 +36,27 @@ celery==4.4.7
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-certifi==2023.7.22
-    # via requests
+certifi==2024.2.2
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
 cffi==1.16.0
     # via pynacl
-charset-normalizer==3.3.1
-    # via
-    #   aiohttp
-    #   requests
+charset-normalizer==3.3.2
+    # via requests
 click==8.1.7
     # via
     #   code-annotations
     #   edx-django-utils
-code-annotations==1.5.0
+code-annotations==1.7.0
     # via -r requirements/test.in
-coverage[toml]==7.3.2
-    # via
-    #   coverage
-    #   pytest-cov
-ddt==1.6.0
+coverage[toml]==7.4.4
+    # via pytest-cov
+ddt==1.7.2
     # via -r requirements/test.in
+distro==1.9.0
+    # via openai
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -73,51 +74,57 @@ django-choices==2.0.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-filter==23.3
+django-filter==23.5
     # via -r requirements/base.in
-django-model-utils==4.3.1
+django-model-utils==4.4.0
     # via -r requirements/base.in
 django-object-actions==4.2.0
     # via -r requirements/base.in
-django-ses==3.5.0
+django-ses==3.5.2
     # via -r requirements/base.in
-django-solo==2.1.0
+django-solo==2.2.0
     # via -r requirements/base.in
-django-waffle==4.0.0
+django-waffle==4.1.0
     # via edx-django-utils
-djangorestframework==3.14.0
+djangorestframework==3.15.0
     # via -r requirements/base.in
-edx-django-utils==5.7.0
+edx-django-utils==5.11.0
     # via
     #   -r requirements/base.in
     #   edx-rest-api-client
+    #   openedx-events
 edx-opaque-keys[django]==2.5.1
     # via
     #   -r requirements/base.in
     #   openedx-events
 edx-rest-api-client==5.6.1
     # via -r requirements/base.in
-exceptiongroup==1.1.3
-    # via pytest
+exceptiongroup==1.2.0
+    # via
+    #   anyio
+    #   pytest
 factory-boy==3.3.0
     # via -r requirements/test.in
-faker==19.11.0
+faker==24.3.0
     # via
     #   -r requirements/test.in
     #   factory-boy
-fastavro==1.8.4
+fastavro==1.9.4
     # via openedx-events
-frozenlist==1.4.0
+h11==0.14.0
+    # via httpcore
+httpcore==1.0.4
+    # via httpx
+httpx==0.27.0
+    # via openai
+idna==3.6
     # via
-    #   aiohttp
-    #   aiosignal
-idna==3.4
-    # via
+    #   anyio
+    #   httpx
     #   requests
-    #   yarl
 iniconfig==2.0.0
     # via pytest
-jinja2==3.1.2
+jinja2==3.1.3
     # via code-annotations
 jmespath==1.0.1
     # via
@@ -125,57 +132,56 @@ jmespath==1.0.1
     #   botocore
 kombu==4.6.11
     # via celery
-markupsafe==2.1.3
+markupsafe==2.1.5
     # via jinja2
 mock==5.1.0
     # via -r requirements/test.in
-multidict==6.0.4
-    # via
-    #   aiohttp
-    #   yarl
-newrelic==9.1.1
+newrelic==9.7.1
     # via edx-django-utils
-openai==0.28.1
+openai==1.14.2
     # via -r requirements/base.in
-openedx-events==9.0.0
+openedx-events==9.5.2
     # via -r requirements/base.in
-packaging==23.2
+packaging==24.0
     # via pytest
-pbr==5.11.1
+pbr==6.0.0
     # via stevedore
-pluggy==1.3.0
+pluggy==1.4.0
     # via pytest
-psutil==5.9.6
+psutil==5.9.8
     # via edx-django-utils
 pycparser==2.21
     # via cffi
+pydantic==2.6.4
+    # via openai
+pydantic-core==2.16.3
+    # via pydantic
 pyjwt==2.8.0
     # via edx-rest-api-client
 pymongo==3.13.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pytest==7.4.2
+pytest==8.1.1
     # via
     #   pytest-cov
     #   pytest-django
 pytest-cov==4.1.0
     # via -r requirements/test.in
-pytest-django==4.5.2
+pytest-django==4.8.0
     # via -r requirements/test.in
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   botocore
     #   faker
-python-slugify==8.0.1
+python-slugify==8.0.4
     # via code-annotations
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r requirements/base.in
     #   celery
     #   django
     #   django-ses
-    #   djangorestframework
 pyyaml==6.0.1
     # via
     #   code-annotations
@@ -184,27 +190,31 @@ requests==2.31.0
     # via
     #   algoliasearch
     #   edx-rest-api-client
-    #   openai
     #   responses
     #   slumber
-responses==0.23.3
+responses==0.25.0
     # via -r requirements/test.in
-s3transfer==0.7.0
+s3transfer==0.10.1
     # via boto3
 six==1.16.0
     # via python-dateutil
 slumber==0.7.1
     # via edx-rest-api-client
+sniffio==1.3.1
+    # via
+    #   anyio
+    #   httpx
+    #   openai
 soupsieve==2.5
     # via beautifulsoup4
 sqlparse==0.4.4
     # via django
-stevedore==5.1.0
+stevedore==5.2.0
     # via
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-testfixtures==7.2.2
+testfixtures==8.1.0
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
@@ -212,15 +222,18 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-tqdm==4.66.1
+tqdm==4.66.2
     # via openai
-types-pyyaml==6.0.12.12
-    # via responses
-typing-extensions==4.8.0
+typing-extensions==4.10.0
     # via
+    #   annotated-types
+    #   anyio
     #   asgiref
     #   edx-opaque-keys
     #   faker
+    #   openai
+    #   pydantic
+    #   pydantic-core
 urllib3==1.26.18
     # via
     #   botocore
@@ -230,5 +243,3 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-yarl==1.9.2
-    # via aiohttp
