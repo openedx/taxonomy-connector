@@ -6,14 +6,13 @@ import logging
 
 from edx_django_utils.db import chunked_queryset
 
-from django.db.models import Q
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.emsi.parsers.skill_parsers import SkillDataParser
 from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.models import Skill, SkillCategory, SkillSubCategory
-
 
 LOGGER = logging.getLogger(__name__)
 

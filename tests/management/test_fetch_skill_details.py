@@ -3,19 +3,17 @@
 Tests for the django management command `fetch_skill_details`.
 """
 import responses
-from pytest import mark, raises
 from faker import Faker
+from pytest import mark, raises
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
 
-from test_utils import factories
-from test_utils.testcase import TaxonomyTestCase
-
-from taxonomy.models import Skill, SkillCategory, SkillSubCategory
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.emsi.parsers.skill_parsers import INVALID_NAMES
-
+from taxonomy.models import Skill, SkillCategory, SkillSubCategory
+from test_utils import factories
+from test_utils.testcase import TaxonomyTestCase
 
 FAKER = Faker()
 

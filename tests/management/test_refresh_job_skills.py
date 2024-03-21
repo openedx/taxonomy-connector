@@ -16,7 +16,7 @@ from django.utils.translation import gettext as _
 
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import Job, JobSkills, Skill, Industry, IndustryJobSkill
+from taxonomy.models import Industry, IndustryJobSkill, Job, JobSkills, Skill
 from test_utils.factories import SkillFactory
 from test_utils.sample_responses.jobs import JOBS, MISSING_SIGNIFICANCE_KEY_JOBS
 from test_utils.testcase import TaxonomyTestCase

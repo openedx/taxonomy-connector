@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 from taxonomy.algolia.constants import EMBEDDED_OBJECT_LENGTH_CAP
 from taxonomy.constants import JOB_SOURCE_COURSE_SKILL, JOB_SOURCE_INDUSTRY
-from taxonomy.models import Job, JobPostings, JobSkills, IndustryJobSkill, B2CJobAllowList
+from taxonomy.models import B2CJobAllowList, IndustryJobSkill, Job, JobPostings, JobSkills
 
 
 class JobPostingSerializer(serializers.ModelSerializer):

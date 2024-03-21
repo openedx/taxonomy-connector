@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from taxonomy import utils
 from taxonomy.choices import ProductTypes
-from taxonomy.exceptions import ProgramMetadataNotFoundError, InvalidCommandOptionsError
+from taxonomy.exceptions import InvalidCommandOptionsError, ProgramMetadataNotFoundError
 from taxonomy.models import RefreshProgramSkillsConfig
 from taxonomy.providers.utils import get_program_metadata_provider
 

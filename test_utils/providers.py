@@ -8,7 +8,7 @@ from taxonomy.providers import (
     CourseRunMetadataProvider,
     ProgramMetadataProvider,
     XBlockContent,
-    XBlockMetadataProvider
+    XBlockMetadataProvider,
 )
 from taxonomy.providers.course_run_metadata import CourseRunContent
 from test_utils.mocks import MockCourse, MockCourseRun, MockProgram, MockXBlock

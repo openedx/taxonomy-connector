@@ -5,19 +5,15 @@ import logging
 import unittest
 
 import mock
-from pytest import mark
-from testfixtures import LogCapture
 from openedx_events.content_authoring.data import DuplicatedXBlockData, XBlockData
 from openedx_events.content_authoring.signals import XBLOCK_DELETED, XBLOCK_DUPLICATED, XBLOCK_PUBLISHED
 from openedx_events.learning.data import XBlockSkillVerificationData
 from openedx_events.learning.signals import XBLOCK_SKILL_VERIFIED
+from pytest import mark
+from testfixtures import LogCapture
 
-from taxonomy.models import CourseSkills, Skill, ProgramSkill, XBlockSkillData, XBlockSkills
-from taxonomy.signals.signals import (
-    UPDATE_COURSE_SKILLS,
-    UPDATE_PROGRAM_SKILLS,
-    UPDATE_XBLOCK_SKILLS,
-)
+from taxonomy.models import CourseSkills, ProgramSkill, Skill, XBlockSkillData, XBlockSkills
+from taxonomy.signals.signals import UPDATE_COURSE_SKILLS, UPDATE_PROGRAM_SKILLS, UPDATE_XBLOCK_SKILLS
 from test_utils.mocks import MockCourse, MockProgram, MockXBlock
 from test_utils.providers import (
     DiscoveryCourseMetadataProvider,

@@ -16,10 +16,10 @@ from django.core.management import call_command
 from taxonomy.exceptions import InvalidCommandOptionsError, TaxonomyAPIError, XBlockMetadataNotFoundError
 from taxonomy.models import (
     CourseRunXBlockSkillsTracker,
-    Skill,
     RefreshXBlockSkillsConfig,
+    Skill,
     XBlockSkillData,
-    XBlockSkills
+    XBlockSkills,
 )
 from test_utils.mocks import MockCourseRun, MockXBlock, mock_as_dict
 from test_utils.providers import DiscoveryCourseRunMetadataProvider, DiscoveryXBlockMetadataProvider
