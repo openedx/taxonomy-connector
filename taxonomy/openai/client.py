@@ -14,7 +14,7 @@ def chat_completion(prompt):
     Arguments:
         prompt (str): chatGPT prompt
     """
-    response = openai.ChatCompletion.create(
+    response = openai.ChatCompletion.create(  # pylint: disable=no-member
         model="gpt-3.5-turbo",
         messages=[
             {"role": "user", "content": prompt},
