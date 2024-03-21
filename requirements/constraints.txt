@@ -13,9 +13,6 @@ django<4.3
 
 path==13.1.0
 
-# pinning because latest version of pylint is causing lot of failures
-edx-lint<=1.5.2
-
 # latest version causing issues in discovery.
 algoliasearch-django<4.0.0
 algoliasearch<2.0.0
