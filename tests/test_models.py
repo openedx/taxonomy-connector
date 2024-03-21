@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from taxonomy.models import Industry, Job, JobPostings, B2CJobAllowList
+from taxonomy.models import B2CJobAllowList, Industry, Job, JobPostings
 from taxonomy.signals.handlers import generate_job_description
 from taxonomy.utils import generate_and_store_job_description
 from test_utils import factories

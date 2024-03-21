@@ -11,6 +11,7 @@ from faker import Faker
 
 from taxonomy.choices import UserGoal
 from taxonomy.models import (
+    B2CJobAllowList,
     CourseRunXBlockSkillsTracker,
     CourseSkills,
     Industry,
@@ -30,7 +31,6 @@ from taxonomy.models import (
     Translation,
     XBlockSkillData,
     XBlockSkills,
-    B2CJobAllowList,
 )
 
 FAKER = FakerFactory.create()
