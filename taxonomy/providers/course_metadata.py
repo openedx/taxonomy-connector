@@ -46,3 +46,39 @@ class CourseMetadataProvider:
             4. short_description: Course's short description
             5. full_description: Course's full description
         """
+
+    @abstractmethod
+    def get_course_key(self, course_run_key):
+        """
+        Get the course key for the given course run key.
+
+        Arguments:
+          course_run_key(str): Course run key
+
+        Returns:
+          str: course key
+        """
+
+    @abstractmethod
+    def is_valid_course(self, course_key):
+        """
+        Validate the course key.
+
+        Arguments:
+          course_key(str): course key
+
+        Returns:
+          bool: True if course is valid, False otherwise
+        """
+
+    @abstractmethod
+    def is_valid_organization(self, organization_key):
+        """
+        Validate the organization.
+
+        Arguments:
+          organization(str): organization key
+
+        Returns:
+          bool: True if organization is valid, False otherwise
+        """

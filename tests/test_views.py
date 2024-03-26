@@ -15,7 +15,7 @@ from django.db.models import Count, Sum
 from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 
-from taxonomy.models import JobPath, JobSkills, Skill, SkillCategory
+from taxonomy.models import JobPath, JobSkills, Skill, SkillCategory, SkillValidationConfiguration
 from taxonomy.utils import generate_and_store_job_to_job_description
 from taxonomy.views import JobSkillsView, admin
 from test_utils.factories import (
@@ -616,6 +616,15 @@ class TestXBlockSkillsViewSet(TestCase):
             "usage_key": self.xblock_skills[0].usage_key,
         })
         self._verify_xblocks_data(api_response, self.xblock_skills[:1], verified=False)
+
+    def test_xblocks_api_with_skill_validation_disabled(self):
+        """
+        Verify that xblocks API return no result if skill validation is disabled for a course.
+        """
+        with mock.patch.object(SkillValidationConfiguration, 'is_disabled', return_value=True):
+            api_response = self.client.get(self.view_url, {"course_key": 'course-v1:edX+M12+1T2024'})
+            assert api_response.status_code == 200
+            assert api_response.json() == []
 
 
 @mark.django_db

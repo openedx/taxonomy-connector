@@ -6,7 +6,7 @@ from collections import OrderedDict
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,6 +35,7 @@ from taxonomy.models import (
     SkillCategory,
     SkillsQuiz,
     SkillSubCategory,
+    SkillValidationConfiguration,
     XBlockSkillData,
     XBlockSkills,
 )
@@ -292,6 +293,8 @@ class JobHolderUsernamesAPIView(APIView):
 class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, GenericViewSet):
     """
     ViewSet to list and retrieve all XBlockSkills in the system.
+
+    If skill validation is disabled for a course, then return an empty queryset.
     """
     serializer_class = XBlocksSkillsSerializer
     permission_classes = (permissions.IsAuthenticated, )
@@ -302,6 +305,12 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
         """
         Get all the xblocks skills with prefetch_related objects.
         """
+        skill_validation_disabled = SkillValidationConfiguration.is_disabled(
+            self.request.query_params.get('course_key')
+        )
+        if skill_validation_disabled:
+            return XBlockSkills.objects.none()
+
         return XBlockSkills.objects.prefetch_related(
             Prefetch(
                 'skills',

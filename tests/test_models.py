@@ -9,12 +9,15 @@ from pytest import mark
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from taxonomy.models import Industry, Job, JobPostings, B2CJobAllowList
+from taxonomy.models import B2CJobAllowList, Industry, Job, JobPostings, SkillValidationConfiguration
 from taxonomy.signals.handlers import generate_job_description
 from taxonomy.utils import generate_and_store_job_description
 from test_utils import factories
+from test_utils.mocks import MockCourse, MockCourseRun
+from test_utils.providers import DiscoveryCourseMetadataProvider
 
 
 @mark.django_db
@@ -731,3 +734,99 @@ class TestB2CJobAllowlist(TestCase):
 
         assert expected_str == allowList_entry.__str__()
         assert expected_repr == allowList_entry.__repr__()
+
+
+@mark.django_db
+class SkillValidationConfigurationTests(TestCase):
+    """
+    Tests for the ``SkillValidationConfiguration`` model.
+    """
+    def setUp(self):
+        super().setUp()
+
+        self.mock_course_run = MockCourseRun(course_key='RichX+GoldX', course_run_key='course-v1:RichX+GoldX+1T2024')
+        self.courses = [MockCourse() for _ in range(3)]
+        self.courses[0].key = self.mock_course_run.course_key
+        self.provider_patcher = patch('taxonomy.models.get_course_metadata_provider')
+        self.mock_provider = self.provider_patcher.start()
+        self.mock_provider.return_value = DiscoveryCourseMetadataProvider(self.courses)
+
+    def tearDown(self):
+        super().tearDown()
+
+        self.provider_patcher.stop()
+
+    def test_model_obj_creation_with_course_and_org(self):
+        """
+        Verify that an `IntegrityError` is raised if user try to create a
+        SkillValidationConfiguration with both course and organization.
+        """
+        with pytest.raises(IntegrityError) as raised_exception:
+            factories.SkillValidationConfigurationFactory(
+                course_key=self.courses[0].key,
+                organization=self.courses[0].key.split('+')[0]
+            )
+
+        assert raised_exception.value.args[0] == 'CHECK constraint failed: either_course_or_org'
+
+    def test_model_obj_creation_with_wrong_course_key(self):
+        """
+        Verify that a `ValidationError` is raised if user try to create a
+        SkillValidationConfiguration with incorrect course key.
+        """
+        with pytest.raises(ValidationError) as raised_exception:
+            factories.SkillValidationConfigurationFactory(course_key='MAx+WoWx')
+
+        assert raised_exception.value.message_dict == {'course_key': ['Course with key MAx+WoWx does not exist.']}
+
+    def test_model_obj_creation_with_wrong_org_key(self):
+        """
+        Verify that a `ValidationError` is raised if user try to create a
+        SkillValidationConfiguration with incorrect organization key.
+        """
+        with pytest.raises(ValidationError) as raised_exception:
+            factories.SkillValidationConfigurationFactory(organization='MAx')
+
+        assert raised_exception.value.message_dict == {'organization': ['Organization with key MAx does not exist.']}
+
+    def test_model_is_disabled_with_course_key(self):
+        """
+        Verify that a `is_disabled` work as expected if a skill validation is disabled for a course.
+        """
+        factories.SkillValidationConfigurationFactory(course_key=self.mock_course_run.course_key)
+        assert SkillValidationConfiguration.is_disabled(course_run_key=self.mock_course_run.course_run_key)
+
+    def test_model_is_disabled_with_org_key(self):
+        """
+        Verify that a `is_disabled` work as expected if a skill validation is disabled for an organization.
+        """
+        organization = self.courses[0].key.split('+')[0]
+        factories.SkillValidationConfigurationFactory(organization=organization)
+        assert SkillValidationConfiguration.is_disabled(course_run_key=self.mock_course_run.course_run_key)
+
+    def test_model_is_disabled_with_wrong_course_run_key_format(self):
+        """
+        Verify that a `is_disabled` work as expected if a course_run_key is in wrong format.
+        """
+        assert SkillValidationConfiguration.is_disabled(course_run_key='blah blah blah') is False
+
+    def test_model_is_disabled(self):
+        """
+        Verify that a `is_disabled` work as expected if no condition satisfies.
+        """
+        assert SkillValidationConfiguration.is_disabled(course_run_key='course-v1:org+course+run') is False
+
+    def test_model_object_str_with_course_key(self):
+        """
+        Verify that SkillValidationConfiguration model __str__ work as expected for a course key.
+        """
+        disabled_config = factories.SkillValidationConfigurationFactory(course_key=self.mock_course_run.course_key)
+        assert str(disabled_config) == 'Skill validation disabled for course: RichX+GoldX'
+
+    def test_model_object_str_with_org_key(self):
+        """
+        Verify that SkillValidationConfiguration model __str__ work as expected for an organization key.
+        """
+        organization = self.courses[0].key.split('+')[0]
+        disabled_config = factories.SkillValidationConfigurationFactory(organization=organization)
+        assert str(disabled_config) == 'Skill validation disabled for organization: RichX'
