@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.50.0] - 2024-03-27
+---------------------
+* feat: Skill validation can be disbaled for a course or an organization
+
 [1.46.2] - 2024-02-14
 ---------------------
 * feat: Optimized finalize_xblockskill_tags command for memory via chunking

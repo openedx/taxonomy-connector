@@ -3,12 +3,15 @@
 An implementation of providers to be used in tests.
 """
 
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
+
 from taxonomy.providers import (
     CourseMetadataProvider,
     CourseRunMetadataProvider,
     ProgramMetadataProvider,
     XBlockContent,
-    XBlockMetadataProvider
+    XBlockMetadataProvider,
 )
 from taxonomy.providers.course_run_metadata import CourseRunContent
 from test_utils.mocks import MockCourse, MockCourseRun, MockProgram, MockXBlock
@@ -94,6 +97,54 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                 'short_description': course.short_description,
                 'full_description': course.full_description,
             }
+
+    def get_course_key(self, course_run_key):
+        """
+        Get the course key for the given course run key.
+
+        Arguments:
+          course_run_key(str): Course run key
+
+        Returns:
+          str: course key
+        """
+        try:
+            locator = CourseKey.from_string(course_run_key)
+            return '{org}+{course}'.format(org=locator.org, course=locator.course)
+        except InvalidKeyError:
+            return None
+
+    def is_valid_course(self, course_key):
+        """
+        Validate the course key.
+
+        Arguments:
+          course_key(str): course key
+
+        Returns:
+          bool: True if course is valid, False otherwise
+        """
+        courses = self.mock_courses
+        for course in courses:
+            if course.key == course_key:
+                return True
+        return False
+
+    def is_valid_organization(self, organization_key):
+        """
+        Validate the organization.
+
+        Arguments:
+          organization_key(str): organization key
+
+        Returns:
+          bool: True if organization is valid, False otherwise
+        """
+        courses = self.mock_courses
+        for course in courses:
+            if course.key.startswith(f'{organization_key}+'):
+                return True
+        return False
 
 
 class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):

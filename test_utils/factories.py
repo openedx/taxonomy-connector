@@ -11,6 +11,7 @@ from faker import Faker
 
 from taxonomy.choices import UserGoal
 from taxonomy.models import (
+    B2CJobAllowList,
     CourseRunXBlockSkillsTracker,
     CourseSkills,
     Industry,
@@ -27,10 +28,10 @@ from taxonomy.models import (
     SkillCategory,
     SkillsQuiz,
     SkillSubCategory,
+    SkillValidationConfiguration,
     Translation,
     XBlockSkillData,
     XBlockSkills,
-    B2CJobAllowList,
 )
 
 FAKER = FakerFactory.create()
@@ -411,3 +412,9 @@ class B2CJobAllowlistFactory(factory.django.DjangoModelFactory):
         model = B2CJobAllowList
 
     job = factory.SubFactory(JobFactory)
+
+
+class SkillValidationConfigurationFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = SkillValidationConfiguration

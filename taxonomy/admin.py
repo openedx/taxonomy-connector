@@ -32,6 +32,7 @@ from taxonomy.models import (
     Translation,
     XBlockSkillData,
     XBlockSkills,
+    SkillValidationConfiguration
 )
 from taxonomy.views import JobSkillsView
 
@@ -289,3 +290,10 @@ class B2CJobAllowListAdmin(admin.ModelAdmin):
         Name of the related job.
         """
         return obj.job.name
+
+
+@admin.register(SkillValidationConfiguration)
+class SkillValidationConfiguratonAdmin(admin.ModelAdmin):
+    """
+    Admin view for SkillValidationConfiguration model.
+    """
