@@ -9,11 +9,9 @@
 # linking to it here is good.
 
 # Stay on an LTS release
-django<4.0
+django<4.3
 
 path==13.1.0
-
-celery<5.0
 
 # latest version causing issues in discovery.
 algoliasearch-django<4.0.0
@@ -28,3 +26,6 @@ sphinxcontrib-devhelp<=1.0.2
 sphinxcontrib-htmlhelp<=2.0.1
 sphinxcontrib-qthelp<=1.0.3
 sphinxcontrib-serializinghtml<=1.1.5
+
+# For python greater than or equal to 3.9 backports.zoneinfo causing failures
+backports.zoneinfo; python_version<'3.9'

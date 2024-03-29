@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.51.0] - 2024-03-29
+---------------------
+* feat: Added support for Python 3.11
+* feat!: Dropped support for Django 3.2, Django 4.0 and Django 4.1
+
 [1.50.0] - 2024-03-27
 ---------------------
 * feat: Skill validation can be disbaled for a course or an organization
