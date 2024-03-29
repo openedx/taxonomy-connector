@@ -29,10 +29,10 @@ from taxonomy.models import (
     SkillCategory,
     SkillsQuiz,
     SkillSubCategory,
+    SkillValidationConfiguration,
     Translation,
     XBlockSkillData,
     XBlockSkills,
-    SkillValidationConfiguration
 )
 from taxonomy.views import JobSkillsView
 
