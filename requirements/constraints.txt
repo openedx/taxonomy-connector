@@ -13,8 +13,6 @@ django<4.0
 
 path==13.1.0
 
-celery<5.0
-
 # latest version causing issues in discovery.
 algoliasearch-django<4.0.0
 algoliasearch<2.0.0
@@ -28,3 +26,8 @@ sphinxcontrib-devhelp<=1.0.2
 sphinxcontrib-htmlhelp<=2.0.1
 sphinxcontrib-qthelp<=1.0.3
 sphinxcontrib-serializinghtml<=1.1.5
+accessible-pygments<=0.0.4
+alabaster<=0.7.13
+pydata-sphinx-theme<=0.14.4
+sphinx<=7.1.2
+sphinx-book-theme<=1.0.1

@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.51.0] - 2024-07-03
+---------------------
+* feat: Replaced client for ai chat
+
 [1.50.0] - 2024-03-27
 ---------------------
 * feat: Skill validation can be disbaled for a course or an organization
