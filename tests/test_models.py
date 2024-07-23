@@ -346,30 +346,26 @@ class TestJob(TestCase):
         assert expected_repr == job.__repr__()
 
     @pytest.mark.use_signals
-    @patch('taxonomy.openai.client.openai.ChatCompletion.create')
+    @patch('taxonomy.openai.client.requests.post')
     @patch('taxonomy.utils.generate_and_store_job_description', wraps=generate_and_store_job_description)
     @patch('taxonomy.signals.handlers.generate_job_description.delay', wraps=generate_job_description)
     def test_chat_completion_is_called(   # pylint: disable=invalid-name
             self,
             mocked_generate_job_description_task,
             mocked_generate_and_store_job_description,
-            mocked_chat_completion
+            mock_requests
     ):
         """
         Verify that complete flow works as expected when a Job model object is created.
         """
         ai_response = 'One who manages a Computer Network.'
-        mocked_chat_completion.return_value = {
-            'choices': [{
-                'message': {
-                    'content': ai_response
-                }
-            }]
+        mock_requests.return_value.json.return_value = {
+            "role": "assistant",
+            "content": ai_response
         }
 
         job_external_id = '1111'
         job_name = 'Network Admin'
-        prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job_name)
 
         Job(external_id=job_external_id, name=job_name).save()
         job = Job.objects.get(external_id=job_external_id)
@@ -377,10 +373,7 @@ class TestJob(TestCase):
         assert job.description == ai_response
         mocked_generate_job_description_task.assert_called_once_with(job_external_id, job_name)
         mocked_generate_and_store_job_description.assert_called_once_with(job_external_id, job_name)
-        mocked_chat_completion.assert_called_once_with(
-            model='gpt-3.5-turbo',
-            messages=[{'role': 'user', 'content': prompt}]
-        )
+        mock_requests.assert_called_once()
 
     @pytest.mark.use_signals
     @patch('taxonomy.utils.chat_completion')

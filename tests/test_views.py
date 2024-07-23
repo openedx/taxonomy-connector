@@ -646,7 +646,7 @@ class TestJobPathAPIView(TestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.view_url = '/api/v1/job-path/'
 
-    @patch('taxonomy.openai.client.openai.ChatCompletion.create')
+    @patch('taxonomy.openai.client.requests.post')
     @patch(
         'taxonomy.api.v1.serializers.generate_and_store_job_to_job_description',
         wraps=generate_and_store_job_to_job_description
@@ -654,18 +654,15 @@ class TestJobPathAPIView(TestCase):
     def test_job_path_api(  # pylint: disable=invalid-name
             self,
             mocked_generate_and_store_job_to_job_description,
-            mocked_chat_completion
+            mock_requests
     ):
         """
         Verify that job path API returns the expected response.
         """
         ai_response = 'You can not switch from your current job to future job'
-        mocked_chat_completion.return_value = {
-            'choices': [{
-                'message': {
-                    'content': ai_response
-                }
-            }]
+        mock_requests.return_value.json.return_value = {
+            "role": "assistant",
+            "content": ai_response
         }
 
         query_params = {
