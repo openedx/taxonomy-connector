@@ -16,7 +16,7 @@ from taxonomy.choices import ProductTypes
 from taxonomy.constants import ENGLISH
 from taxonomy.emsi.client import EMSISkillsApiClient
 from taxonomy.exceptions import SkipProductProcessingError, TaxonomyAPIError
-from taxonomy.models import CourseSkills, Industry, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
+from taxonomy.models import CourseSkills, Industry, Job, JobSkills, Skill, Translation, XBlockSkillData, XBlockSkills
 from test_utils import factories
 from test_utils.constants import COURSE_KEY, PROGRAM_UUID, USAGE_KEY
 from test_utils.decorators import mock_api_response
@@ -1170,3 +1170,18 @@ class TestUtils(TaxonomyTestCase):
         assert original_industry.id != new_instance.id
         assert not hasattr(new_industry, "created")
         assert not hasattr(new_industry, "modified")
+
+    @ddt.data(None, 'some text')
+    @mock.patch('taxonomy.utils.chat_completion')
+    def test_generate_and_store_job_description(self, description, mock_chat_completion):
+        """
+        Validate that `generate_and_store_job_description` handles a null job description correctly
+        """
+        job = factories.JobFactory()
+        mock_chat_completion.return_value = description
+        utils.generate_and_store_job_description(job.external_id, job.name)
+        updated_job = Job.objects.get(external_id=job.external_id)
+        if description:
+            assert updated_job.description == description
+        else:
+            assert updated_job.description == job.description
