@@ -752,8 +752,9 @@ def generate_and_store_job_description(job_external_id, job_name):
     """
     prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job_name)
     description = chat_completion(prompt)
-    Job.objects.filter(external_id=job_external_id).update(description=description)
-    LOGGER.info('Generated description for Job: [%s], Prompt: [%s]', job_name, prompt)
+    if description:
+        Job.objects.filter(external_id=job_external_id).update(description=description)
+        LOGGER.info('Generated description for Job: [%s], Prompt: [%s]', job_name, prompt)
 
 
 def generate_and_store_job_to_job_description(current_job, future_job):

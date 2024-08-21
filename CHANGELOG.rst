@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.51.1] - 2024-08-21
+---------------------
+* feat: Added safeguard for nulls before saving job description
+
 [1.51.0] - 2024-07-03
 ---------------------
 * feat: Replaced client for ai chat
