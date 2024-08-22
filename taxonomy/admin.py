@@ -94,6 +94,7 @@ class CourseSkillsTitleAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'course_key', 'created', 'modified')
     search_fields = ('course_key',)
+    autocomplete_fields = ['skill']
 
 
 @admin.register(Job)
