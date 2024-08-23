@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.52.0] - 2024-08-22
+---------------------
+* feat: Added a search feature on skill field in CourseSkills
+
 [1.51.1] - 2024-08-21
 ---------------------
 * feat: Added safeguard for nulls before saving job description
