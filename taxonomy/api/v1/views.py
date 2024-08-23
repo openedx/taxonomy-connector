@@ -297,7 +297,6 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
     If skill validation is disabled for a course, then return an empty queryset.
     """
     serializer_class = XBlocksSkillsSerializer
-    permission_classes = (permissions.IsAuthenticated, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = XBlocksFilter
 

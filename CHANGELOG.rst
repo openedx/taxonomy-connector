@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[1.53.0] - 2024-08-22
+---------------------
+* perf: Introduced db_index on the `created` and `is_blacklisted` fields in `XBlockSkillData` model 
+  for performance improvements of `xblocks` endpoint
+
 [1.52.0] - 2024-08-22
 ---------------------
 * feat: Added a search feature on skill field in CourseSkills

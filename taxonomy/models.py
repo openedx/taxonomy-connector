@@ -238,7 +238,7 @@ class XBlockSkillData(TimeStampedModel):
     )
     is_blacklisted = models.BooleanField(
         help_text=_('Blacklist this xblock skill, useful to handle false positives.'),
-        default=False,
+        default=False, db_index=True
     )
 
     class Meta:
@@ -251,6 +251,9 @@ class XBlockSkillData(TimeStampedModel):
         ordering = ('created', )
         app_label = 'taxonomy'
         unique_together = ('xblock', 'skill')
+        indexes = [
+            models.Index(fields=['created']),
+        ]
 
     def __str__(self):
         """
