@@ -9,7 +9,6 @@ from pytest import mark
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.utils import IntegrityError
 from django.test import TestCase
 
 from taxonomy.models import B2CJobAllowList, Industry, Job, JobPostings, SkillValidationConfiguration
@@ -751,16 +750,16 @@ class SkillValidationConfigurationTests(TestCase):
 
     def test_model_obj_creation_with_course_and_org(self):
         """
-        Verify that an `IntegrityError` is raised if user try to create a
+        Verify that an `ValidationError` is raised if user try to create a
         SkillValidationConfiguration with both course and organization.
         """
-        with pytest.raises(IntegrityError) as raised_exception:
+        with pytest.raises(ValidationError) as raised_exception:
             factories.SkillValidationConfigurationFactory(
                 course_key=self.courses[0].key,
                 organization=self.courses[0].key.split('+')[0]
             )
 
-        assert raised_exception.value.args[0] == 'CHECK constraint failed: either_course_or_org'
+        assert raised_exception.value.message_dict['__all__'][0] == 'Add either course key or organization.'
 
     def test_model_obj_creation_with_wrong_course_key(self):
         """

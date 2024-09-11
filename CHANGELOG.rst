@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[2.0.0] - 2025-01-02
+---------------------
+* feat!: Upgraded to Python 3.12
+
 [1.54.1] - 2024-12-05
 ---------------------
 * fix: Fixed the transaction issue in the delete_product util function
