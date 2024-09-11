@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.54.0] - 2024-09-11
+---------------------
+* feat!: Upgraded to Python 3.12
+
 [1.53.0] - 2024-08-22
 ---------------------
 * perf: Introduced db_index on the `created` and `is_blacklisted` fields in `XBlockSkillData` model 
