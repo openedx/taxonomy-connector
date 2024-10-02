@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.54.0] - 2024-10-02
+---------------------
+* perf: Added caching to `XBlockSkillsViewSet` list endpoint to improve performance and reduce redundant database queries
+
 [1.53.0] - 2024-08-22
 ---------------------
 * perf: Introduced db_index on the `created` and `is_blacklisted` fields in `XBlockSkillData` model 
