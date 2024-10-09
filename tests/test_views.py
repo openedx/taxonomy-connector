@@ -6,6 +6,7 @@ import json
 from random import randint
 
 import mock
+from edx_django_utils.cache import TieredCache
 from mock import patch
 from pytest import mark
 from rest_framework import status
@@ -625,6 +626,31 @@ class TestXBlockSkillsViewSet(TestCase):
             api_response = self.client.get(self.view_url, {"course_key": 'course-v1:edX+M12+1T2024'})
             assert api_response.status_code == 200
             assert api_response.json() == []
+
+    def test_list_xblock_skills_cache_hit(self):
+        cached_data = {'results': [{'id': str(self.xblock_skills[0].id)}]}
+        with patch.object(
+            TieredCache,
+            'get_cached_response',
+            wraps=TieredCache.get_cached_response
+        ) as mock_get_cached_response:
+            mock_get_cached_response.return_value = mock.MagicMock(is_found=True, value=cached_data)
+            response = self.client.get(self.view_url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data, cached_data)
+            mock_get_cached_response.assert_called_once()
+
+    def test_list_xblock_skills_caching(self):
+        with patch.object(TieredCache, 'set_all_tiers') as mock_set_all_tiers, \
+             patch.object(TieredCache, 'get_cached_response', wraps=TieredCache.get_cached_response) \
+                as mock_get_cached_response:
+
+            mock_get_cached_response.return_value = mock.MagicMock(is_found=False)
+            response = self.client.get(self.view_url)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            mock_get_cached_response.assert_called_once()
+            mock_set_all_tiers.assert_called_once()
 
 
 @mark.django_db
