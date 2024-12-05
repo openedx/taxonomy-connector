@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[1.54.1] - 2024-12-05
+---------------------
+* fix: Fixed the transaction issue in the delete_product util function
+
 [1.54.0] - 2024-10-02
 ---------------------
 * perf: Added caching to `XBlockSkillsViewSet` list endpoint to improve performance and reduce redundant database queries
