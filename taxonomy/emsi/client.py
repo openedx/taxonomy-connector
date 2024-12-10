@@ -5,7 +5,7 @@ Clients for communicating with the EMSI Service.
 
 import logging
 from functools import wraps
-from time import time, sleep
+from time import sleep, time
 from urllib.parse import urljoin
 
 import requests
@@ -16,8 +16,8 @@ from urllib3 import Retry
 
 from django.conf import settings
 
-from taxonomy.exceptions import TaxonomyAPIError
 from taxonomy.constants import EMSI_API_RATE_LIMIT_PER_SEC
+from taxonomy.exceptions import TaxonomyAPIError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -183,6 +183,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     """
 
     API_BASE_URL = urljoin(JwtEMSIApiClient.API_BASE_URL, '/skills/versions/8.9')
+    MAX_LIGHTCAST_DATA_SIZE = 50000  # Maximum 50,000-byte data is supported by LightCast
 
     def __init__(self):
         """
@@ -229,6 +230,11 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
         Returns:
             dict: A dictionary containing details of all the skills.
         """
+
+        if text_data and len(text_data) > self.MAX_LIGHTCAST_DATA_SIZE:
+            # Truncate the text_data to 50,000 bytes since only 50,000-byte data is supported by LightCast
+            text_data = text_data[:self.MAX_LIGHTCAST_DATA_SIZE]
+
         data = {
             'text': text_data
         }

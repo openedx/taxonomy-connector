@@ -4,7 +4,6 @@ Module for storing django choice fields for taxonomy models.
 from djchoices import ChoiceItem, DjangoChoices
 
 
-# pylint: disable=no-init
 class UserGoal(DjangoChoices):
     """
     User goal choices, this will be used in skills quiz.

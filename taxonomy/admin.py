@@ -6,14 +6,35 @@ Only the models that have administration requirements are exposed via the django
 """
 from __future__ import unicode_literals
 
-from django.contrib import admin
-from django.contrib import messages
+from django_object_actions import DjangoObjectActions
 
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
+from django.urls import re_path, reverse
+
+from taxonomy.constants import JOB_SKILLS_URL_NAME
 from taxonomy.models import (
-    CourseRunXBlockSkillsTracker, CourseSkills, Job, JobPath, JobPostings, JobSkills, ProgramSkill, Skill,
-    Translation, SkillCategory, SkillSubCategory, SkillsQuiz, RefreshProgramSkillsConfig, Industry, IndustryJobSkill,
-    XBlockSkills, XBlockSkillData, B2CJobAllowList
+    B2CJobAllowList,
+    CourseRunXBlockSkillsTracker,
+    CourseSkills,
+    Industry,
+    IndustryJobSkill,
+    Job,
+    JobPath,
+    JobPostings,
+    JobSkills,
+    ProgramSkill,
+    RefreshProgramSkillsConfig,
+    Skill,
+    SkillCategory,
+    SkillsQuiz,
+    SkillSubCategory,
+    SkillValidationConfiguration,
+    Translation,
+    XBlockSkillData,
+    XBlockSkills,
 )
+from taxonomy.views import JobSkillsView
 
 
 @admin.register(Skill)
@@ -73,17 +94,44 @@ class CourseSkillsTitleAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'course_key', 'created', 'modified')
     search_fields = ('course_key',)
+    autocomplete_fields = ['skill']
 
 
 @admin.register(Job)
-class JobAdmin(admin.ModelAdmin):
+class JobAdmin(DjangoObjectActions, admin.ModelAdmin):
     """
     Administrative view for Jobs.
     """
 
     list_display = ('id', 'name', 'created', 'modified')
     search_fields = ('name',)
-    actions = ['remove_unused_jobs']
+    actions = ('remove_unused_jobs', )
+    change_actions = ('job_skills', )
+
+    def job_skills(self, request, obj):
+        """
+        Object tool handler method - redirects to "Course Skills" view.
+        """
+        # url names coming from get_urls are prefixed with 'admin' namespace
+        return HttpResponseRedirect(
+            redirect_to=reverse(f"admin:{JOB_SKILLS_URL_NAME}", args=(obj.pk,)),
+        )
+
+    def get_urls(self):
+        """
+        Return the additional urls used by the custom object tools.
+        """
+        additional_urls = [
+            re_path(
+                r"^([^/]+)/skills$",
+                self.admin_site.admin_view(JobSkillsView.as_view()),
+                name=JOB_SKILLS_URL_NAME,
+            ),
+        ]
+        return additional_urls + super().get_urls()
+
+    job_skills.label = "view job skills"
+    job_skills.short_description = "view job skills"
 
     def remove_unused_jobs(self, request, queryset):  # pylint: disable=unused-argument
         """
@@ -111,8 +159,9 @@ class JobSkillsAdmin(admin.ModelAdmin):
     Administrative view for Job Skills.
     """
 
-    list_display = ('id', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
+    list_display = ('id', 'is_blacklisted', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
     search_fields = ('name', 'significance',)
+    list_filter = ('is_blacklisted', )
 
 
 @admin.register(IndustryJobSkill)
@@ -121,7 +170,10 @@ class IndustryJobSkillAdmin(admin.ModelAdmin):
     Administrative view for Industry Job Skills.
     """
 
-    list_display = ('id', 'industry', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified')
+    list_display = (
+        'id', 'is_blacklisted', 'industry', 'skill', 'job', 'significance', 'unique_postings', 'created', 'modified',
+    )
+    list_filter = ('is_blacklisted', )
 
 
 @admin.register(JobPostings)
@@ -239,3 +291,10 @@ class B2CJobAllowListAdmin(admin.ModelAdmin):
         Name of the related job.
         """
         return obj.job.name
+
+
+@admin.register(SkillValidationConfiguration)
+class SkillValidationConfiguratonAdmin(admin.ModelAdmin):
+    """
+    Admin view for SkillValidationConfiguration model.
+    """

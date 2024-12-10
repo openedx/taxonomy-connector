@@ -5,19 +5,23 @@ Tests for the taxonomy API views.
 import json
 from random import randint
 
+import mock
+from edx_django_utils.cache import TieredCache
 from mock import patch
 from pytest import mark
 from rest_framework import status
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Sum
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
 
-from taxonomy.models import JobPath, JobSkills, Skill, SkillCategory
+from taxonomy.models import JobPath, JobSkills, Skill, SkillCategory, SkillValidationConfiguration
 from taxonomy.utils import generate_and_store_job_to_job_description
+from taxonomy.views import JobSkillsView, admin
 from test_utils.factories import (
     CourseSkillsFactory,
+    IndustryJobSkillFactory,
     JobFactory,
     JobPostingsFactory,
     JobSkillFactory,
@@ -405,10 +409,10 @@ class TestJobTopSkillCategoriesAPIView(TestCase):
                 last_category_stats = this_stats
                 continue
             assert (this_stats['total_significance'] < last_category_stats['total_significance']) \
-                or (this_stats['total_significance'] == last_category_stats['total_significance']
-                    and this_stats['total_unique_postings'] < last_category_stats['total_unique_postings']) \
-                or (this_stats['total_unique_postings'] == last_category_stats['total_unique_postings']
-                    and this_stats['total_skills'] <= last_category_stats['total_skills'])
+                   or (this_stats['total_significance'] == last_category_stats['total_significance']
+                       and this_stats['total_unique_postings'] < last_category_stats['total_unique_postings']) \
+                   or (this_stats['total_unique_postings'] == last_category_stats['total_unique_postings']
+                       and this_stats['total_skills'] <= last_category_stats['total_skills'])
 
         # assert every category data individually
         for index in range(5):
@@ -614,6 +618,40 @@ class TestXBlockSkillsViewSet(TestCase):
         })
         self._verify_xblocks_data(api_response, self.xblock_skills[:1], verified=False)
 
+    def test_xblocks_api_with_skill_validation_disabled(self):
+        """
+        Verify that xblocks API return no result if skill validation is disabled for a course.
+        """
+        with mock.patch.object(SkillValidationConfiguration, 'is_disabled', return_value=True):
+            api_response = self.client.get(self.view_url, {"course_key": 'course-v1:edX+M12+1T2024'})
+            assert api_response.status_code == 200
+            assert api_response.json() == []
+
+    def test_list_xblock_skills_cache_hit(self):
+        cached_data = {'results': [{'id': str(self.xblock_skills[0].id)}]}
+        with patch.object(
+            TieredCache,
+            'get_cached_response',
+            wraps=TieredCache.get_cached_response
+        ) as mock_get_cached_response:
+            mock_get_cached_response.return_value = mock.MagicMock(is_found=True, value=cached_data)
+            response = self.client.get(self.view_url)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data, cached_data)
+            mock_get_cached_response.assert_called_once()
+
+    def test_list_xblock_skills_caching(self):
+        with patch.object(TieredCache, 'set_all_tiers') as mock_set_all_tiers, \
+             patch.object(TieredCache, 'get_cached_response', wraps=TieredCache.get_cached_response) \
+                as mock_get_cached_response:
+
+            mock_get_cached_response.return_value = mock.MagicMock(is_found=False)
+            response = self.client.get(self.view_url)
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            mock_get_cached_response.assert_called_once()
+            mock_set_all_tiers.assert_called_once()
+
 
 @mark.django_db
 class TestJobPathAPIView(TestCase):
@@ -634,26 +672,23 @@ class TestJobPathAPIView(TestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.view_url = '/api/v1/job-path/'
 
-    @patch('taxonomy.openai.client.openai.ChatCompletion.create')
+    @patch('taxonomy.openai.client.requests.post')
     @patch(
         'taxonomy.api.v1.serializers.generate_and_store_job_to_job_description',
         wraps=generate_and_store_job_to_job_description
     )
-    def test_job_path_api(   # pylint: disable=invalid-name
+    def test_job_path_api(  # pylint: disable=invalid-name
             self,
             mocked_generate_and_store_job_to_job_description,
-            mocked_chat_completion
+            mock_requests
     ):
         """
         Verify that job path API returns the expected response.
         """
         ai_response = 'You can not switch from your current job to future job'
-        mocked_chat_completion.return_value = {
-            'choices': [{
-                'message': {
-                    'content': ai_response
-                }
-            }]
+        mock_requests.return_value.json.return_value = {
+            "role": "assistant",
+            "content": ai_response
         }
 
         query_params = {
@@ -703,3 +738,162 @@ class TestJobPathAPIView(TestCase):
         response_data = api_response.json()
         assert response_data['current_job'] == ['Job with external_id=1111 does not exist.']
         assert response_data['future_job'] == ['Job with external_id=2222 does not exist.']
+
+
+@mark.django_db
+class TestJobSkillsView(TestCase):
+    """
+    Tests for ``JobSkillsView`` view.
+    """
+
+    def setUp(self) -> None:
+        super(TestJobSkillsView, self).setUp()
+
+        self.job = JobFactory.create()
+        self.blacklisted_job_skills = JobSkillFactory.create_batch(5, job=self.job, is_blacklisted=True)
+        self.whitelisted_job_skills = JobSkillFactory.create_batch(5, job=self.job, is_blacklisted=False)
+        self.blacklisted_industry_job_skills = IndustryJobSkillFactory.create_batch(
+            5, job=self.job, is_blacklisted=True
+        )
+        self.whitelisted_listed_industry_job_skills = IndustryJobSkillFactory.create_batch(
+            5, job=self.job, is_blacklisted=False
+        )
+
+        self.user = User.objects.create(username='rocky')
+        self.user.set_password(USER_PASSWORD)
+        self.user.is_admin = True
+        self.user.is_superuser = True
+        self.user.save()
+        self.client = Client()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    @patch('django.urls.reverse', mock.Mock())
+    def test_get(self):
+        """
+        Validate the view returns correct HTML content for job skills management view.
+        """
+        request = RequestFactory().get(path=f'/job/{self.job.id}/skills')
+        request.user = self.user
+        admin.site.get_app_list = mock.Mock(return_value=[])
+        response = JobSkillsView.as_view()(request=request, job_pk=self.job.id)
+
+        assert response.status_code == 200
+        assert f'Skills for {self.job.name}'.encode('utf-8') in response.content
+
+    @patch('taxonomy.views.messages')
+    @patch('taxonomy.views.reverse', mock.Mock(return_value='/'))
+    def test_post(self, mocked_messages):
+        """
+        Validate the view handles post requests correctly.
+        """
+        mocked_messages.add_message = mock.MagicMock()
+        request = RequestFactory().post(path=f'/job/{self.job.id}/skills', data={
+            'exclude_skills': [job_skill.skill.id for job_skill in self.whitelisted_job_skills],
+            'include_skills': [job_skill.skill.id for job_skill in self.blacklisted_industry_job_skills],
+
+        })
+        request.user = self.user
+        admin.site.get_app_list = mock.Mock(return_value=[])
+        response = JobSkillsView.as_view()(request=request, job_pk=self.job.id)
+
+        assert response.status_code == 302
+        mocked_messages.add_message.assert_called_once_with(
+            request=mock.ANY,
+            level=mock.ANY,
+            message='Job skills were updated successfully.',
+        )
+        # Make sure all job skills are blacklisted and all industry job skills are whitelisted.
+        job_skill_qs, industry_job_skill_qs = self.job.get_whitelisted_job_skills()
+
+        assert job_skill_qs.count() == 0
+        assert industry_job_skill_qs.count() == 10
+
+    @patch('taxonomy.views.messages')
+    @patch('taxonomy.views.reverse', mock.Mock(return_value='/'))
+    def test_post_exclude_include_all(self, mocked_messages):
+        """
+        Validate the view handles post requests with user tries to exclude/include all skills.
+        """
+        mocked_messages.add_message = mock.MagicMock()
+
+        request = RequestFactory().post(path=f'/job/{self.job.id}/skills', data={
+            'exclude_skills': [
+                job_skill.skill.id for job_skill in
+                self.whitelisted_job_skills + self.whitelisted_listed_industry_job_skills
+            ],
+            'include_skills': [],
+
+        })
+        request.user = self.user
+        admin.site.get_app_list = mock.Mock(return_value=[])
+        response = JobSkillsView.as_view()(request=request, job_pk=self.job.id)
+
+        assert response.status_code == 302
+        mocked_messages.add_message.assert_called_once_with(
+            request=mock.ANY,
+            level=mock.ANY,
+            message='Job skills were updated successfully.',
+        )
+        # Make sure all job skills and industry job skills are blacklisted.
+        job_skill_qs, industry_job_skill_qs = self.job.get_whitelisted_job_skills()
+
+        assert job_skill_qs.count() == 0
+        assert industry_job_skill_qs.count() == 0
+
+        blacklisted_job_skill_qs, blacklisted_industry_job_skill_qs = self.job.get_blacklisted_job_skills()
+
+        assert blacklisted_job_skill_qs.count() == 10
+        assert blacklisted_industry_job_skill_qs.count() == 10
+
+        # Now whitelist all job skills
+        request = RequestFactory().post(path=f'/job/{self.job.id}/skills', data={
+            'exclude_skills': [],
+            'include_skills': [
+                skill.id for skill in
+                # pylint: disable=protected-access
+                JobSkillsView._get_skill_options(blacklisted_job_skill_qs, blacklisted_industry_job_skill_qs)
+            ],
+        })
+        request.user = self.user
+        admin.site.get_app_list = mock.Mock(return_value=[])
+        response = JobSkillsView.as_view()(request=request, job_pk=self.job.id)
+
+        assert response.status_code == 302
+        mocked_messages.add_message.assert_called_with(
+            request=mock.ANY,
+            level=mock.ANY,
+            message='Job skills were updated successfully.',
+        )
+        # Make sure all job skills and industry job skills are blacklisted.
+        job_skill_qs, industry_job_skill_qs = self.job.get_whitelisted_job_skills()
+
+        assert job_skill_qs.count() == 10
+        assert industry_job_skill_qs.count() == 10
+
+    @patch('taxonomy.views.messages')
+    @patch('taxonomy.views.reverse', mock.Mock(return_value='/'))
+    def test_post_with_invalid_data(self, mocked_messages):
+        """
+        Validate the view handles post requests correctly.
+        """
+        mocked_messages.add_message = mock.MagicMock()
+        request = RequestFactory().post(path=f'/job/{self.job.id}/skills', data={
+            'exclude_skills': [-1, 0],  # Invalid choices
+            'include_skills': [job_skill.skill.id for job_skill in self.blacklisted_industry_job_skills],
+
+        })
+        request.user = self.user
+        admin.site.get_app_list = mock.Mock(return_value=[])
+        response = JobSkillsView.as_view()(request=request, job_pk=self.job.id)
+
+        assert response.status_code == 302
+        mocked_messages.add_message.assert_called_once_with(
+            request=mock.ANY,
+            level=mock.ANY,
+            message='Job skills could not be updated, please try again or contact support.',
+        )
+        # Make sure no changes got made to the database.
+        job_skill_qs, industry_job_skill_qs = self.job.get_whitelisted_job_skills()
+
+        assert job_skill_qs.count() == 5
+        assert industry_job_skill_qs.count() == 5

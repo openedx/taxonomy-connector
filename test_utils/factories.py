@@ -11,6 +11,7 @@ from faker import Faker
 
 from taxonomy.choices import UserGoal
 from taxonomy.models import (
+    B2CJobAllowList,
     CourseRunXBlockSkillsTracker,
     CourseSkills,
     Industry,
@@ -27,10 +28,10 @@ from taxonomy.models import (
     SkillCategory,
     SkillsQuiz,
     SkillSubCategory,
+    SkillValidationConfiguration,
     Translation,
     XBlockSkillData,
     XBlockSkills,
-    B2CJobAllowList,
 )
 
 FAKER = FakerFactory.create()
@@ -303,6 +304,7 @@ class JobSkillFactory(factory.django.DjangoModelFactory):
     job = factory.SubFactory(JobFactory)
     significance = factory.LazyAttribute(lambda x: FAKER.pyfloat(right_digits=2, min_value=0, max_value=100))
     unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+    is_blacklisted = False
 
 
 class IndustryJobSkillFactory(factory.django.DjangoModelFactory):
@@ -318,6 +320,7 @@ class IndustryJobSkillFactory(factory.django.DjangoModelFactory):
     job = factory.SubFactory(JobFactory)
     significance = factory.LazyAttribute(lambda x: FAKER.pyfloat(right_digits=2, min_value=0, max_value=100))
     unique_postings = factory.LazyAttribute(lambda x: FAKER.pyint(min_value=0, max_value=100000000))
+    is_blacklisted = False
 
 
 class JobPostingsFactory(factory.django.DjangoModelFactory):
@@ -409,3 +412,9 @@ class B2CJobAllowlistFactory(factory.django.DjangoModelFactory):
         model = B2CJobAllowList
 
     job = factory.SubFactory(JobFactory)
+
+
+class SkillValidationConfigurationFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = SkillValidationConfiguration

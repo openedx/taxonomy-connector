@@ -47,12 +47,21 @@ class JobSkillSerializer(ModelSerializer):
 
 
 class JobsListSerializer(ModelSerializer):
-    skills = JobSkillSerializer(source='jobskills_set.all', many=True)
+    skills = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
         fields = '__all__'
         extra_fields = ('skills',)
+
+    def get_skills(self, instance):
+        """
+        Get JobSkill records.
+        """
+        return JobSkillSerializer(
+            JobSkills.get_whitelisted_job_skill_qs().filter(job=instance),
+            many=True,
+        ).data
 
 
 class CourseSkillsSerializer(ModelSerializer):

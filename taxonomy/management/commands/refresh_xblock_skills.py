@@ -5,11 +5,12 @@ Management command for refreshing the skills associated with xblocks.
 
 import logging
 
-from django.core.management.base import BaseCommand
-from django.conf import settings
-from django.utils.translation import gettext as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey, UsageKey
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.utils.translation import gettext as _
 
 from taxonomy import utils
 from taxonomy.choices import ProductTypes

@@ -13,6 +13,55 @@ Change Log
 
 Unreleased
 
+[1.54.0] - 2024-10-02
+---------------------
+* perf: Added caching to `XBlockSkillsViewSet` list endpoint to improve performance and reduce redundant database queries
+
+[1.53.0] - 2024-08-22
+---------------------
+* perf: Introduced db_index on the `created` and `is_blacklisted` fields in `XBlockSkillData` model 
+  for performance improvements of `xblocks` endpoint
+
+[1.52.0] - 2024-08-22
+---------------------
+* feat: Added a search feature on skill field in CourseSkills
+
+[1.51.1] - 2024-08-21
+---------------------
+* feat: Added safeguard for nulls before saving job description
+
+[1.51.0] - 2024-07-03
+---------------------
+* feat: Replaced client for ai chat
+
+[1.50.0] - 2024-03-27
+---------------------
+* feat: Skill validation can be disbaled for a course or an organization
+
+[1.46.2] - 2024-02-14
+---------------------
+* feat: Optimized finalize_xblockskill_tags command for memory via chunking
+
+[1.46.1] - 2024-01-05
+---------------------
+* feat: Modify prefetch related to select related for whitelisted product skills.
+
+[1.46.0] - 2023-10-23
+---------------------
+* feat: Removed direct usages of JobSkills and IndustryJobSkills objects in favour of whitelisted or blacklisted query sets.
+
+[1.45.0] - 2023-10-13
+---------------------
+* feat: Added the ability to blacklist job-skill relationship.
+
+[1.44.3] - 2023-09-20
+---------------------
+* perf: improve xblock skills api performance.
+
+[1.44.2] - 2023-09-11
+---------------------
+* fix: chunked data at 50000 byte in EMSI client for xblock-skills job
+
 [1.44.1] - 2023-08-25
 ---------------------
 * feat: add prefetch related to the whitelisted product skills

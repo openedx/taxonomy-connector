@@ -4,17 +4,24 @@ ORM Models for the taxonomy application.
 """
 from __future__ import unicode_literals
 
+import logging
 import uuid
 
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 from solo.models import SingletonModel
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from model_utils.models import TimeStampedModel
 
 from taxonomy.choices import UserGoal
+from taxonomy.providers.utils import get_course_metadata_provider
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Skill(TimeStampedModel):
@@ -149,6 +156,7 @@ class XBlockSkills(TimeStampedModel):
 
     usage_key = models.CharField(
         unique=True,
+        db_index=True,
         max_length=255,
         help_text=_('The key of the xblock whose text was used for skills extraction.')
     )
@@ -230,7 +238,7 @@ class XBlockSkillData(TimeStampedModel):
     )
     is_blacklisted = models.BooleanField(
         help_text=_('Blacklist this xblock skill, useful to handle false positives.'),
-        default=False,
+        default=False, db_index=True
     )
 
     class Meta:
@@ -243,6 +251,9 @@ class XBlockSkillData(TimeStampedModel):
         ordering = ('created', )
         app_label = 'taxonomy'
         unique_together = ('xblock', 'skill')
+        indexes = [
+            models.Index(fields=['created']),
+        ]
 
     def __str__(self):
         """
@@ -523,6 +534,49 @@ class Job(TimeStampedModel):
             self.description
         )
 
+    def get_whitelisted_job_skills(self, prefetch_skills=True):
+        """
+        Get a QuerySet of all the whitelisted skills associated with the job.
+        """
+        job_skill_qs = JobSkills.get_whitelisted_job_skill_qs().filter(job=self)
+        industry_job_skill_qs = IndustryJobSkill.get_whitelisted_job_skill_qs().filter(job=self)
+        if prefetch_skills:
+            job_skill_qs = job_skill_qs.select_related('skill')
+            industry_job_skill_qs = industry_job_skill_qs.select_related('skill')
+        return job_skill_qs, industry_job_skill_qs
+
+    def get_blacklisted_job_skills(self, prefetch_skills=True):
+        """
+        Get a QuerySet of all the whitelisted skills associated with the job.
+        """
+        job_skill_qs = JobSkills.get_blacklist_job_skill_qs().filter(job=self)
+        industry_job_skill_qs = IndustryJobSkill.get_blacklist_job_skill_qs().filter(job=self)
+
+        if prefetch_skills:
+            job_skill_qs = job_skill_qs.select_related('skill')
+            industry_job_skill_qs = industry_job_skill_qs.select_related('skill')
+        return job_skill_qs, industry_job_skill_qs
+
+    def blacklist_job_skills(self, skill_ids):
+        """
+        Black list all job skills with the given skill ids.
+
+        Arguments:
+            skill_ids (list<int>): A list of Skill ids that should be black list for the current job.
+        """
+        self.jobskills_set.filter(skill__id__in=skill_ids).update(is_blacklisted=True)
+        self.industryjobskill_set.filter(skill__id__in=skill_ids).update(is_blacklisted=True)
+
+    def whitelist_job_skills(self, skill_ids):
+        """
+        Remove all job skills with the given skill ids from the blacklist.
+
+        Arguments:
+            skill_ids (list<int>): A list of Skill ids that should be removed from the blacklist.
+        """
+        self.jobskills_set.filter(skill__id__in=skill_ids).update(is_blacklisted=False)
+        self.industryjobskill_set.filter(skill__id__in=skill_ids).update(is_blacklisted=False)
+
 
 class JobPath(TimeStampedModel):
     """
@@ -631,6 +685,7 @@ class BaseJobSkill(TimeStampedModel):
             'The unique_postings threshold of skill for the job.'
         )
     )
+    is_blacklisted = models.BooleanField(default=False, help_text=_('Should this job skill be ignored?'))
 
     class Meta:
         """
@@ -638,6 +693,24 @@ class BaseJobSkill(TimeStampedModel):
         """
 
         abstract = True
+
+    @classmethod
+    def get_whitelisted_job_skill_qs(cls):
+        """
+        Get a QuerySet of whitelisted job skills.
+
+        White listed job skills are job skills with `is_blacklisted=False`.
+        """
+        return cls.objects.filter(is_blacklisted=False)
+
+    @classmethod
+    def get_blacklist_job_skill_qs(cls):
+        """
+        Get a QuerySet of whitelisted job skills.
+
+        White listed job skills are job skills with `is_blacklisted=False`.
+        """
+        return cls.objects.filter(is_blacklisted=True)
 
 
 class JobSkills(BaseJobSkill):
@@ -1081,3 +1154,132 @@ class B2CJobAllowList(models.Model):
         app_label = 'taxonomy'
         verbose_name = 'B2C Job Allow List entry'
         verbose_name_plural = 'B2C Job Allow List entries'
+
+
+class SkillValidationConfiguration(TimeStampedModel):
+    """
+    Model to store the configuration for disabling skill validation for a course or organization.
+    """
+
+    course_key = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text=_('The course, for which skill validation is disabled.'),
+    )
+    organization = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text=_('The organization, for which skill validation is disabled.'),
+    )
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        message = ''
+
+        if self.course_key:
+            message = f'Skill validation disabled for course: {self.course_key}'
+        elif self.organization:
+            message = f'Skill validation disabled for organization: {self.organization}'
+
+        return message
+
+    class Meta:
+        """
+        Meta configuration for SkillValidationConfiguration model.
+        """
+
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(course_key__isnull=False) &
+                    Q(organization__isnull=True)
+                ) | (
+                    Q(course_key__isnull=True) &
+                    Q(organization__isnull=False)
+                ),
+                name='either_course_or_org',
+                # This only work on django >= 4.1
+                # violation_error_message='Select either course or organization.'
+            ),
+        ]
+
+        verbose_name = 'Skill Validation Configuration'
+        verbose_name_plural = 'Skill Validation Configurations'
+
+    def clean(self):
+        """Override to add custom validation for course and organization fields."""
+        if self.course_key:
+            if not get_course_metadata_provider().is_valid_course(self.course_key):
+                raise ValidationError({
+                    'course_key': f'Course with key {self.course_key} does not exist.'
+                })
+
+        if self.organization:
+            if not get_course_metadata_provider().is_valid_organization(self.organization):
+                raise ValidationError({
+                    'organization': f'Organization with key {self.organization} does not exist.'
+                })
+
+    # pylint: disable=no-member
+    def validate_constraints(self, exclude=None):
+        """
+        Validate all constraints defined in Meta.constraints.
+
+        NOTE: We override this method only to return a human readable message.
+        We should remove this override once taxonomy-connector is updated to django 4.1
+        On django >= 4.1, add violation_error_message in models.CheckConstraint with an appropriate message.
+        """
+        try:
+            super().validate_constraints(exclude=exclude)
+        except ValidationError as ex:
+            raise ValidationError({'__all__': 'Add either course key or organization.'}) from ex
+
+    def save(self, *args, **kwargs):
+        """Override to ensure that custom validation is always called."""
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    @staticmethod
+    def is_valid_course_run_key(course_run_key):
+        """
+        Check if the given course run key is in valid format.
+
+        Arguments:
+            course_run_key (str): Course run key
+        """
+        try:
+            return True, CourseKey.from_string(course_run_key)
+        except InvalidKeyError:
+            LOGGER.error('[TAXONOMY_SKILL_VALIDATION_CONFIGURATION] Invalid course_run key: [%s]', course_run_key)
+
+        return False, None
+
+    @classmethod
+    def is_disabled(cls, course_run_key) -> bool:
+        """
+        Check if skill validation is disabled for the given course run key.
+
+        Arguments:
+            course_run_key (str): Course run key
+
+        Returns:
+            bool: True if skill validation is disabled for the given course run key.
+        """
+        is_valid_course_run_key, course_run_locator = cls.is_valid_course_run_key(course_run_key)
+        if not is_valid_course_run_key:
+            return False
+
+        if cls.objects.filter(organization=course_run_locator.org).exists():
+            return True
+
+        course_key = get_course_metadata_provider().get_course_key(course_run_key)
+        if course_key and cls.objects.filter(course_key=course_key).exists():
+            return True
+
+        return False

@@ -6,6 +6,7 @@ Constants used by the taxonomy connector.
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
+
 from django.conf import settings
 
 
@@ -144,3 +145,6 @@ RATIO_THRESHOLD_FOR_SKILLS = settings.RATIO_THRESHOLD_FOR_SKILLS \
 
 JOB_SOURCE_COURSE_SKILL = 'course_skill'
 JOB_SOURCE_INDUSTRY = 'industry'
+JOB_SKILLS_URL_NAME = 'job-skills'
+
+CACHE_TIMEOUT_XBLOCK_SKILLS_SECONDS = 60 * 60

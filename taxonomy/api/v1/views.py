@@ -4,9 +4,10 @@ Taxonomy API views.
 from collections import OrderedDict
 
 from django_filters.rest_framework import DjangoFilterBackend
+from edx_django_utils.cache import TieredCache, get_cache_key
 from rest_framework import permissions
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,6 +28,7 @@ from taxonomy.api.v1.serializers import (
     SkillsQuizSerializer,
     XBlocksSkillsSerializer,
 )
+from taxonomy.constants import CACHE_TIMEOUT_XBLOCK_SKILLS_SECONDS
 from taxonomy.models import (
     CourseSkills,
     Job,
@@ -35,6 +37,7 @@ from taxonomy.models import (
     SkillCategory,
     SkillsQuiz,
     SkillSubCategory,
+    SkillValidationConfiguration,
     XBlockSkillData,
     XBlockSkills,
 )
@@ -292,9 +295,10 @@ class JobHolderUsernamesAPIView(APIView):
 class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModelMixin, GenericViewSet):
     """
     ViewSet to list and retrieve all XBlockSkills in the system.
+
+    If skill validation is disabled for a course, then return an empty queryset.
     """
     serializer_class = XBlocksSkillsSerializer
-    permission_classes = (permissions.IsAuthenticated, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = XBlocksFilter
 
@@ -302,12 +306,34 @@ class XBlockSkillsViewSet(TaxonomyAPIViewSetMixin, RetrieveModelMixin, ListModel
         """
         Get all the xblocks skills with prefetch_related objects.
         """
-        return XBlockSkills.objects.all().prefetch_related(
+        skill_validation_disabled = SkillValidationConfiguration.is_disabled(
+            self.request.query_params.get('course_key')
+        )
+        if skill_validation_disabled:
+            return XBlockSkills.objects.none()
+
+        return XBlockSkills.objects.prefetch_related(
             Prefetch(
                 'skills',
-                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False).distinct(),
+                queryset=Skill.objects.filter(xblockskilldata__is_blacklisted=False).only(
+                    'id',
+                    'name'
+                ).distinct(),
             ),
-        )
+        ).only('id', 'skills', 'usage_key', 'requires_verification', 'auto_processed', 'hash_content')
+
+    def list(self, request, *args, **kwargs):
+        cache_key = get_cache_key(domain='taxonomy', subdomain='xblock_skills', params=request.query_params)
+
+        cached_response = TieredCache.get_cached_response(cache_key)
+        if cached_response.is_found:
+            return Response(cached_response.value)
+
+        response = super().list(request, *args, **kwargs)
+
+        TieredCache.set_all_tiers(cache_key, response.data, CACHE_TIMEOUT_XBLOCK_SKILLS_SECONDS)
+
+        return response
 
 
 class JobPathAPIView(TaxonomyAPIViewSetMixin, RetrieveAPIView):

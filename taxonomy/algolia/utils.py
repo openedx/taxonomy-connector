@@ -102,7 +102,7 @@ def calculate_job_skills(jobs_qs):
     job_details = {}
     for job in jobs_qs.all():
         skills = set(
-            JobSkills.objects.filter(job=job).values_list('skill__name', flat=True)
+            JobSkills.get_whitelisted_job_skill_qs().filter(job=job).values_list('skill__name', flat=True)
         )
         job_details[job.name] = {
             'skills': skills,
@@ -207,7 +207,7 @@ def combine_industry_skills():
     for industry in Industry.objects.all():
         # sum all significances for the same skill and then sort on total significance
         skills = list(
-            IndustryJobSkill.objects.filter(
+            IndustryJobSkill.get_whitelisted_job_skill_qs().filter(
                 industry=industry
             ).values_list(
                 'skill__name', flat=True
@@ -262,8 +262,8 @@ def fetch_jobs_data():
             context={
                 'jobs_data': jobs_data,
                 'industry_skills': industry_skills,
-                'jobs_having_job_skills': get_job_ids(JobSkills.objects),
-                'jobs_having_industry_skills': get_job_ids(IndustryJobSkill.objects),
+                'jobs_having_job_skills': get_job_ids(JobSkills.get_whitelisted_job_skill_qs()),
+                'jobs_having_industry_skills': get_job_ids(IndustryJobSkill.get_whitelisted_job_skill_qs()),
             },
         )
         jobs.extend(job_serializer.data)

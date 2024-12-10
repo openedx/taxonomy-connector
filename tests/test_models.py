@@ -9,12 +9,15 @@ from pytest import mark
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from taxonomy.models import Industry, Job, JobPostings, B2CJobAllowList
+from taxonomy.models import B2CJobAllowList, Industry, Job, JobPostings, SkillValidationConfiguration
 from taxonomy.signals.handlers import generate_job_description
 from taxonomy.utils import generate_and_store_job_description
 from test_utils import factories
+from test_utils.mocks import MockCourse, MockCourseRun
+from test_utils.providers import DiscoveryCourseMetadataProvider
 
 
 @mark.django_db
@@ -343,30 +346,26 @@ class TestJob(TestCase):
         assert expected_repr == job.__repr__()
 
     @pytest.mark.use_signals
-    @patch('taxonomy.openai.client.openai.ChatCompletion.create')
+    @patch('taxonomy.openai.client.requests.post')
     @patch('taxonomy.utils.generate_and_store_job_description', wraps=generate_and_store_job_description)
     @patch('taxonomy.signals.handlers.generate_job_description.delay', wraps=generate_job_description)
     def test_chat_completion_is_called(   # pylint: disable=invalid-name
             self,
             mocked_generate_job_description_task,
             mocked_generate_and_store_job_description,
-            mocked_chat_completion
+            mock_requests
     ):
         """
         Verify that complete flow works as expected when a Job model object is created.
         """
         ai_response = 'One who manages a Computer Network.'
-        mocked_chat_completion.return_value = {
-            'choices': [{
-                'message': {
-                    'content': ai_response
-                }
-            }]
+        mock_requests.return_value.json.return_value = {
+            "role": "assistant",
+            "content": ai_response
         }
 
         job_external_id = '1111'
         job_name = 'Network Admin'
-        prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job_name)
 
         Job(external_id=job_external_id, name=job_name).save()
         job = Job.objects.get(external_id=job_external_id)
@@ -374,10 +373,7 @@ class TestJob(TestCase):
         assert job.description == ai_response
         mocked_generate_job_description_task.assert_called_once_with(job_external_id, job_name)
         mocked_generate_and_store_job_description.assert_called_once_with(job_external_id, job_name)
-        mocked_chat_completion.assert_called_once_with(
-            model='gpt-3.5-turbo',
-            messages=[{'role': 'user', 'content': prompt}]
-        )
+        mock_requests.assert_called_once()
 
     @pytest.mark.use_signals
     @patch('taxonomy.utils.chat_completion')
@@ -425,6 +421,184 @@ class TestJob(TestCase):
         """
         Job(external_id='11111', name='job name', description='I am description').save()
         mocked_generate_job_description_task.assert_not_called()
+
+    def test_get_whitelisted_job_skills(self):
+        """
+        Validate get_whitelisted_job_skills returns only job skills that have not been blacklisted.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 5
+            assert len(industry_job_skills) == 5
+
+    def test_get_blacklisted_job_skills(self):
+        """
+        Validate get_blacklisted_job_skills returns only job skills that have been blacklisted.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 10
+            assert len(industry_job_skills) == 10
+
+    def test_get_skills_disabled_prefetch(self):
+        """
+        Validate get_blacklisted_job_skills makes multiple queries if user wants to disable prefetch.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(10, job=job, is_blacklisted=True)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(22):
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills(prefetch_skills=False)
+
+            assert len([job_skill.skill.id for job_skill in job_skills]) == 10
+            assert len([job_skill.skill.id for job_skill in industry_job_skills]) == 10
+
+        with self.assertNumQueries(12):
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills(prefetch_skills=False)
+
+            assert len([job_skill.skill.id for job_skill in job_skills]) == 5
+            assert len([job_skill.skill.id for job_skill in industry_job_skills]) == 5
+
+    def test_whitelist_job_skills(self):
+        """
+        Validate whitelist_job_skills removes skills from the blacklist.
+        """
+        job = factories.JobFactory.create()
+        blacklisted_job_skills = factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=True)
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        blacklisted_industry_job_skills = factories.IndustryJobSkillFactory.create_batch(
+            5, job=job, is_blacklisted=True
+        )
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+
+        # Assert initial data.
+        job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+        assert len(job_skills) == 5
+        assert len(industry_job_skills) == 5
+
+        # whitelist some of the job skills from JobSkill model.
+        skill_ids = [job_skill.skill.id for job_skill in blacklisted_job_skills][:3]
+        job.whitelist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 5
+
+        # Now whitelist some if the industry job skills.
+        skill_ids = [job_skill.skill.id for job_skill in blacklisted_industry_job_skills][:2]
+        job.whitelist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 7
+
+        # Now whitelist everything.
+        skill_ids = [job_skill.skill.id for job_skill in blacklisted_industry_job_skills]
+        skill_ids.extend([job_skill.skill.id for job_skill in blacklisted_job_skills])
+        job.whitelist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 10
+            assert len(industry_job_skills) == 10
+
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 0
+            assert len(industry_job_skills) == 0
+
+    def test_blacklist_job_skills(self):
+        """
+        Validate blacklist_job_skills removes skills from the blacklist.
+        """
+        job = factories.JobFactory.create()
+        factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=True)
+        whitelisted_job_skills = factories.JobSkillFactory.create_batch(5, job=job, is_blacklisted=False)
+        factories.IndustryJobSkillFactory.create_batch(5, job=job, is_blacklisted=True)
+        whitelisted_industry_job_skills = factories.IndustryJobSkillFactory.create_batch(
+            5, job=job, is_blacklisted=False
+        )
+
+        # Assert initial data.
+        job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+        assert len(job_skills) == 5
+        assert len(industry_job_skills) == 5
+
+        # blacklist some of the job skills from JobSkill model.
+        skill_ids = [job_skill.skill.id for job_skill in whitelisted_job_skills][:3]
+        job.blacklist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 5
+
+        # Now whitelist some if the industry job skills.
+        skill_ids = [job_skill.skill.id for job_skill in whitelisted_industry_job_skills][:2]
+        job.blacklist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 8
+            assert len(industry_job_skills) == 7
+
+        # Now whitelist everything.
+        skill_ids = [job_skill.skill.id for job_skill in whitelisted_industry_job_skills]
+        skill_ids.extend([job_skill.skill.id for job_skill in whitelisted_job_skills])
+        job.blacklist_job_skills(skill_ids)
+
+        # Make sure there were only 2 queries made to fetch the data, one for job skills
+        # and another for industry job skills.
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_blacklisted_job_skills()
+            assert len(job_skills) == 10
+            assert len(industry_job_skills) == 10
+
+        with self.assertNumQueries(2):
+            # Assert database records.
+            job_skills, industry_job_skills = job.get_whitelisted_job_skills()
+            assert len(job_skills) == 0
+            assert len(industry_job_skills) == 0
 
 
 @mark.django_db
@@ -553,3 +727,99 @@ class TestB2CJobAllowlist(TestCase):
 
         assert expected_str == allowList_entry.__str__()
         assert expected_repr == allowList_entry.__repr__()
+
+
+@mark.django_db
+class SkillValidationConfigurationTests(TestCase):
+    """
+    Tests for the ``SkillValidationConfiguration`` model.
+    """
+    def setUp(self):
+        super().setUp()
+
+        self.mock_course_run = MockCourseRun(course_key='RichX+GoldX', course_run_key='course-v1:RichX+GoldX+1T2024')
+        self.courses = [MockCourse() for _ in range(3)]
+        self.courses[0].key = self.mock_course_run.course_key
+        self.provider_patcher = patch('taxonomy.models.get_course_metadata_provider')
+        self.mock_provider = self.provider_patcher.start()
+        self.mock_provider.return_value = DiscoveryCourseMetadataProvider(self.courses)
+
+    def tearDown(self):
+        super().tearDown()
+
+        self.provider_patcher.stop()
+
+    def test_model_obj_creation_with_course_and_org(self):
+        """
+        Verify that an `IntegrityError` is raised if user try to create a
+        SkillValidationConfiguration with both course and organization.
+        """
+        with pytest.raises(IntegrityError) as raised_exception:
+            factories.SkillValidationConfigurationFactory(
+                course_key=self.courses[0].key,
+                organization=self.courses[0].key.split('+')[0]
+            )
+
+        assert raised_exception.value.args[0] == 'CHECK constraint failed: either_course_or_org'
+
+    def test_model_obj_creation_with_wrong_course_key(self):
+        """
+        Verify that a `ValidationError` is raised if user try to create a
+        SkillValidationConfiguration with incorrect course key.
+        """
+        with pytest.raises(ValidationError) as raised_exception:
+            factories.SkillValidationConfigurationFactory(course_key='MAx+WoWx')
+
+        assert raised_exception.value.message_dict == {'course_key': ['Course with key MAx+WoWx does not exist.']}
+
+    def test_model_obj_creation_with_wrong_org_key(self):
+        """
+        Verify that a `ValidationError` is raised if user try to create a
+        SkillValidationConfiguration with incorrect organization key.
+        """
+        with pytest.raises(ValidationError) as raised_exception:
+            factories.SkillValidationConfigurationFactory(organization='MAx')
+
+        assert raised_exception.value.message_dict == {'organization': ['Organization with key MAx does not exist.']}
+
+    def test_model_is_disabled_with_course_key(self):
+        """
+        Verify that a `is_disabled` work as expected if a skill validation is disabled for a course.
+        """
+        factories.SkillValidationConfigurationFactory(course_key=self.mock_course_run.course_key)
+        assert SkillValidationConfiguration.is_disabled(course_run_key=self.mock_course_run.course_run_key)
+
+    def test_model_is_disabled_with_org_key(self):
+        """
+        Verify that a `is_disabled` work as expected if a skill validation is disabled for an organization.
+        """
+        organization = self.courses[0].key.split('+')[0]
+        factories.SkillValidationConfigurationFactory(organization=organization)
+        assert SkillValidationConfiguration.is_disabled(course_run_key=self.mock_course_run.course_run_key)
+
+    def test_model_is_disabled_with_wrong_course_run_key_format(self):
+        """
+        Verify that a `is_disabled` work as expected if a course_run_key is in wrong format.
+        """
+        assert SkillValidationConfiguration.is_disabled(course_run_key='blah blah blah') is False
+
+    def test_model_is_disabled(self):
+        """
+        Verify that a `is_disabled` work as expected if no condition satisfies.
+        """
+        assert SkillValidationConfiguration.is_disabled(course_run_key='course-v1:org+course+run') is False
+
+    def test_model_object_str_with_course_key(self):
+        """
+        Verify that SkillValidationConfiguration model __str__ work as expected for a course key.
+        """
+        disabled_config = factories.SkillValidationConfigurationFactory(course_key=self.mock_course_run.course_key)
+        assert str(disabled_config) == 'Skill validation disabled for course: RichX+GoldX'
+
+    def test_model_object_str_with_org_key(self):
+        """
+        Verify that SkillValidationConfiguration model __str__ work as expected for an organization key.
+        """
+        organization = self.courses[0].key.split('+')[0]
+        disabled_config = factories.SkillValidationConfigurationFactory(organization=organization)
+        assert str(disabled_config) == 'Skill validation disabled for organization: RichX'

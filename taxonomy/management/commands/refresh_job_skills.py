@@ -12,7 +12,7 @@ from taxonomy.constants import get_job_query_filter
 from taxonomy.emsi.client import EMSIJobsApiClient
 from taxonomy.enums import RankingFacet
 from taxonomy.exceptions import TaxonomyAPIError
-from taxonomy.models import Job, JobSkills, Skill, IndustryJobSkill, Industry
+from taxonomy.models import Industry, IndustryJobSkill, Job, JobSkills, Skill
 
 LOGGER = logging.getLogger(__name__)
 

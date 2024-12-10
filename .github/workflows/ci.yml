@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
         python-version: ['3.8']
         toxenv: [quality, docs, pii-annotations, django32, django40]
 
@@ -37,7 +37,8 @@ jobs:
 
     - name: Run Coverage
       if: matrix.python-version == '3.8' && matrix.toxenv=='django32'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
         fail_ci_if_error: true

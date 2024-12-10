@@ -64,7 +64,7 @@ def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Cou
         return cached_response.value
 
     whitelisted_product_skills = get_whitelisted_product_skills(key_or_uuid, product_type)
-    product_skills = whitelisted_product_skills.prefetch_related('skill__category', 'skill__subcategory')
+    product_skills = whitelisted_product_skills.select_related('skill__category', 'skill__subcategory')
     skills = [product_skill.skill for product_skill in product_skills]
     skills_data = SkillSerializer(skills, many=True).data
     TieredCache.set_all_tiers(
@@ -492,7 +492,7 @@ def get_course_jobs(course_key, product_type=ProductTypes.Course):
         list: A list of dicts where each dict contain information about a particular job.
     """
     course_skills = get_whitelisted_product_skills(course_key, product_type)
-    job_skills = JobSkills.objects.select_related(
+    job_skills = JobSkills.get_whitelisted_job_skill_qs().select_related(
         'skill',
         'job',
         'job__jobpostings',
@@ -752,8 +752,9 @@ def generate_and_store_job_description(job_external_id, job_name):
     """
     prompt = settings.JOB_DESCRIPTION_PROMPT.format(job_name=job_name)
     description = chat_completion(prompt)
-    Job.objects.filter(external_id=job_external_id).update(description=description)
-    LOGGER.info('Generated description for Job: [%s], Prompt: [%s]', job_name, prompt)
+    if description:
+        Job.objects.filter(external_id=job_external_id).update(description=description)
+        LOGGER.info('Generated description for Job: [%s], Prompt: [%s]', job_name, prompt)
 
 
 def generate_and_store_job_to_job_description(current_job, future_job):

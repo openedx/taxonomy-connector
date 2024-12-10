@@ -7,7 +7,6 @@ import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db import transaction
 from django.utils.translation import gettext as _
 
 from taxonomy.exceptions import InvalidCommandOptionsError
@@ -99,28 +98,27 @@ class Command(BaseCommand):
             options,
         )
 
-        with transaction.atomic():
-            unverified_skills = XBlockSkillData.objects.filter(verified=False, is_blacklisted=False)
-            for xblock_skill in unverified_skills:
-                verified_count = xblock_skill.verified_count if xblock_skill.verified_count else 0
-                ignored_count = xblock_skill.ignored_count if xblock_skill.ignored_count else 0
-                total_count = int(verified_count + ignored_count)
-                if total_count <= 0:
-                    continue
-                if self._is_over_threshold(verified_count, total_count, min_verified_votes, ratio_verified_threshold):
-                    xblock_skill.verified = True
-                    xblock_skill.save()
-                    LOGGER.info(
-                        '[%s] skill tag for the xblock [%s] has been verified',
-                        xblock_skill.skill.name,
-                        xblock_skill.xblock.usage_key
-                    )
-                elif self._is_over_threshold(ignored_count, total_count, min_ignored_votes, ratio_ignored_threshold):
-                    xblock_skill.is_blacklisted = True
-                    xblock_skill.save()
-                    LOGGER.info(
-                        '[%s] skill tag for the xblock [%s] has been blacklisted',
-                        xblock_skill.skill.name,
-                        xblock_skill.xblock.usage_key
-                    )
+        for xblock_skill in XBlockSkillData.objects.filter(
+                verified=False, is_blacklisted=False).iterator(chunk_size=2000):
+            verified_count = xblock_skill.verified_count if xblock_skill.verified_count else 0
+            ignored_count = xblock_skill.ignored_count if xblock_skill.ignored_count else 0
+            total_count = int(verified_count + ignored_count)
+            if total_count <= 0:
+                continue
+            if self._is_over_threshold(verified_count, total_count, min_verified_votes, ratio_verified_threshold):
+                xblock_skill.verified = True
+                xblock_skill.save()
+                LOGGER.info(
+                    '[%s] skill tag for the xblock [%s] has been verified',
+                    xblock_skill.skill.name,
+                    xblock_skill.xblock.usage_key
+                )
+            elif self._is_over_threshold(ignored_count, total_count, min_ignored_votes, ratio_ignored_threshold):
+                xblock_skill.is_blacklisted = True
+                xblock_skill.save()
+                LOGGER.info(
+                    '[%s] skill tag for the xblock [%s] has been blacklisted',
+                    xblock_skill.skill.name,
+                    xblock_skill.xblock.usage_key
+                )
         LOGGER.info('Xblockskill tags verification task is completed')

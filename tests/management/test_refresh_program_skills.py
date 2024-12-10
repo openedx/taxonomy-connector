@@ -13,7 +13,7 @@ from testfixtures import LogCapture
 
 from django.core.management import call_command
 
-from taxonomy.exceptions import ProgramMetadataNotFoundError, InvalidCommandOptionsError, TaxonomyAPIError
+from taxonomy.exceptions import InvalidCommandOptionsError, ProgramMetadataNotFoundError, TaxonomyAPIError
 from taxonomy.models import ProgramSkill, RefreshProgramSkillsConfig, Skill
 from test_utils.mocks import MockProgram, mock_as_dict
 from test_utils.providers import DiscoveryProgramMetadataProvider
