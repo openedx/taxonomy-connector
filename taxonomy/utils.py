@@ -11,6 +11,7 @@ from edx_django_utils.cache.utils import hashlib
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import F
 from django.utils.timezone import now
 
@@ -668,6 +669,7 @@ def duplicate_model_instance(instance):
     return instance
 
 
+@transaction.atomic
 def delete_product(key_or_uuid: str, product_type: ProductTypes):
     """
     Delete product from database if it exists.
