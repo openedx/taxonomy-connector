@@ -13,7 +13,7 @@ jobs:
   call-upgrade-python-requirements-workflow:
     uses: openedx/.github/.github/workflows/upgrade-python-requirements.yml@master
     with:
-      branch: ${{ github.event.inputs.branch || "master" }}
+      branch: ${{ github.event.inputs.branch || 'master' }}
       python_version: 3.12
       send_success_notification: false
     secrets:
