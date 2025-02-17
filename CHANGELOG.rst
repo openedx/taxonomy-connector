@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[2.1.0] - 2025-02-18
+---------------------
+* chore: Upgrade python requirements
+
 [2.0.0] - 2025-01-02
 ---------------------
 * feat!: Upgraded to Python 3.12
@@ -27,7 +31,7 @@ Unreleased
 
 [1.53.0] - 2024-08-22
 ---------------------
-* perf: Introduced db_index on the `created` and `is_blacklisted` fields in `XBlockSkillData` model 
+* perf: Introduced db_index on the `created` and `is_blacklisted` fields in `XBlockSkillData` model
   for performance improvements of `xblocks` endpoint
 
 [1.52.0] - 2024-08-22

@@ -15,3 +15,4 @@ disable+ =
     no-member,
     redundant-u-string-prefix,
     missing-timeout,
+    too-many-positional-arguments,
