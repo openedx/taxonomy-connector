@@ -39,11 +39,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.36.21
+boto3==1.36.26
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.36.21
+botocore==1.36.26
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -52,7 +52,7 @@ build==1.2.2.post1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
     #   pip-tools
-cachetools==5.5.1
+cachetools==5.5.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
@@ -118,7 +118,7 @@ coverage[toml]==7.6.12
     #   pytest-cov
 ddt==1.7.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-diff-cover==9.2.2
+diff-cover==9.2.3
     # via -r requirements/dev.in
 dill==0.3.9
     # via pylint
@@ -268,9 +268,9 @@ newrelic==10.6.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
-openai==1.63.0
+openai==1.64.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openedx-events==9.18.1
+openedx-events==9.18.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 packaging==24.2
     # via
@@ -426,7 +426,7 @@ sqlparse==0.5.3
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django
-stevedore==5.4.0
+stevedore==5.4.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   code-annotations
