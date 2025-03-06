@@ -24,9 +24,9 @@ beautifulsoup4==4.13.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.36.26
+boto3==1.37.4
     # via django-ses
-botocore==1.36.26
+botocore==1.37.4
     # via
     #   boto3
     #   s3transfer
@@ -98,7 +98,7 @@ dnspython==2.7.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
-edx-django-utils==7.1.0
+edx-django-utils==7.2.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
     #   edx-rest-api-client
@@ -147,7 +147,7 @@ mock==5.1.0
     # via -r requirements/test.in
 newrelic==10.6.0
     # via edx-django-utils
-openai==1.64.0
+openai==1.65.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 openedx-events==9.18.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
@@ -173,7 +173,7 @@ pymongo==4.11.1
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   pytest-cov
     #   pytest-django
@@ -200,7 +200,7 @@ requests==2.32.3
     #   responses
 responses==0.25.6
     # via -r requirements/test.in
-s3transfer==0.11.2
+s3transfer==0.11.3
     # via boto3
 six==1.17.0
     # via
