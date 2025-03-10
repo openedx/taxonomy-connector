@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.4
+boto3==1.37.9
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.4
+botocore==1.37.9
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -108,7 +108,7 @@ distro==1.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-django==4.2.19
+django==4.2.20
     # via
     #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -175,7 +175,7 @@ edx-rest-api-client==6.1.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 factory-boy==3.3.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-faker==36.1.1
+faker==37.0.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   factory-boy
@@ -219,7 +219,7 @@ jeepney==0.9.0
     # via
     #   keyring
     #   secretstorage
-jinja2==3.1.5
+jinja2==3.1.6
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   code-annotations
@@ -247,19 +247,19 @@ markupsafe==3.0.2
     #   jinja2
 mdurl==0.1.2
     # via markdown-it-py
-mock==5.1.0
+mock==5.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 more-itertools==10.6.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==10.6.0
+newrelic==10.7.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
 nh3==0.2.21
     # via readme-renderer
-openai==1.65.2
+openai==1.65.5
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==9.18.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -313,7 +313,7 @@ pyjwt==2.10.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-rest-api-client
-pymongo==4.11.1
+pymongo==4.11.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-opaque-keys
@@ -372,7 +372,7 @@ rich==13.9.4
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
-s3transfer==0.11.3
+s3transfer==0.11.4
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
