@@ -16,7 +16,7 @@ annotated-types==0.7.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pydantic
-anyio==4.8.0
+anyio==4.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   httpx
@@ -29,7 +29,7 @@ astroid==3.3.9
     # via
     #   pylint
     #   pylint-celery
-attrs==25.1.0
+attrs==25.3.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openedx-events
@@ -39,11 +39,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.9
+boto3==1.37.13
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.9
+botocore==1.37.13
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -112,7 +112,7 @@ colorama==0.4.6
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
-coverage[toml]==7.6.12
+coverage[toml]==7.7.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
@@ -201,7 +201,7 @@ fastavro==1.10.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openedx-events
-filelock==3.17.0
+filelock==3.18.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
@@ -237,7 +237,7 @@ jinja2==3.1.6
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   code-annotations
     #   diff-cover
-jiter==0.8.2
+jiter==0.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
@@ -246,7 +246,7 @@ jmespath==1.0.1
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
     #   botocore
-kombu==5.4.2
+kombu==5.5.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
@@ -268,7 +268,7 @@ newrelic==10.7.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
-openai==1.65.5
+openai==1.66.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==9.18.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -399,7 +399,7 @@ requests==2.32.3
     #   algoliasearch
     #   edx-rest-api-client
     #   responses
-responses==0.25.6
+responses==0.25.7
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 s3transfer==0.11.4
     # via
