@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.18
+boto3==1.37.23
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.18
+botocore==1.37.23
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -96,7 +96,7 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-coverage[toml]==7.7.1
+coverage[toml]==7.8.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
@@ -142,7 +142,7 @@ django-waffle==4.2.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
-djangorestframework==3.15.2
+djangorestframework==3.16.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 dnspython==2.7.0
     # via
@@ -175,7 +175,7 @@ edx-rest-api-client==6.1.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 factory-boy==3.3.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-faker==37.0.2
+faker==37.1.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   factory-boy
@@ -235,7 +235,7 @@ jmespath==1.0.1
     #   botocore
 keyring==25.6.0
     # via twine
-kombu==5.5.0
+kombu==5.5.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
@@ -253,13 +253,13 @@ more-itertools==10.6.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==10.7.0
+newrelic==10.8.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
 nh3==0.2.21
     # via readme-renderer
-openai==1.68.2
+openai==1.69.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==9.20.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -291,11 +291,11 @@ pycparser==2.22
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   cffi
-pydantic==2.10.6
+pydantic==2.11.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-pydantic-core==2.27.2
+pydantic-core==2.33.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pydantic
@@ -341,7 +341,7 @@ python-slugify==8.0.4
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   code-annotations
-pytz==2025.1
+pytz==2025.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 pyyaml==6.0.2
     # via
@@ -368,7 +368,7 @@ restructuredtext-lint==1.4.0
     # via doc8
 rfc3986==2.0.0
     # via twine
-rich==13.9.4
+rich==14.0.0
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
@@ -436,7 +436,7 @@ tqdm==4.67.1
     #   openai
 twine==6.1.0
     # via -r requirements/doc.in
-typing-extensions==4.12.2
+typing-extensions==4.13.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   anyio
@@ -446,7 +446,12 @@ typing-extensions==4.12.2
     #   pydantic
     #   pydantic-core
     #   pydata-sphinx-theme
-tzdata==2025.1
+    #   typing-inspection
+typing-inspection==0.4.0
+    # via
+    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   pydantic
+tzdata==2025.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
