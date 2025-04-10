@@ -39,11 +39,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.23
+boto3==1.37.28
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.23
+botocore==1.37.28
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -56,7 +56,7 @@ cachetools==5.5.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
-celery==5.4.0
+celery==5.5.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 certifi==2025.1.31
     # via
@@ -155,7 +155,7 @@ django-filter==25.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 django-model-utils==5.0.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-django-object-actions==4.3.0
+django-object-actions==5.0.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 django-ses==4.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -250,7 +250,7 @@ kombu==5.5.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-lxml[html-clean,html_clean]==5.3.1
+lxml[html-clean,html_clean]==5.3.2
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
@@ -264,11 +264,11 @@ mccabe==0.7.0
     # via pylint
 mock==5.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-newrelic==10.8.0
+newrelic==10.8.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
-openai==1.69.0
+openai==1.70.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==9.20.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -320,11 +320,11 @@ pycparser==2.22
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   cffi
-pydantic==2.11.1
+pydantic==2.11.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-pydantic-core==2.33.0
+pydantic-core==2.33.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pydantic
@@ -372,9 +372,9 @@ pytest==8.3.5
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==6.0.0
+pytest-cov==6.1.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-pytest-django==4.10.0
+pytest-django==4.11.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
@@ -446,7 +446,7 @@ tqdm==4.67.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-typing-extensions==4.13.0
+typing-extensions==4.13.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   anyio
@@ -463,7 +463,6 @@ typing-inspection==0.4.0
 tzdata==2025.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-    #   celery
     #   faker
     #   kombu
 urllib3==2.3.0
@@ -478,7 +477,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.29.3
+virtualenv==20.30.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox

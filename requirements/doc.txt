@@ -45,18 +45,18 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.23
+boto3==1.37.28
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.23
+botocore==1.37.28
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
     #   s3transfer
 build==1.2.2.post1
     # via -r requirements/doc.in
-celery==5.4.0
+celery==5.5.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 certifi==2025.1.31
     # via
@@ -132,7 +132,7 @@ django-filter==25.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 django-model-utils==5.0.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-django-object-actions==4.3.0
+django-object-actions==5.0.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 django-ses==4.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -253,13 +253,13 @@ more-itertools==10.6.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==10.8.0
+newrelic==10.8.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
 nh3==0.2.21
     # via readme-renderer
-openai==1.69.0
+openai==1.70.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==9.20.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -291,11 +291,11 @@ pycparser==2.22
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   cffi
-pydantic==2.11.1
+pydantic==2.11.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-pydantic-core==2.33.0
+pydantic-core==2.33.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pydantic
@@ -328,9 +328,9 @@ pytest==8.3.5
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==6.0.0
+pytest-cov==6.1.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-pytest-django==4.10.0
+pytest-django==4.11.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
@@ -436,7 +436,7 @@ tqdm==4.67.1
     #   openai
 twine==6.1.0
     # via -r requirements/doc.in
-typing-extensions==4.13.0
+typing-extensions==4.13.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   anyio
@@ -454,7 +454,6 @@ typing-inspection==0.4.0
 tzdata==2025.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-    #   celery
     #   faker
     #   kombu
 urllib3==2.3.0
