@@ -108,6 +108,9 @@ class JobAdmin(DjangoObjectActions, admin.ModelAdmin):
     actions = ('remove_unused_jobs', )
     change_actions = ('job_skills', )
 
+    @admin.action(
+        description="view job skills"
+    )
     def job_skills(self, request, obj):
         """
         Object tool handler method - redirects to "Course Skills" view.
@@ -131,8 +134,10 @@ class JobAdmin(DjangoObjectActions, admin.ModelAdmin):
         return additional_urls + super().get_urls()
 
     job_skills.label = "view job skills"
-    job_skills.short_description = "view job skills"
 
+    @admin.action(
+        description='Remove Jobs that are not used anywhere'
+    )
     def remove_unused_jobs(self, request, queryset):  # pylint: disable=unused-argument
         """
         Add an action to remove unused jobs from the database.
@@ -140,7 +145,6 @@ class JobAdmin(DjangoObjectActions, admin.ModelAdmin):
         delete_count, _ = Job.objects.filter(jobskills__isnull=True).delete()
         messages.info(request, f'Successfully Deleted {delete_count} jobs.')
 
-    remove_unused_jobs.short_description = 'Remove Jobs that are not used anywhere'
 
 
 @admin.register(JobPath)

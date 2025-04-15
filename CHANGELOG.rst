@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[2.2.0] - 2025-04-16
+---------------------
+* feat: added support for django 5.2
+
 [2.1.1] - 2025-03-11
 ---------------------
 * chore: upgrade version against python requirements
