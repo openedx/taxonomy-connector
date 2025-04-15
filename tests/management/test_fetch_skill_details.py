@@ -41,7 +41,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         skills = set(factories.SkillFactory.create_batch(20, category=None, subcategory=None))
 
         # this set is supposed to have category returned by the API.
-        skills_set_1 = set(FAKER.random_elements(elements=skills, length=10, unique=True))
+        skills_set_1 = set(FAKER.random_elements(elements=list(skills), length=10, unique=True))
 
         # this set is supposed to not have category returned by the API.
         skills_set_2 = skills.difference(skills_set_1)
