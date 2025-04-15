@@ -9,25 +9,10 @@
 # linking to it here is good.
 
 # Stay on an LTS release
-django<4.0
+django<4.3
 
 path==13.1.0
 
 # latest version causing issues in discovery.
 algoliasearch-django<4.0.0
 algoliasearch<2.0.0
-
-# tox version greater than 4 is causing problems.
-tox<4.0.0
-
-# latest version require python>=3.9
-sphinxcontrib-applehelp<=1.0.4
-sphinxcontrib-devhelp<=1.0.2
-sphinxcontrib-htmlhelp<=2.0.1
-sphinxcontrib-qthelp<=1.0.3
-sphinxcontrib-serializinghtml<=1.1.5
-accessible-pygments<=0.0.4
-alabaster<=0.7.13
-pydata-sphinx-theme<=0.14.4
-sphinx<=7.1.2
-sphinx-book-theme<=1.0.1
