@@ -146,7 +146,6 @@ class JobAdmin(DjangoObjectActions, admin.ModelAdmin):
         messages.info(request, f'Successfully Deleted {delete_count} jobs.')
 
 
-
 @admin.register(JobPath)
 class JobPathAdmin(admin.ModelAdmin):
     """
