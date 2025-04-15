@@ -39,11 +39,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.28
+boto3==1.37.33
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.28
+botocore==1.37.33
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -56,7 +56,7 @@ cachetools==5.5.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
-celery==5.5.0
+celery==5.5.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 certifi==2025.1.31
     # via
@@ -104,7 +104,7 @@ click-repl==0.3.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-code-annotations==2.2.0
+code-annotations==2.3.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-lint
@@ -175,7 +175,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openedx-events
-edx-django-utils==7.2.0
+edx-django-utils==7.4.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-rest-api-client
@@ -189,7 +189,7 @@ edx-opaque-keys[django]==2.12.0
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-ccx-keys
     #   openedx-events
-edx-rest-api-client==6.1.0
+edx-rest-api-client==6.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 factory-boy==3.3.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -210,7 +210,7 @@ h11==0.14.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   httpcore
-httpcore==1.0.7
+httpcore==1.0.8
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   httpx
@@ -254,7 +254,7 @@ lxml[html-clean,html_clean]==5.3.2
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
-lxml-html-clean==0.4.1
+lxml-html-clean==0.4.2
     # via lxml
 markupsafe==3.0.2
     # via
@@ -264,13 +264,13 @@ mccabe==0.7.0
     # via pylint
 mock==5.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-newrelic==10.8.1
+newrelic==10.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
-openai==1.70.0
+openai==1.73.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openedx-events==9.20.0
+openedx-events==10.0.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 packaging==24.2
     # via
@@ -320,7 +320,7 @@ pycparser==2.22
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   cffi
-pydantic==2.11.2
+pydantic==2.11.3
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
@@ -350,7 +350,7 @@ pylint-plugin-utils==0.8.2
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.11.3
+pymongo==4.12.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-opaque-keys
@@ -446,7 +446,7 @@ tqdm==4.67.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-typing-extensions==4.13.1
+typing-extensions==4.13.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   anyio
@@ -465,7 +465,7 @@ tzdata==2025.2
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   faker
     #   kombu
-urllib3==2.3.0
+urllib3==2.4.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   botocore
