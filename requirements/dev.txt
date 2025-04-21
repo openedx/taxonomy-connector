@@ -33,17 +33,17 @@ attrs==25.3.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openedx-events
-beautifulsoup4==4.13.3
+beautifulsoup4==4.13.4
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.37.33
+boto3==1.37.37
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.37.33
+botocore==1.37.37
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -120,7 +120,7 @@ ddt==1.7.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 diff-cover==9.2.4
     # via -r requirements/dev.in
-dill==0.3.9
+dill==0.4.0
     # via pylint
 distlib==0.3.9
     # via
@@ -246,7 +246,7 @@ jmespath==1.0.1
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
     #   botocore
-kombu==5.5.2
+kombu==5.5.3
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
@@ -268,11 +268,11 @@ newrelic==10.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
-openai==1.73.0
+openai==1.75.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==10.0.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-packaging==24.2
+packaging==25.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
@@ -306,7 +306,7 @@ pluggy==1.5.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-prompt-toolkit==3.0.50
+prompt-toolkit==3.0.51
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   click-repl
@@ -401,7 +401,7 @@ requests==2.32.3
     #   responses
 responses==0.25.7
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-s3transfer==0.11.4
+s3transfer==0.11.5
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -418,7 +418,7 @@ sniffio==1.3.1
     #   openai
 snowballstemmer==2.2.0
     # via pydocstyle
-soupsieve==2.6
+soupsieve==2.7
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   beautifulsoup4
