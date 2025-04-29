@@ -686,11 +686,11 @@ class TestJobPathAPIView(TestCase):
         Verify that job path API returns the expected response.
         """
         ai_response = 'You can not switch from your current job to future job'
-        mock_requests.return_value.json.return_value = {
+        mock_requests.return_value.json.return_value = [{
             "role": "assistant",
             "content": ai_response
-        }
-
+        }]
+        mock_requests.return_value.status_code = 200
         query_params = {
             'current_job': self.current_job.external_id,
             'future_job': self.future_job.external_id
