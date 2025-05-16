@@ -358,11 +358,11 @@ class TestJob(TestCase):
         Verify that complete flow works as expected when a Job model object is created.
         """
         ai_response = 'One who manages a Computer Network.'
-        mock_requests.return_value.json.return_value = {
+        mock_requests.return_value.json.return_value = [{
             "role": "assistant",
             "content": ai_response
-        }
-
+        }]
+        mock_requests.return_value.status_code = 200
         job_external_id = '1111'
         job_name = 'Network Admin'
 
