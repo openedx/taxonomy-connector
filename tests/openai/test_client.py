@@ -1,6 +1,7 @@
 """
 Tests for chat completion client.
 """
+import requests
 import responses
 
 from django.conf import settings
@@ -48,5 +49,72 @@ class TestChatCompletionClient(TaxonomyTestCase):
             json=expected_chat_response,
             status=500,
         )
-        chat_response = chat_completion(chat_prompt, 'test system prompt')
-        self.assertEqual(chat_response, '')
+        with self.assertRaises(requests.exceptions.RequestException):
+            chat_completion(chat_prompt, 'test system prompt')
+
+    @responses.activate
+    def test_client_with_response_keyerror(self):
+        """
+        Test the keyerror response flow for chat completion client.
+        """
+        chat_prompt = 'how many courses are offered by edx in the data science area'
+        expected_chat_response = [{
+            "role": "assistant",
+            "missing_key": "edx offers 500 courses in the data science area"
+        }]
+        responses.add(
+            method=responses.POST,
+            url=settings.XPERT_AI_API_V2,
+            json=expected_chat_response,
+            status=200,
+        )
+        with self.assertRaises(KeyError):
+            chat_completion(chat_prompt, 'test system prompt')
+
+    @responses.activate
+    def test_client_with_response_valuerror(self):
+        """
+        Test the valueerror response flow for chat completion client.
+        """
+        chat_prompt = 'how many courses are offered by edx in the data science area'
+        responses.add(
+            method=responses.POST,
+            url=settings.XPERT_AI_API_V2,
+            body="not a valid json response",
+            status=200,
+            content_type='application/json'
+        )
+        with self.assertRaises(ValueError):
+            chat_completion(chat_prompt, 'test system prompt')
+
+    @responses.activate
+    def test_client_with_response_typeerror(self):
+        """
+        Test the typeerror response flow for chat completion client.
+        """
+        chat_prompt = 'how many courses are offered by edx in the data science area'
+        expected_chat_response = "not a subsciptable response"
+        responses.add(
+            method=responses.POST,
+            url=settings.XPERT_AI_API_V2,
+            json=expected_chat_response,
+            status=200,
+        )
+        with self.assertRaises(TypeError):
+            chat_completion(chat_prompt, 'test system prompt')
+
+    @responses.activate
+    def test_client_with_response_indexerror(self):
+        """
+        Test the indexerror response flow for chat completion client.
+        """
+        chat_prompt = 'how many courses are offered by edx in the data science area'
+        expected_chat_response = []
+        responses.add(
+            method=responses.POST,
+            url=settings.XPERT_AI_API_V2,
+            json=expected_chat_response,
+            status=200,
+        )
+        with self.assertRaises(IndexError):
+            chat_completion(chat_prompt, 'test system prompt')
