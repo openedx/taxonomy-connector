@@ -1,6 +1,7 @@
 """
 Tests for chat completion client.
 """
+import requests
 import responses
 
 from django.conf import settings
@@ -48,5 +49,5 @@ class TestChatCompletionClient(TaxonomyTestCase):
             json=expected_chat_response,
             status=500,
         )
-        chat_response = chat_completion(chat_prompt, 'test system prompt')
-        self.assertEqual(chat_response, '')
+        with self.assertRaises(requests.exceptions.RequestException):
+            chat_completion(chat_prompt, 'test system prompt')

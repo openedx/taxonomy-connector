@@ -15,6 +15,8 @@ def chat_completion(prompt, system_message):
     Arguments:
         prompt (str): chatGPT prompt
         system_message (str): system message to be used in the chat
+    Returns:
+        str: response from the chat completion API. If the API fails, an empty string is returned.
     """
     completion_endpoint = settings.XPERT_AI_API_V2
     headers = {'Content-Type': 'application/json'}
@@ -25,19 +27,20 @@ def chat_completion(prompt, system_message):
         'client_id': settings.XPERT_AI_CLIENT_ID,
         'system_message': system_message,
     }
-    response = requests.post(
-        completion_endpoint,
-        headers=headers,
-        data=json.dumps(body),
-        timeout=(connect_timeout, read_timeout)
-    )
-
-    if response.status_code != 200:
+    try:
+        response = requests.post(
+            completion_endpoint,
+            headers=headers,
+            data=json.dumps(body),
+            timeout=(connect_timeout, read_timeout)
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
         log.error(
             'Error in chat completion API: %s, %s',
-            response.status_code,
-            response.text
+            e,
+            body.get('messages')
         )
-        return ''
+        raise e
 
     return response.json()[0].get('content')
