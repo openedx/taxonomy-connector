@@ -114,8 +114,10 @@ SKILLS_VERIFICATION_RATIO_THRESHOLD = 0.5
 SKILLS_IGNORED_THRESHOLD = 10
 SKILLS_IGNORED_RATIO_THRESHOLD = 0.8
 
-CHAT_COMPLETION_API = 'http://test.chat.ai'
-CHAT_COMPLETION_API_KEY = 'test chat completion api key'
+XPERT_AI_API_V2 = 'http://test.chat.ai/v2'
+XPERT_AI_CLIENT_ID = 'test client id'
+XPERT_JOB_DESCRIPTION_SYSTEM_MESSAGE = 'test system prompt'
+XPERT_JOB_TO_JOB_SYSTEM_MESSAGE = 'test system prompt'
 
 JOB_DESCRIPTION_PROMPT = 'Generate a description for {job_name} job role.'
 JOB_TO_JOB_DESCRIPTION_PROMPT = 'How can a {current_job_name} switch to {future_job_name} job role.'
