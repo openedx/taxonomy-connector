@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.38.18
+boto3==1.38.23
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.38.18
+botocore==1.38.23
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -73,7 +73,7 @@ charset-normalizer==3.4.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   requests
-click==8.2.0
+click==8.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
@@ -96,11 +96,11 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-coverage[toml]==7.8.0
+coverage[toml]==7.8.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
-cryptography==45.0.2
+cryptography==45.0.3
     # via secretstorage
 ddt==1.7.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -161,7 +161,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openedx-events
-edx-django-utils==7.4.0
+edx-django-utils==8.0.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-rest-api-client
@@ -253,13 +253,9 @@ more-itertools==10.7.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==10.12.0
-    # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-    #   edx-django-utils
 nh3==0.2.21
     # via readme-renderer
-openai==1.79.0
+openai==1.82.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==10.2.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -291,7 +287,7 @@ pycparser==2.22
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   cffi
-pydantic==2.11.4
+pydantic==2.11.5
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
@@ -372,7 +368,7 @@ rich==14.0.0
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
-s3transfer==0.12.0
+s3transfer==0.13.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -447,7 +443,7 @@ typing-extensions==4.13.2
     #   pydantic-core
     #   pydata-sphinx-theme
     #   typing-inspection
-typing-inspection==0.4.0
+typing-inspection==0.4.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pydantic
