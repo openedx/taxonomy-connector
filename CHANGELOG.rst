@@ -13,6 +13,14 @@ Change Log
 
 Unreleased
 
+[2.3.1] - 2025-06-05
+---------------------
+* chore: Upgrade python requirements
+
+[2.3.0] - 2025-06-01
+---------------------
+* feat: updated the xpert client to use the new endpoint
+
 [2.2.4] - 2025-05-28
 ---------------------
 * chore: Upgrade python requirements

@@ -2,7 +2,7 @@
 """
 Tests for the taxonomy models.
 """
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 import pytest
 from pytest import mark
@@ -358,11 +358,11 @@ class TestJob(TestCase):
         Verify that complete flow works as expected when a Job model object is created.
         """
         ai_response = 'One who manages a Computer Network.'
-        mock_requests.return_value.json.return_value = {
+        mock_requests.return_value.json.return_value = [{
             "role": "assistant",
             "content": ai_response
-        }
-
+        }]
+        mock_requests.return_value.status_code = 200
         job_external_id = '1111'
         job_name = 'Network Admin'
 
@@ -387,7 +387,7 @@ class TestJob(TestCase):
         """
         Verify that complete flow works as expected when a Job model object is created.
         """
-        mocked_chat_completion.side_effect = lambda prompt: prompt
+        mocked_chat_completion.side_effect = lambda prompt, system_message: prompt
 
         factories.JobFactory.create_batch(10)
 
@@ -401,7 +401,7 @@ class TestJob(TestCase):
             assert mocked_chat_completion.call_count == 10
             mocked_generate_job_description_task.assert_any_call(job.external_id, job.name)
             mocked_generate_and_store_job_description.assert_any_call(job.external_id, job.name)
-            mocked_chat_completion.assert_any_call(prompt)
+            mocked_chat_completion.assert_any_call(prompt, ANY)
 
     @pytest.mark.use_signals
     @patch('taxonomy.signals.handlers.generate_job_description.delay')

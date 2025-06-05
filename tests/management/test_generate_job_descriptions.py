@@ -13,7 +13,7 @@ from taxonomy.models import Job
 from test_utils import factories
 
 
-def mocked_chat_completion_func(prompt):
+def mocked_chat_completion_func(prompt, system_message):  # pylint: disable=unused-argument
     """
     Mocked `chat_completion` to return result based on input arguments.
     """
@@ -55,7 +55,7 @@ class TestGenerateJobDescriptions(TransactionTestCase):
             assert mocked_generate_and_store_job_description.call_count == total_jobs_for_descriptions
             assert mocked_chat_completion.call_count == total_jobs_for_descriptions
             mocked_generate_and_store_job_description.assert_any_call(job.external_id, job.name)
-            mocked_chat_completion.assert_any_call(prompt)
+            mocked_chat_completion.assert_any_call(prompt, mock.ANY)
 
         job = Job.objects.get(external_id=existing_job.external_id)
         assert job.description == existing_job.description
