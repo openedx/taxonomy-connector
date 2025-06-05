@@ -39,11 +39,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.38.23
+boto3==1.38.27
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.38.23
+botocore==1.38.27
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -56,7 +56,7 @@ cachetools==6.0.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
-celery==5.5.2
+celery==5.5.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 certifi==2025.4.26
     # via
@@ -118,7 +118,7 @@ coverage[toml]==7.8.2
     #   pytest-cov
 ddt==1.7.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-diff-cover==9.3.1
+diff-cover==9.3.2
     # via -r requirements/dev.in
 dill==0.4.0
     # via pylint
@@ -246,7 +246,7 @@ jmespath==1.0.1
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
     #   botocore
-kombu==5.5.3
+kombu==5.5.4
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
@@ -264,7 +264,7 @@ mccabe==0.7.0
     # via pylint
 mock==5.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openai==1.82.0
+openai==1.82.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==10.2.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -274,6 +274,7 @@ packaging==25.0
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   build
+    #   kombu
     #   pyproject-api
     #   pytest
     #   tox
