@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.38.27
+boto3==1.38.32
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.38.27
+botocore==1.38.32
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -108,7 +108,7 @@ distro==1.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-django==4.2.21
+django==4.2.22
     # via
     #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -255,7 +255,7 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.2.21
     # via readme-renderer
-openai==1.82.1
+openai==1.84.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==10.2.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -300,9 +300,11 @@ pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
 pygments==2.19.1
     # via
+    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   accessible-pygments
     #   doc8
     #   pydata-sphinx-theme
+    #   pytest
     #   readme-renderer
     #   rich
     #   sphinx
@@ -320,7 +322,7 @@ pynacl==1.5.0
     #   edx-django-utils
 pyproject-hooks==1.2.0
     # via build
-pytest==8.3.5
+pytest==8.4.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
@@ -433,7 +435,7 @@ tqdm==4.67.1
     #   openai
 twine==6.1.0
     # via -r requirements/doc.in
-typing-extensions==4.13.2
+typing-extensions==4.14.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   anyio
