@@ -24,15 +24,15 @@ beautifulsoup4==4.13.4
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.38.32
+boto3==1.38.36
     # via django-ses
-botocore==1.38.32
+botocore==1.38.36
     # via
     #   boto3
     #   s3transfer
 celery==5.5.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   httpcore
     #   httpx
@@ -57,7 +57,7 @@ click-repl==0.3.0
     # via celery
 code-annotations==2.3.0
     # via -r requirements/test.in
-coverage[toml]==7.8.2
+coverage[toml]==7.9.1
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -90,7 +90,7 @@ django-ses==4.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 django-solo==2.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
-django-waffle==4.2.0
+django-waffle==5.0.0
     # via edx-django-utils
 djangorestframework==3.16.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
@@ -112,7 +112,7 @@ edx-rest-api-client==6.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==37.3.0
+faker==37.4.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -145,7 +145,7 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.84.0
+openai==1.86.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 openedx-events==10.2.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
@@ -156,14 +156,16 @@ packaging==25.0
 pbr==6.1.1
     # via stevedore
 pluggy==1.6.0
-    # via pytest
+    # via
+    #   pytest
+    #   pytest-cov
 prompt-toolkit==3.0.51
     # via click-repl
 psutil==7.0.0
     # via edx-django-utils
 pycparser==2.22
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via openai
 pydantic-core==2.33.2
     # via pydantic
@@ -171,7 +173,7 @@ pygments==2.19.1
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.13.0
+pymongo==4.13.1
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
@@ -179,7 +181,7 @@ pytest==8.4.0
     # via
     #   pytest-cov
     #   pytest-django
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements/test.in
 pytest-django==4.11.1
     # via -r requirements/test.in
@@ -195,7 +197,7 @@ pyyaml==6.0.2
     # via
     #   code-annotations
     #   responses
-requests==2.32.3
+requests==2.32.4
     # via
     #   algoliasearch
     #   edx-rest-api-client
