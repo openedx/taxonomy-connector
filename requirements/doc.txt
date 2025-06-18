@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.38.32
+boto3==1.38.36
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.38.32
+botocore==1.38.36
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -58,7 +58,7 @@ build==1.2.2.post1
     # via -r requirements/doc.in
 celery==5.5.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-certifi==2025.4.26
+certifi==2025.6.15
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   httpcore
@@ -96,11 +96,11 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-coverage[toml]==7.8.2
+coverage[toml]==7.9.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
-cryptography==45.0.3
+cryptography==45.0.4
     # via secretstorage
 ddt==1.7.2
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -108,7 +108,7 @@ distro==1.9.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
-django==4.2.22
+django==4.2.23
     # via
     #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -138,7 +138,7 @@ django-ses==4.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 django-solo==2.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-django-waffle==4.2.0
+django-waffle==5.0.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-django-utils
@@ -148,7 +148,7 @@ dnspython==2.7.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pymongo
-doc8==1.1.2
+doc8==2.0.0
     # via -r requirements/doc.in
 docutils==0.21.2
     # via
@@ -175,7 +175,7 @@ edx-rest-api-client==6.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 factory-boy==3.3.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-faker==37.3.0
+faker==37.4.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   factory-boy
@@ -255,7 +255,7 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.2.21
     # via readme-renderer
-openai==1.84.0
+openai==1.86.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==10.2.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -276,6 +276,7 @@ pluggy==1.6.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest
+    #   pytest-cov
 prompt-toolkit==3.0.51
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -288,7 +289,7 @@ pycparser==2.22
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   openai
@@ -312,7 +313,7 @@ pyjwt==2.10.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-rest-api-client
-pymongo==4.13.0
+pymongo==4.13.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   edx-opaque-keys
@@ -327,7 +328,7 @@ pytest==8.4.0
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 pytest-django==4.11.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -349,7 +350,7 @@ pyyaml==6.0.2
     #   responses
 readme-renderer==44.0
     # via twine
-requests==2.32.3
+requests==2.32.4
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   algoliasearch
