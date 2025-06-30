@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[2.3.3] - 2025-07-03
+---------------------
+* chore: Upgrade python requirements
+
 [2.3.2] - 2025-06-18
 ---------------------
 * chore: Upgrade python requirements
