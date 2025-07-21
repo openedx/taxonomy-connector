@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.39.4
+boto3==1.39.9
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.39.4
+botocore==1.39.9
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -58,7 +58,7 @@ build==1.2.2.post1
     # via -r requirements/doc.in
 celery==5.5.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-certifi==2025.7.9
+certifi==2025.7.14
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   httpcore
@@ -175,7 +175,7 @@ edx-rest-api-client==6.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 factory-boy==3.3.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-faker==37.4.0
+faker==37.4.2
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   factory-boy
@@ -253,9 +253,9 @@ more-itertools==10.7.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-nh3==0.2.21
+nh3==0.3.0
     # via readme-renderer
-openai==1.95.1
+openai==1.97.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 openedx-events==10.3.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
@@ -372,7 +372,7 @@ rich==14.0.0
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
-s3transfer==0.13.0
+s3transfer==0.13.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
