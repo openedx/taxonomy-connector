@@ -24,15 +24,15 @@ beautifulsoup4==4.13.4
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.39.4
+boto3==1.39.9
     # via django-ses
-botocore==1.39.4
+botocore==1.39.9
     # via
     #   boto3
     #   s3transfer
 celery==5.5.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
-certifi==2025.7.9
+certifi==2025.7.14
     # via
     #   httpcore
     #   httpx
@@ -112,7 +112,7 @@ edx-rest-api-client==6.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==37.4.0
+faker==37.4.2
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -145,7 +145,7 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.95.1
+openai==1.97.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 openedx-events==10.3.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
@@ -204,7 +204,7 @@ requests==2.32.4
     #   responses
 responses==0.25.7
     # via -r requirements/test.in
-s3transfer==0.13.0
+s3transfer==0.13.1
     # via boto3
 six==1.17.0
     # via
