@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.39.9
+boto3==1.39.14
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.39.9
+botocore==1.39.14
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -96,7 +96,7 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-coverage[toml]==7.9.2
+coverage[toml]==7.10.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
@@ -255,9 +255,9 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openai==1.97.0
+openai==1.97.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openedx-events==10.3.0
+openedx-events==10.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 packaging==25.0
     # via
@@ -368,7 +368,7 @@ restructuredtext-lint==1.4.0
     # via doc8
 rfc3986==2.0.0
     # via twine
-rich==14.0.0
+rich==14.1.0
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
