@@ -39,11 +39,11 @@ billiard==4.2.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   celery
-boto3==1.39.9
+boto3==1.39.14
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   django-ses
-botocore==1.39.9
+botocore==1.39.14
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   boto3
@@ -112,7 +112,7 @@ colorama==0.4.6
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox
-coverage[toml]==7.9.2
+coverage[toml]==7.10.1
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
     #   pytest-cov
@@ -264,9 +264,9 @@ mccabe==0.7.0
     # via pylint
 mock==5.2.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openai==1.97.0
+openai==1.97.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openedx-events==10.3.0
+openedx-events==10.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
 packaging==25.0
     # via
@@ -441,7 +441,7 @@ text-unidecode==1.3
     #   python-slugify
 tomlkit==0.13.3
     # via pylint
-tox==4.28.0
+tox==4.28.3
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
 tqdm==4.67.1
     # via
@@ -478,7 +478,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.31.2
+virtualenv==20.32.0
     # via
     #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
     #   tox

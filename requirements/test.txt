@@ -24,9 +24,9 @@ beautifulsoup4==4.13.4
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.39.9
+boto3==1.39.14
     # via django-ses
-botocore==1.39.9
+botocore==1.39.14
     # via
     #   boto3
     #   s3transfer
@@ -57,7 +57,7 @@ click-repl==0.3.0
     # via celery
 code-annotations==2.3.0
     # via -r requirements/test.in
-coverage[toml]==7.9.2
+coverage[toml]==7.10.1
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -145,9 +145,9 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.97.0
+openai==1.97.1
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
-openedx-events==10.3.0
+openedx-events==10.4.0
     # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
 packaging==25.0
     # via
