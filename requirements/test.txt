@@ -6,8 +6,8 @@
 #
 algoliasearch==1.20.0
     # via
-    #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
 amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
@@ -21,18 +21,18 @@ asgiref==3.9.1
 attrs==25.3.0
     # via openedx-events
 beautifulsoup4==4.13.4
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.39.14
+boto3==1.40.1
     # via django-ses
-botocore==1.39.14
+botocore==1.40.1
     # via
     #   boto3
     #   s3transfer
 celery==5.5.3
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
-certifi==2025.7.14
+    # via -r requirements/base.in
+certifi==2025.8.3
     # via
     #   httpcore
     #   httpx
@@ -64,8 +64,8 @@ ddt==1.7.2
 distro==1.9.0
     # via openai
     # via
-    #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
     #   django-choices
     #   django-crum
     #   django-filter
@@ -77,46 +77,46 @@ distro==1.9.0
     #   edx-django-utils
     #   openedx-events
 django-choices==2.0.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
 django-filter==25.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 django-model-utils==5.0.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 django-object-actions==5.0.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 django-ses==4.4.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 django-solo==2.4.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 django-waffle==5.0.0
     # via edx-django-utils
 djangorestframework==3.16.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 dnspython==2.7.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
 edx-django-utils==8.0.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    #   -r requirements/base.in
     #   edx-rest-api-client
     #   openedx-events
 edx-opaque-keys[django]==3.0.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    #   -r requirements/base.in
     #   edx-ccx-keys
     #   openedx-events
 edx-rest-api-client==6.2.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==37.4.2
+faker==37.5.3
     # via
     #   -r requirements/test.in
     #   factory-boy
-fastavro==1.11.1
+fastavro==1.12.0
     # via openedx-events
 h11==0.16.0
     # via httpcore
@@ -145,10 +145,10 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.97.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+openai==1.98.0
+    # via -r requirements/base.in
 openedx-events==10.4.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 packaging==25.0
     # via
     #   kombu
@@ -192,7 +192,7 @@ python-dateutil==2.9.0.post0
 python-slugify==8.0.4
     # via code-annotations
 pytz==2025.2
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/base.in
+    # via -r requirements/base.in
 pyyaml==6.0.2
     # via
     #   code-annotations

@@ -6,24 +6,24 @@
 #
 algoliasearch==1.20.0
     # via
-    #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.txt
 amqp==5.3.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   kombu
 annotated-types==0.7.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pydantic
 anyio==4.9.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   httpx
     #   openai
 asgiref==3.9.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   django
 astroid==3.3.11
     # via
@@ -31,56 +31,56 @@ astroid==3.3.11
     #   pylint-celery
 attrs==25.3.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openedx-events
 beautifulsoup4==4.13.4
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 billiard==4.2.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   celery
-boto3==1.39.14
+boto3==1.40.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   django-ses
-botocore==1.39.14
+botocore==1.40.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   boto3
     #   s3transfer
-build==1.2.2.post1
+build==1.3.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
+    #   -r requirements/pip-tools.txt
     #   pip-tools
 cachetools==6.1.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   tox
 celery==5.5.3
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-certifi==2025.7.14
+    # via -r requirements/test.txt
+certifi==2025.8.3
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   httpcore
     #   httpx
     #   requests
 cffi==1.17.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pynacl
 chardet==5.2.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   diff-cover
     #   tox
 charset-normalizer==3.4.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   requests
 click==8.2.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/pip-tools.txt
+    #   -r requirements/test.txt
     #   celery
     #   click-didyoumean
     #   click-log
@@ -92,48 +92,48 @@ click==8.2.1
     #   pip-tools
 click-didyoumean==0.3.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   celery
 click-log==0.4.0
     # via edx-lint
 click-plugins==1.1.1.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   celery
 click-repl==0.3.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   celery
 code-annotations==2.3.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-lint
 colorama==0.4.6
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   tox
 coverage[toml]==7.10.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest-cov
 ddt==1.7.2
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 diff-cover==9.6.0
     # via -r requirements/dev.in
 dill==0.4.0
     # via pylint
 distlib==0.4.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   virtualenv
 distro==1.9.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openai
 django==4.2.23
     # via
-    #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.txt
     #   django-choices
     #   django-crum
     #   django-filter
@@ -146,38 +146,38 @@ django==4.2.23
     #   edx-i18n-tools
     #   openedx-events
 django-choices==2.0.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 django-crum==0.7.9
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 django-filter==25.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 django-model-utils==5.0.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 django-object-actions==5.0.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 django-ses==4.4.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 django-solo==2.4.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 django-waffle==5.0.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 djangorestframework==3.16.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 dnspython==2.7.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pymongo
 edx-ccx-keys==2.0.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openedx-events
 edx-django-utils==8.0.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-rest-api-client
     #   openedx-events
 edx-i18n-tools==1.9.0
@@ -186,47 +186,47 @@ edx-lint==5.6.0
     # via -r requirements/dev.in
 edx-opaque-keys[django]==3.0.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-ccx-keys
     #   openedx-events
 edx-rest-api-client==6.2.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 factory-boy==3.3.3
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-faker==37.4.2
+    # via -r requirements/test.txt
+faker==37.5.3
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   factory-boy
-fastavro==1.11.1
+fastavro==1.12.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openedx-events
 filelock==3.18.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   tox
     #   virtualenv
 h11==0.16.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   httpcore
 httpcore==1.0.9
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   httpx
 httpx==0.28.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openai
 idna==3.10
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   anyio
     #   httpx
     #   requests
 iniconfig==2.1.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest
 isort==6.0.1
     # via
@@ -234,23 +234,23 @@ isort==6.0.1
     #   pylint
 jinja2==3.1.6
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
     #   diff-cover
 jiter==0.10.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openai
 jmespath==1.0.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   boto3
     #   botocore
 kombu==5.5.4
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   celery
-lxml[html-clean,html_clean]==6.0.0
+lxml[html-clean]==6.0.0
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
@@ -258,21 +258,21 @@ lxml-html-clean==0.4.2
     # via lxml
 markupsafe==3.0.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   jinja2
 mccabe==0.7.0
     # via pylint
 mock==5.2.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
-openai==1.97.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
+openai==1.98.0
+    # via -r requirements/test.txt
 openedx-events==10.4.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 packaging==25.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/ci.txt
+    #   -r requirements/pip-tools.txt
+    #   -r requirements/test.txt
     #   build
     #   kombu
     #   pyproject-api
@@ -280,24 +280,24 @@ packaging==25.0
     #   tox
 path==13.1.0
     # via
-    #   -c /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/constraints.txt
+    #   -c requirements/constraints.txt
     #   edx-i18n-tools
 pbr==6.1.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   stevedore
-pip-tools==7.4.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
+pip-tools==7.5.0
+    # via -r requirements/pip-tools.txt
 platformdirs==4.3.8
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   pylint
     #   tox
     #   virtualenv
 pluggy==1.6.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/ci.txt
+    #   -r requirements/test.txt
     #   diff-cover
     #   pytest
     #   pytest-cov
@@ -306,36 +306,36 @@ polib==1.2.0
     # via edx-i18n-tools
 prompt-toolkit==3.0.51
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   click-repl
 psutil==7.0.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 pycodestyle==2.14.0
     # via -r requirements/dev.in
 pycparser==2.22
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   cffi
 pydantic==2.11.7
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openai
 pydantic-core==2.33.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pydantic
 pydocstyle==6.3.0
     # via -r requirements/dev.in
 pygments==2.19.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   diff-cover
     #   pytest
 pyjwt==2.10.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-rest-api-client
 pylint==3.3.7
     # via
@@ -353,103 +353,103 @@ pylint-plugin-utils==0.9.0
     #   pylint-django
 pymongo==4.13.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-opaque-keys
 pynacl==1.5.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 pyproject-api==1.9.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   tox
 pyproject-hooks==1.2.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
+    #   -r requirements/pip-tools.txt
     #   build
     #   pip-tools
 pytest==8.4.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest-cov
     #   pytest-django
 pytest-cov==6.2.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 pytest-django==4.11.1
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   botocore
     #   celery
 python-slugify==8.0.4
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
 pytz==2025.2
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 pyyaml==6.0.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
     #   edx-i18n-tools
     #   responses
 requests==2.32.4
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   algoliasearch
     #   edx-rest-api-client
     #   responses
 responses==0.25.7
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 s3transfer==0.13.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   boto3
 six==1.17.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-ccx-keys
     #   edx-lint
     #   python-dateutil
 sniffio==1.3.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   anyio
     #   openai
 snowballstemmer==3.0.1
     # via pydocstyle
 soupsieve==2.7
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   beautifulsoup4
 sqlparse==0.5.3
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   django
 stevedore==5.4.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
 testfixtures==9.1.0
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    # via -r requirements/test.txt
 text-unidecode==1.3
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   python-slugify
 tomlkit==0.13.3
     # via pylint
-tox==4.28.3
-    # via -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+tox==4.28.4
+    # via -r requirements/ci.txt
 tqdm==4.67.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   openai
 typing-extensions==4.14.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   anyio
     #   beautifulsoup4
     #   edx-opaque-keys
@@ -459,36 +459,36 @@ typing-extensions==4.14.1
     #   typing-inspection
 typing-inspection==0.4.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   pydantic
 tzdata==2025.2
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   faker
     #   kombu
 urllib3==2.5.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   botocore
     #   requests
     #   responses
 vine==5.1.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.32.0
+virtualenv==20.33.0
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/ci.txt
+    #   -r requirements/ci.txt
     #   tox
 wcwidth==0.2.13
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/test.txt
+    #   -r requirements/test.txt
     #   prompt-toolkit
 wheel==0.45.1
     # via
-    #   -r /home/runner/work/taxonomy-connector/taxonomy-connector/requirements/pip-tools.txt
+    #   -r requirements/pip-tools.txt
     #   pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
