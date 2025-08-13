@@ -20,7 +20,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/test.txt
     #   pydantic
-anyio==4.9.0
+anyio==4.10.0
     # via
     #   -r requirements/test.txt
     #   httpx
@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.1
+boto3==1.40.6
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.1
+botocore==1.40.6
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -69,7 +69,7 @@ cffi==1.17.1
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via
     #   -r requirements/test.txt
     #   requests
@@ -96,11 +96,11 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r requirements/test.txt
-coverage[toml]==7.10.1
+coverage[toml]==7.10.3
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==45.0.5
+cryptography==45.0.6
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
@@ -142,7 +142,7 @@ django-waffle==5.0.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-djangorestframework==3.16.0
+djangorestframework==3.16.1
     # via -r requirements/test.txt
 dnspython==2.7.0
     # via
@@ -255,7 +255,7 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openai==1.98.0
+openai==1.99.6
     # via -r requirements/test.txt
 openedx-events==10.4.0
     # via -r requirements/test.txt
@@ -313,7 +313,7 @@ pyjwt==2.10.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-pymongo==4.13.2
+pymongo==4.14.0
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -362,7 +362,7 @@ requests==2.32.4
     #   twine
 requests-toolbelt==1.0.0
     # via twine
-responses==0.25.7
+responses==0.25.8
     # via -r requirements/test.txt
 restructuredtext-lint==1.4.0
     # via doc8
