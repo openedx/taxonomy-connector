@@ -24,9 +24,9 @@ beautifulsoup4==4.13.4
     # via -r requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.40.6
+boto3==1.40.11
     # via django-ses
-botocore==1.40.6
+botocore==1.40.11
     # via
     #   boto3
     #   s3transfer
@@ -57,7 +57,7 @@ click-repl==0.3.0
     # via celery
 code-annotations==2.3.0
     # via -r requirements/test.in
-coverage[toml]==7.10.3
+coverage[toml]==7.10.4
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -145,7 +145,7 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.99.6
+openai==1.99.9
     # via -r requirements/base.in
 openedx-events==10.4.0
     # via -r requirements/base.in
@@ -153,7 +153,7 @@ packaging==25.0
     # via
     #   kombu
     #   pytest
-pbr==6.1.1
+pbr==7.0.0
     # via stevedore
 pluggy==1.6.0
     # via

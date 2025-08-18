@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.6
+boto3==1.40.11
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.6
+botocore==1.40.11
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -96,7 +96,7 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r requirements/test.txt
-coverage[toml]==7.10.3
+coverage[toml]==7.10.4
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -239,7 +239,7 @@ kombu==5.5.4
     # via
     #   -r requirements/test.txt
     #   celery
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.2
     # via
@@ -255,7 +255,7 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openai==1.99.6
+openai==1.99.9
     # via -r requirements/test.txt
 openedx-events==10.4.0
     # via -r requirements/test.txt
@@ -268,7 +268,7 @@ packaging==25.0
     #   pytest
     #   sphinx
     #   twine
-pbr==6.1.1
+pbr==7.0.0
     # via
     #   -r requirements/test.txt
     #   stevedore
