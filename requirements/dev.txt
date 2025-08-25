@@ -33,17 +33,17 @@ attrs==25.3.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via -r requirements/test.txt
 billiard==4.2.1
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.6
+boto3==1.40.16
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.6
+botocore==1.40.16
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -112,7 +112,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.10.3
+coverage[toml]==7.10.5
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -201,7 +201,7 @@ fastavro==1.12.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
-filelock==3.18.0
+filelock==3.19.1
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -250,7 +250,7 @@ kombu==5.5.4
     # via
     #   -r requirements/test.txt
     #   celery
-lxml[html-clean]==6.0.0
+lxml[html-clean]==6.0.1
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
@@ -264,9 +264,9 @@ mccabe==0.7.0
     # via pylint
 mock==5.2.0
     # via -r requirements/test.txt
-openai==1.99.6
+openai==1.101.0
     # via -r requirements/test.txt
-openedx-events==10.4.0
+openedx-events==10.5.0
     # via -r requirements/test.txt
 packaging==25.0
     # via
@@ -282,7 +282,7 @@ path==13.1.0
     # via
     #   -c requirements/constraints.txt
     #   edx-i18n-tools
-pbr==6.1.1
+pbr==7.0.1
     # via
     #   -r requirements/test.txt
     #   stevedore
@@ -351,7 +351,7 @@ pylint-plugin-utils==0.9.0
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.14.0
+pymongo==4.14.1
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -394,7 +394,7 @@ pyyaml==6.0.2
     #   code-annotations
     #   edx-i18n-tools
     #   responses
-requests==2.32.4
+requests==2.32.5
     # via
     #   -r requirements/test.txt
     #   algoliasearch
@@ -478,7 +478,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.33.1
+virtualenv==20.34.0
     # via
     #   -r requirements/ci.txt
     #   tox
