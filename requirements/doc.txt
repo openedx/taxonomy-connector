@@ -37,7 +37,7 @@ babel==2.17.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via
     #   -r requirements/test.txt
     #   pydata-sphinx-theme
@@ -45,11 +45,11 @@ billiard==4.2.1
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.6
+boto3==1.40.16
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.6
+botocore==1.40.16
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -96,7 +96,7 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r requirements/test.txt
-coverage[toml]==7.10.3
+coverage[toml]==7.10.5
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -213,7 +213,7 @@ jaraco-classes==3.4.0
     # via keyring
 jaraco-context==6.0.1
     # via keyring
-jaraco-functools==4.2.1
+jaraco-functools==4.3.0
     # via keyring
 jeepney==0.9.0
     # via
@@ -239,7 +239,7 @@ kombu==5.5.4
     # via
     #   -r requirements/test.txt
     #   celery
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.2
     # via
@@ -255,9 +255,9 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openai==1.99.6
+openai==1.101.0
     # via -r requirements/test.txt
-openedx-events==10.4.0
+openedx-events==10.5.0
     # via -r requirements/test.txt
 packaging==25.0
     # via
@@ -268,7 +268,7 @@ packaging==25.0
     #   pytest
     #   sphinx
     #   twine
-pbr==6.1.1
+pbr==7.0.1
     # via
     #   -r requirements/test.txt
     #   stevedore
@@ -313,7 +313,7 @@ pyjwt==2.10.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-pymongo==4.14.0
+pymongo==4.14.1
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -350,7 +350,7 @@ pyyaml==6.0.2
     #   responses
 readme-renderer==44.0
     # via twine
-requests==2.32.4
+requests==2.32.5
     # via
     #   -r requirements/test.txt
     #   algoliasearch
