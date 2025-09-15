@@ -24,9 +24,9 @@ beautifulsoup4==4.13.5
     # via -r requirements/base.in
 billiard==4.2.1
     # via celery
-boto3==1.40.25
+boto3==1.40.30
     # via django-ses
-botocore==1.40.25
+botocore==1.40.30
     # via
     #   boto3
     #   s3transfer
@@ -37,7 +37,7 @@ certifi==2025.8.3
     #   httpcore
     #   httpx
     #   requests
-cffi==1.17.1
+cffi==2.0.0
     # via pynacl
 charset-normalizer==3.4.3
     # via requests
@@ -145,7 +145,7 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.106.1
+openai==1.107.2
     # via -r requirements/base.in
 openedx-events==10.5.0
     # via -r requirements/base.in
@@ -161,9 +161,9 @@ prompt-toolkit==3.0.52
     # via click-repl
 psutil==7.0.0
     # via edx-django-utils
-pycparser==2.22
+pycparser==2.23
     # via cffi
-pydantic==2.11.7
+pydantic==2.11.9
     # via openai
 pydantic-core==2.33.2
     # via pydantic
@@ -171,15 +171,15 @@ pygments==2.19.2
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.14.1
+pymongo==4.15.0
     # via edx-opaque-keys
-pynacl==1.5.0
+pynacl==1.6.0
     # via edx-django-utils
 pytest==8.4.2
     # via
     #   pytest-cov
     #   pytest-django
-pytest-cov==6.3.0
+pytest-cov==7.0.0
     # via -r requirements/test.in
 pytest-django==4.11.1
     # via -r requirements/test.in
@@ -202,7 +202,7 @@ requests==2.32.5
     #   responses
 responses==0.25.8
     # via -r requirements/test.in
-s3transfer==0.13.1
+s3transfer==0.14.0
     # via boto3
 six==1.17.0
     # via
