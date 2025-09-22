@@ -22,11 +22,11 @@ attrs==25.3.0
     # via openedx-events
 beautifulsoup4==4.13.5
     # via -r requirements/base.in
-billiard==4.2.1
+billiard==4.2.2
     # via celery
-boto3==1.40.30
+boto3==1.40.35
     # via django-ses
-botocore==1.40.30
+botocore==1.40.35
     # via
     #   boto3
     #   s3transfer
@@ -41,7 +41,7 @@ cffi==2.0.0
     # via pynacl
 charset-normalizer==3.4.3
     # via requests
-click==8.2.1
+click==8.3.0
     # via
     #   celery
     #   click-didyoumean
@@ -57,7 +57,7 @@ click-repl==0.3.0
     # via celery
 code-annotations==2.3.0
     # via -r requirements/test.in
-coverage[toml]==7.10.6
+coverage[toml]==7.10.7
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -112,7 +112,7 @@ edx-rest-api-client==6.2.0
     # via -r requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==37.6.0
+faker==37.8.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -133,7 +133,7 @@ iniconfig==2.1.0
     # via pytest
 jinja2==3.1.6
     # via code-annotations
-jiter==0.10.0
+jiter==0.11.0
     # via openai
 jmespath==1.0.1
     # via
@@ -145,7 +145,7 @@ markupsafe==3.0.2
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.107.2
+openai==1.108.1
     # via -r requirements/base.in
 openedx-events==10.5.0
     # via -r requirements/base.in
@@ -159,7 +159,7 @@ pluggy==1.6.0
     #   pytest-cov
 prompt-toolkit==3.0.52
     # via click-repl
-psutil==7.0.0
+psutil==7.1.0
     # via edx-django-utils
 pycparser==2.23
     # via cffi
@@ -171,7 +171,7 @@ pygments==2.19.2
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.15.0
+pymongo==4.15.1
     # via edx-opaque-keys
 pynacl==1.6.0
     # via edx-django-utils

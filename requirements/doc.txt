@@ -41,15 +41,15 @@ beautifulsoup4==4.13.5
     # via
     #   -r requirements/test.txt
     #   pydata-sphinx-theme
-billiard==4.2.1
+billiard==4.2.2
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.30
+boto3==1.40.35
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.30
+botocore==1.40.35
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -73,7 +73,7 @@ charset-normalizer==3.4.3
     # via
     #   -r requirements/test.txt
     #   requests
-click==8.2.1
+click==8.3.0
     # via
     #   -r requirements/test.txt
     #   celery
@@ -96,11 +96,11 @@ click-repl==0.3.0
     #   celery
 code-annotations==2.3.0
     # via -r requirements/test.txt
-coverage[toml]==7.10.6
+coverage[toml]==7.10.7
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==45.0.7
+cryptography==46.0.1
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
@@ -175,7 +175,7 @@ edx-rest-api-client==6.2.0
     # via -r requirements/test.txt
 factory-boy==3.3.3
     # via -r requirements/test.txt
-faker==37.6.0
+faker==37.8.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -224,7 +224,7 @@ jinja2==3.1.6
     #   -r requirements/test.txt
     #   code-annotations
     #   sphinx
-jiter==0.10.0
+jiter==0.11.0
     # via
     #   -r requirements/test.txt
     #   openai
@@ -255,7 +255,7 @@ more-itertools==10.8.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openai==1.107.2
+openai==1.108.1
     # via -r requirements/test.txt
 openedx-events==10.5.0
     # via -r requirements/test.txt
@@ -277,7 +277,7 @@ prompt-toolkit==3.0.52
     # via
     #   -r requirements/test.txt
     #   click-repl
-psutil==7.0.0
+psutil==7.1.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -309,7 +309,7 @@ pyjwt==2.10.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-pymongo==4.15.0
+pymongo==4.15.1
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
