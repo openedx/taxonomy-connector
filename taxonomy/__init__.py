@@ -15,4 +15,4 @@ each course based on its description, title etc.
 # 2. MINOR version when you add functionality in a backwards compatible manner, and
 # 3. PATCH version when you make backwards compatible bug fixes.
 # More details can be found at https://semver.org/
-__version__ = '2.3.12'
+__version__ = '2.3.13'
