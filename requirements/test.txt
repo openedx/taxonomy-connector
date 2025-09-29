@@ -12,21 +12,21 @@ amqp==5.3.1
     # via kombu
 annotated-types==0.7.0
     # via pydantic
-anyio==4.10.0
+anyio==4.11.0
     # via
     #   httpx
     #   openai
-asgiref==3.9.1
+asgiref==3.9.2
     # via django
 attrs==25.3.0
     # via openedx-events
-beautifulsoup4==4.13.5
+beautifulsoup4==4.14.0
     # via -r requirements/base.in
 billiard==4.2.2
     # via celery
-boto3==1.40.35
+boto3==1.40.40
     # via django-ses
-botocore==1.40.35
+botocore==1.40.40
     # via
     #   boto3
     #   s3transfer
@@ -141,11 +141,11 @@ jmespath==1.0.1
     #   botocore
 kombu==5.5.4
     # via celery
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.108.1
+openai==1.109.1
     # via -r requirements/base.in
 openedx-events==10.5.0
     # via -r requirements/base.in
@@ -191,7 +191,7 @@ python-slugify==8.0.4
     # via code-annotations
 pytz==2025.2
     # via -r requirements/base.in
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via
     #   code-annotations
     #   responses
@@ -252,7 +252,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
