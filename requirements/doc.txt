@@ -20,12 +20,12 @@ annotated-types==0.7.0
     # via
     #   -r requirements/test.txt
     #   pydantic
-anyio==4.10.0
+anyio==4.11.0
     # via
     #   -r requirements/test.txt
     #   httpx
     #   openai
-asgiref==3.9.1
+asgiref==3.9.2
     # via
     #   -r requirements/test.txt
     #   django
@@ -37,7 +37,7 @@ babel==2.17.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
-beautifulsoup4==4.13.5
+beautifulsoup4==4.14.0
     # via
     #   -r requirements/test.txt
     #   pydata-sphinx-theme
@@ -45,11 +45,11 @@ billiard==4.2.2
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.35
+boto3==1.40.40
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.35
+botocore==1.40.40
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -241,7 +241,7 @@ kombu==5.5.4
     #   celery
 markdown-it-py==4.0.0
     # via rich
-markupsafe==3.0.2
+markupsafe==3.0.3
     # via
     #   -r requirements/test.txt
     #   jinja2
@@ -255,7 +255,7 @@ more-itertools==10.8.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openai==1.108.1
+openai==1.109.1
     # via -r requirements/test.txt
 openedx-events==10.5.0
     # via -r requirements/test.txt
@@ -339,7 +339,7 @@ python-slugify==8.0.4
     #   code-annotations
 pytz==2025.2
     # via -r requirements/test.txt
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -465,7 +465,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.2.13
+wcwidth==0.2.14
     # via
     #   -r requirements/test.txt
     #   prompt-toolkit
