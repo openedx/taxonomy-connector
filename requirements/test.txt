@@ -16,23 +16,23 @@ anyio==4.11.0
     # via
     #   httpx
     #   openai
-asgiref==3.9.2
+asgiref==3.10.0
     # via django
 attrs==25.3.0
     # via openedx-events
-beautifulsoup4==4.14.0
+beautifulsoup4==4.14.2
     # via -r requirements/base.in
 billiard==4.2.2
     # via celery
-boto3==1.40.40
+boto3==1.40.45
     # via django-ses
-botocore==1.40.40
+botocore==1.40.45
     # via
     #   boto3
     #   s3transfer
 celery==5.5.3
     # via -r requirements/base.in
-certifi==2025.8.3
+certifi==2025.10.5
     # via
     #   httpcore
     #   httpx
@@ -98,7 +98,7 @@ dnspython==2.8.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
-edx-django-utils==8.0.0
+edx-django-utils==8.0.1
     # via
     #   -r requirements/base.in
     #   edx-rest-api-client
@@ -145,7 +145,7 @@ markupsafe==3.0.3
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.109.1
+openai==2.1.0
     # via -r requirements/base.in
 openedx-events==10.5.0
     # via -r requirements/base.in
@@ -163,7 +163,7 @@ psutil==7.1.0
     # via edx-django-utils
 pycparser==2.23
     # via cffi
-pydantic==2.11.9
+pydantic==2.11.10
     # via openai
 pydantic-core==2.33.2
     # via pydantic
@@ -171,7 +171,7 @@ pygments==2.19.2
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.15.1
+pymongo==4.15.2
     # via edx-opaque-keys
 pynacl==1.6.0
     # via edx-django-utils
@@ -236,7 +236,7 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   typing-inspection
-typing-inspection==0.4.1
+typing-inspection==0.4.2
     # via pydantic
 tzdata==2025.2
     # via
