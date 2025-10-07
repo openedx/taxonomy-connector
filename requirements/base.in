@@ -13,5 +13,4 @@ beautifulsoup4
 django-choices
 django-filter
 openedx-events
-openai
 django-object-actions
