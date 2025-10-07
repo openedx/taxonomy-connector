@@ -14,6 +14,10 @@ Change Log
 Unreleased
 
 
+[2.3.15] - 2025-10-07
+---------------------
+* chore: Remove unused openai package
+
 [2.3.14] - 2025-10-03
 ---------------------
 * chore: Upgrade python requirements
