@@ -12,16 +12,7 @@ amqp==5.3.1
     # via
     #   -r requirements/test.txt
     #   kombu
-annotated-types==0.7.0
-    # via
-    #   -r requirements/test.txt
-    #   pydantic
-anyio==4.11.0
-    # via
-    #   -r requirements/test.txt
-    #   httpx
-    #   openai
-asgiref==3.9.2
+asgiref==3.10.0
     # via
     #   -r requirements/test.txt
     #   django
@@ -29,21 +20,21 @@ astroid==3.3.11
     # via
     #   pylint
     #   pylint-celery
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
-beautifulsoup4==4.14.0
+beautifulsoup4==4.14.2
     # via -r requirements/test.txt
 billiard==4.2.2
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.40
+boto3==1.40.46
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.40
+botocore==1.40.46
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -58,11 +49,9 @@ cachetools==6.2.0
     #   tox
 celery==5.5.3
     # via -r requirements/test.txt
-certifi==2025.8.3
+certifi==2025.10.5
     # via
     #   -r requirements/test.txt
-    #   httpcore
-    #   httpx
     #   requests
 cffi==2.0.0
     # via
@@ -126,11 +115,7 @@ distlib==0.4.0
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-distro==1.9.0
-    # via
-    #   -r requirements/test.txt
-    #   openai
-django==4.2.24
+django==4.2.25
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -175,7 +160,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r requirements/test.txt
     #   openedx-events
-edx-django-utils==8.0.0
+edx-django-utils==8.0.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
@@ -206,29 +191,15 @@ filelock==3.19.1
     #   -r requirements/ci.txt
     #   tox
     #   virtualenv
-h11==0.16.0
-    # via
-    #   -r requirements/test.txt
-    #   httpcore
-httpcore==1.0.9
-    # via
-    #   -r requirements/test.txt
-    #   httpx
-httpx==0.28.1
-    # via
-    #   -r requirements/test.txt
-    #   openai
 idna==3.10
     # via
     #   -r requirements/test.txt
-    #   anyio
-    #   httpx
     #   requests
 iniconfig==2.1.0
     # via
     #   -r requirements/test.txt
     #   pytest
-isort==6.0.1
+isort==6.1.0
     # via
     #   -r requirements/dev.in
     #   pylint
@@ -237,10 +208,6 @@ jinja2==3.1.6
     #   -r requirements/test.txt
     #   code-annotations
     #   diff-cover
-jiter==0.11.0
-    # via
-    #   -r requirements/test.txt
-    #   openai
 jmespath==1.0.1
     # via
     #   -r requirements/test.txt
@@ -254,7 +221,7 @@ lxml[html-clean]==6.0.2
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
-lxml-html-clean==0.4.2
+lxml-html-clean==0.4.3
     # via lxml
 markupsafe==3.0.3
     # via
@@ -263,8 +230,6 @@ markupsafe==3.0.3
 mccabe==0.7.0
     # via pylint
 mock==5.2.0
-    # via -r requirements/test.txt
-openai==1.109.1
     # via -r requirements/test.txt
 openedx-events==10.5.0
     # via -r requirements/test.txt
@@ -282,7 +247,7 @@ path==13.1.0
     # via
     #   -c requirements/constraints.txt
     #   edx-i18n-tools
-pip-tools==7.5.0
+pip-tools==7.5.1
     # via -r requirements/pip-tools.txt
 platformdirs==4.4.0
     # via
@@ -314,14 +279,6 @@ pycparser==2.23
     # via
     #   -r requirements/test.txt
     #   cffi
-pydantic==2.11.9
-    # via
-    #   -r requirements/test.txt
-    #   openai
-pydantic-core==2.33.2
-    # via
-    #   -r requirements/test.txt
-    #   pydantic
 pydocstyle==6.3.0
     # via -r requirements/dev.in
 pygments==2.19.2
@@ -333,7 +290,7 @@ pyjwt==2.10.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-pylint==3.3.8
+pylint==3.3.9
     # via
     #   edx-lint
     #   pylint-celery
@@ -347,7 +304,7 @@ pylint-plugin-utils==0.9.0
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.15.1
+pymongo==4.15.2
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -408,11 +365,6 @@ six==1.17.0
     #   edx-ccx-keys
     #   edx-lint
     #   python-dateutil
-sniffio==1.3.1
-    # via
-    #   -r requirements/test.txt
-    #   anyio
-    #   openai
 snowballstemmer==3.0.1
     # via pydocstyle
 soupsieve==2.8
@@ -437,26 +389,13 @@ text-unidecode==1.3
     #   python-slugify
 tomlkit==0.13.3
     # via pylint
-tox==4.30.2
+tox==4.30.3
     # via -r requirements/ci.txt
-tqdm==4.67.1
-    # via
-    #   -r requirements/test.txt
-    #   openai
 typing-extensions==4.15.0
     # via
     #   -r requirements/test.txt
-    #   anyio
     #   beautifulsoup4
     #   edx-opaque-keys
-    #   openai
-    #   pydantic
-    #   pydantic-core
-    #   typing-inspection
-typing-inspection==0.4.1
-    # via
-    #   -r requirements/test.txt
-    #   pydantic
 tzdata==2025.2
     # via
     #   -r requirements/test.txt

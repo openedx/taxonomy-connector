@@ -10,33 +10,24 @@ algoliasearch==1.20.0
     #   -r requirements/base.in
 amqp==5.3.1
     # via kombu
-annotated-types==0.7.0
-    # via pydantic
-anyio==4.11.0
-    # via
-    #   httpx
-    #   openai
-asgiref==3.9.2
+asgiref==3.10.0
     # via django
-attrs==25.3.0
+attrs==25.4.0
     # via openedx-events
-beautifulsoup4==4.14.0
+beautifulsoup4==4.14.2
     # via -r requirements/base.in
 billiard==4.2.2
     # via celery
-boto3==1.40.40
+boto3==1.40.46
     # via django-ses
-botocore==1.40.40
+botocore==1.40.46
     # via
     #   boto3
     #   s3transfer
 celery==5.5.3
     # via -r requirements/base.in
-certifi==2025.8.3
-    # via
-    #   httpcore
-    #   httpx
-    #   requests
+certifi==2025.10.5
+    # via requests
 cffi==2.0.0
     # via pynacl
 charset-normalizer==3.4.3
@@ -61,8 +52,6 @@ coverage[toml]==7.10.7
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
-distro==1.9.0
-    # via openai
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -98,7 +87,7 @@ dnspython==2.8.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
-edx-django-utils==8.0.0
+edx-django-utils==8.0.1
     # via
     #   -r requirements/base.in
     #   edx-rest-api-client
@@ -118,23 +107,12 @@ faker==37.8.0
     #   factory-boy
 fastavro==1.12.0
     # via openedx-events
-h11==0.16.0
-    # via httpcore
-httpcore==1.0.9
-    # via httpx
-httpx==0.28.1
-    # via openai
 idna==3.10
-    # via
-    #   anyio
-    #   httpx
-    #   requests
+    # via requests
 iniconfig==2.1.0
     # via pytest
 jinja2==3.1.6
     # via code-annotations
-jiter==0.11.0
-    # via openai
 jmespath==1.0.1
     # via
     #   boto3
@@ -145,8 +123,6 @@ markupsafe==3.0.3
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openai==1.109.1
-    # via -r requirements/base.in
 openedx-events==10.5.0
     # via -r requirements/base.in
 packaging==25.0
@@ -163,15 +139,11 @@ psutil==7.1.0
     # via edx-django-utils
 pycparser==2.23
     # via cffi
-pydantic==2.11.9
-    # via openai
-pydantic-core==2.33.2
-    # via pydantic
 pygments==2.19.2
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.15.1
+pymongo==4.15.2
     # via edx-opaque-keys
 pynacl==1.6.0
     # via edx-django-utils
@@ -208,10 +180,6 @@ six==1.17.0
     # via
     #   edx-ccx-keys
     #   python-dateutil
-sniffio==1.3.1
-    # via
-    #   anyio
-    #   openai
 soupsieve==2.8
     # via beautifulsoup4
 sqlparse==0.5.3
@@ -225,19 +193,10 @@ testfixtures==9.1.0
     # via -r requirements/test.in
 text-unidecode==1.3
     # via python-slugify
-tqdm==4.67.1
-    # via openai
 typing-extensions==4.15.0
     # via
-    #   anyio
     #   beautifulsoup4
     #   edx-opaque-keys
-    #   openai
-    #   pydantic
-    #   pydantic-core
-    #   typing-inspection
-typing-inspection==0.4.1
-    # via pydantic
 tzdata==2025.2
     # via
     #   faker
