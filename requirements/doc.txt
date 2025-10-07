@@ -56,6 +56,7 @@ certifi==2025.10.5
 cffi==2.0.0
     # via
     #   -r requirements/test.txt
+    #   cryptography
     #   pynacl
 charset-normalizer==3.4.3
     # via
@@ -88,6 +89,8 @@ coverage[toml]==7.10.7
     # via
     #   -r requirements/test.txt
     #   pytest-cov
+cryptography==46.0.2
+    # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
 django==4.2.25
@@ -183,6 +186,10 @@ jaraco-context==6.0.1
     # via keyring
 jaraco-functools==4.3.0
     # via keyring
+jeepney==0.9.0
+    # via
+    #   keyring
+    #   secretstorage
 jinja2==3.1.6
     # via
     #   -r requirements/test.txt
@@ -322,6 +329,8 @@ s3transfer==0.14.0
     # via
     #   -r requirements/test.txt
     #   boto3
+secretstorage==3.4.0
+    # via keyring
 six==1.17.0
     # via
     #   -r requirements/test.txt
