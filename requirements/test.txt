@@ -18,9 +18,9 @@ beautifulsoup4==4.14.2
     # via -r requirements/base.in
 billiard==4.2.2
     # via celery
-boto3==1.40.46
+boto3==1.40.50
     # via django-ses
-botocore==1.40.46
+botocore==1.40.50
     # via
     #   boto3
     #   s3transfer
@@ -101,13 +101,13 @@ edx-rest-api-client==6.2.0
     # via -r requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==37.8.0
+faker==37.11.0
     # via
     #   -r requirements/test.in
     #   factory-boy
-fastavro==1.12.0
+fastavro==1.12.1
     # via openedx-events
-idna==3.10
+idna==3.11
     # via requests
 iniconfig==2.1.0
     # via pytest
@@ -143,7 +143,7 @@ pygments==2.19.2
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.15.2
+pymongo==4.15.3
     # via edx-opaque-keys
 pynacl==1.6.0
     # via edx-django-utils
