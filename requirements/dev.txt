@@ -12,7 +12,7 @@ amqp==5.3.1
     # via
     #   -r requirements/test.txt
     #   kombu
-asgiref==3.10.0
+asgiref==3.11.0
     # via
     #   -r requirements/test.txt
     #   django
@@ -30,11 +30,11 @@ billiard==4.2.3
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.40.74
+boto3==1.41.2
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.40.74
+botocore==1.41.2
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -101,7 +101,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.11.3
+coverage[toml]==7.12.0
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -178,7 +178,7 @@ edx-rest-api-client==6.2.0
     # via -r requirements/test.txt
 factory-boy==3.3.3
     # via -r requirements/test.txt
-faker==38.0.0
+faker==38.2.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -355,7 +355,7 @@ requests==2.32.5
     #   responses
 responses==0.25.8
     # via -r requirements/test.txt
-s3transfer==0.14.0
+s3transfer==0.15.0
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -375,7 +375,7 @@ sqlparse==0.5.3
     # via
     #   -r requirements/test.txt
     #   django
-stevedore==5.5.0
+stevedore==5.6.0
     # via
     #   -r requirements/test.txt
     #   code-annotations
