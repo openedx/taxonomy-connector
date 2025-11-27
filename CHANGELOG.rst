@@ -13,6 +13,11 @@ Change Log
 
 Unreleased
 
+[2.3.19] - 2025-11-26
+---------------------
+* chore: upgrade python requirements
+
+
 [2.3.18] - 2025-10-30
 ---------------------
 * fix: pin `pip<25.3` to resolve make upgrade build failure
