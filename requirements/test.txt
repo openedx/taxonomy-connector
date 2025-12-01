@@ -14,17 +14,17 @@ asgiref==3.11.0
     # via django
 attrs==25.4.0
     # via openedx-events
-beautifulsoup4==4.14.2
+beautifulsoup4==4.14.3
     # via -r requirements/base.in
-billiard==4.2.3
+billiard==4.2.4
     # via celery
-boto3==1.41.2
+boto3==1.41.5
     # via django-ses
-botocore==1.41.2
+botocore==1.41.5
     # via
     #   boto3
     #   s3transfer
-celery==5.5.3
+celery==5.6.0
     # via -r requirements/base.in
 certifi==2025.11.12
     # via requests
@@ -99,6 +99,8 @@ edx-opaque-keys[django]==3.0.0
     #   openedx-events
 edx-rest-api-client==6.2.0
     # via -r requirements/base.in
+exceptiongroup==1.3.1
+    # via celery
 factory-boy==3.3.3
     # via -r requirements/test.in
 faker==38.2.0
@@ -117,7 +119,7 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-kombu==5.5.4
+kombu==5.6.1
     # via celery
 markupsafe==3.0.3
     # via jinja2
@@ -182,7 +184,7 @@ six==1.17.0
     #   python-dateutil
 soupsieve==2.8
     # via beautifulsoup4
-sqlparse==0.5.3
+sqlparse==0.5.4
     # via django
 stevedore==5.6.0
     # via
@@ -197,10 +199,13 @@ typing-extensions==4.15.0
     # via
     #   beautifulsoup4
     #   edx-opaque-keys
+    #   exceptiongroup
 tzdata==2025.2
     # via
     #   faker
     #   kombu
+tzlocal==5.3.1
+    # via celery
 urllib3==2.5.0
     # via
     #   botocore
