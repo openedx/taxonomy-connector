@@ -18,9 +18,9 @@ beautifulsoup4==4.14.3
     # via -r requirements/base.in
 billiard==4.2.4
     # via celery
-boto3==1.41.5
+boto3==1.42.9
     # via django-ses
-botocore==1.41.5
+botocore==1.42.9
     # via
     #   boto3
     #   s3transfer
@@ -48,7 +48,7 @@ click-repl==0.3.0
     # via celery
 code-annotations==2.3.0
     # via -r requirements/test.in
-coverage[toml]==7.12.0
+coverage[toml]==7.13.0
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -145,11 +145,11 @@ pygments==2.19.2
     # via pytest
 pyjwt==2.10.1
     # via edx-rest-api-client
-pymongo==4.15.4
+pymongo==4.15.5
     # via edx-opaque-keys
 pynacl==1.6.1
     # via edx-django-utils
-pytest==9.0.1
+pytest==9.0.2
     # via
     #   pytest-cov
     #   pytest-django
@@ -176,7 +176,7 @@ requests==2.32.5
     #   responses
 responses==0.25.8
     # via -r requirements/test.in
-s3transfer==0.15.0
+s3transfer==0.16.0
     # via boto3
 six==1.17.0
     # via
@@ -200,13 +200,13 @@ typing-extensions==4.15.0
     #   beautifulsoup4
     #   edx-opaque-keys
     #   exceptiongroup
-tzdata==2025.2
+tzdata==2025.3
     # via
     #   faker
     #   kombu
 tzlocal==5.3.1
     # via celery
-urllib3==2.5.0
+urllib3==2.6.2
     # via
     #   botocore
     #   requests
