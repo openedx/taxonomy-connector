@@ -16,7 +16,7 @@ asgiref==3.11.0
     # via
     #   -r requirements/test.txt
     #   django
-astroid==3.3.11
+astroid==4.0.3
     # via
     #   pylint
     #   pylint-celery
@@ -30,26 +30,26 @@ billiard==4.2.4
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.41.5
+boto3==1.42.30
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.41.5
+botocore==1.42.30
     # via
     #   -r requirements/test.txt
     #   boto3
     #   s3transfer
-build==1.3.0
+build==1.4.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
-cachetools==6.2.2
+cachetools==6.2.4
     # via
     #   -r requirements/ci.txt
     #   tox
-celery==5.6.0
+celery==5.6.2
     # via -r requirements/test.txt
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   -r requirements/test.txt
     #   requests
@@ -101,13 +101,13 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.12.0
+coverage[toml]==7.13.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
 ddt==1.7.2
     # via -r requirements/test.txt
-diff-cover==9.7.2
+diff-cover==10.2.0
     # via -r requirements/dev.in
 dill==0.4.0
     # via pylint
@@ -115,7 +115,7 @@ distlib==0.4.0
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-django==4.2.26
+django==4.2.27
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.txt
@@ -142,9 +142,9 @@ django-model-utils==5.0.0
     # via -r requirements/test.txt
 django-object-actions==5.0.0
     # via -r requirements/test.txt
-django-ses==4.4.0
+django-ses==4.6.0
     # via -r requirements/test.txt
-django-solo==2.4.0
+django-solo==2.5.1
     # via -r requirements/test.txt
 django-waffle==5.0.0
     # via
@@ -176,13 +176,9 @@ edx-opaque-keys[django]==3.0.0
     #   openedx-events
 edx-rest-api-client==6.2.0
     # via -r requirements/test.txt
-exceptiongroup==1.3.1
-    # via
-    #   -r requirements/test.txt
-    #   celery
 factory-boy==3.3.3
     # via -r requirements/test.txt
-faker==38.2.0
+faker==40.1.2
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -190,7 +186,7 @@ fastavro==1.12.1
     # via
     #   -r requirements/test.txt
     #   openedx-events
-filelock==3.20.0
+filelock==3.20.3
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -203,7 +199,7 @@ iniconfig==2.3.0
     # via
     #   -r requirements/test.txt
     #   pytest
-isort==6.1.0
+isort==7.0.0
     # via
     #   -r requirements/dev.in
     #   pylint
@@ -217,7 +213,7 @@ jmespath==1.0.1
     #   -r requirements/test.txt
     #   boto3
     #   botocore
-kombu==5.6.1
+kombu==5.6.2
     # via
     #   -r requirements/test.txt
     #   celery
@@ -253,7 +249,7 @@ path==13.1.0
     #   edx-i18n-tools
 pip-tools==7.5.2
     # via -r requirements/pip-tools.txt
-platformdirs==4.5.0
+platformdirs==4.5.1
     # via
     #   -r requirements/ci.txt
     #   pylint
@@ -273,7 +269,7 @@ prompt-toolkit==3.0.52
     # via
     #   -r requirements/test.txt
     #   click-repl
-psutil==7.1.3
+psutil==7.2.1
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -294,7 +290,7 @@ pyjwt==2.10.1
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-pylint==3.3.9
+pylint==4.0.4
     # via
     #   edx-lint
     #   pylint-celery
@@ -302,17 +298,17 @@ pylint==3.3.9
     #   pylint-plugin-utils
 pylint-celery==0.3
     # via edx-lint
-pylint-django==2.6.1
+pylint-django==2.7.0
     # via edx-lint
 pylint-plugin-utils==0.9.0
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.15.4
+pymongo==4.16.0
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
-pynacl==1.6.1
+pynacl==1.6.2
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -325,7 +321,7 @@ pyproject-hooks==1.2.0
     #   -r requirements/pip-tools.txt
     #   build
     #   pip-tools
-pytest==9.0.1
+pytest==9.0.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -359,7 +355,7 @@ requests==2.32.5
     #   responses
 responses==0.25.8
     # via -r requirements/test.txt
-s3transfer==0.15.0
+s3transfer==0.16.0
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -371,11 +367,11 @@ six==1.17.0
     #   python-dateutil
 snowballstemmer==3.0.1
     # via pydocstyle
-soupsieve==2.8
+soupsieve==2.8.2
     # via
     #   -r requirements/test.txt
     #   beautifulsoup4
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via
     #   -r requirements/test.txt
     #   django
@@ -391,26 +387,24 @@ text-unidecode==1.3
     # via
     #   -r requirements/test.txt
     #   python-slugify
-tomlkit==0.13.3
+tomlkit==0.14.0
     # via pylint
-tox==4.32.0
+tox==4.34.1
     # via -r requirements/ci.txt
 typing-extensions==4.15.0
     # via
     #   -r requirements/test.txt
     #   beautifulsoup4
     #   edx-opaque-keys
-    #   exceptiongroup
-tzdata==2025.2
+tzdata==2025.3
     # via
     #   -r requirements/test.txt
-    #   faker
     #   kombu
 tzlocal==5.3.1
     # via
     #   -r requirements/test.txt
     #   celery
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   -r requirements/test.txt
     #   botocore
@@ -422,7 +416,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.35.4
+virtualenv==20.36.1
     # via
     #   -r requirements/ci.txt
     #   tox
