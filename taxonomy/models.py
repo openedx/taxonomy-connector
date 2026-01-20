@@ -1196,7 +1196,7 @@ class SkillValidationConfiguration(TimeStampedModel):
 
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(course_key__isnull=False) &
                     Q(organization__isnull=True)
                 ) | (

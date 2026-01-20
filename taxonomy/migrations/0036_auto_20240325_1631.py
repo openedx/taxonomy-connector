@@ -29,6 +29,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='skillvalidationconfiguration',
-            constraint=models.CheckConstraint(check=models.Q(models.Q(('course_key__isnull', False), ('organization__isnull', True)), models.Q(('course_key__isnull', True), ('organization__isnull', False)), _connector='OR'), name='either_course_or_org'),
+            constraint=models.CheckConstraint(condition=models.Q(models.Q(('course_key__isnull', False), ('organization__isnull', True)), models.Q(('course_key__isnull', True), ('organization__isnull', False)), _connector='OR'), name='either_course_or_org'),
         ),
     ]
