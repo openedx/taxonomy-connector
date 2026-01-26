@@ -4,6 +4,7 @@ ORM Models for the taxonomy application.
 """
 from __future__ import unicode_literals
 
+import hashlib
 import logging
 import uuid
 
@@ -1115,6 +1116,139 @@ class Industry(models.Model):
         app_label = 'taxonomy'
         verbose_name = 'Industry'
         verbose_name_plural = 'Industries'
+
+
+class TaxonomyTranslation(TimeStampedModel):
+    """
+    Store translations for taxonomy entities (jobs, skills, industries).
+
+    This model follows the enterprise-catalog ContentTranslation pattern,
+    using source_hash to track when English source content changes and
+    retranslation is needed.
+
+    .. no_pii:
+    """
+
+    CONTENT_TYPE_CHOICES = [
+        ('job', 'Job'),
+        ('skill', 'Skill'),
+        ('industry', 'Industry'),
+    ]
+
+    external_id = models.CharField(
+        max_length=255,
+        db_index=True,
+        help_text=_(
+            'EMSI external ID (e.g., ET1234567890, ES1234567890, IN123)'
+        )
+    )
+
+    content_type = models.CharField(
+        max_length=50,
+        choices=CONTENT_TYPE_CHOICES,
+        db_index=True,
+        help_text=_(
+            'Type of entity being translated (job, skill, or industry)'
+        )
+    )
+
+    language_code = models.CharField(
+        max_length=10,
+        db_index=True,
+        help_text=_(
+            'Target language code (e.g., es, ar, fr) following ISO 639-1'
+        )
+    )
+
+    # Translated fields
+    title = models.CharField(
+        max_length=500,
+        help_text=_(
+            'Translated name/title of the entity'
+        )
+    )
+
+    description = models.TextField(
+        blank=True,
+        help_text=_(
+            'Translated description field'
+        )
+    )
+
+    # Change detection
+    source_hash = models.CharField(
+        max_length=64,
+        help_text=_(
+            'MD5 hash of English source text (title + description). '
+            'Used to detect when source content changes and retranslation is needed.'
+        )
+    )
+
+    class Meta:
+        """
+        Meta options for TaxonomyTranslation.
+        """
+
+        app_label = 'taxonomy'
+        verbose_name = _('Taxonomy Translation')
+        verbose_name_plural = _('Taxonomy Translations')
+        unique_together = [('external_id', 'content_type', 'language_code')]
+        indexes = [
+            models.Index(fields=['language_code', 'content_type']),
+            models.Index(fields=['external_id', 'language_code']),
+        ]
+
+    def __str__(self):
+        """
+        Return a human-readable string representation.
+        """
+        return '{content_type}:{external_id}:{language}:{title}'.format(
+            content_type=self.content_type,
+            external_id=self.external_id,
+            language=self.language_code,
+            title=self.title[:50],  # Truncate for readability
+        )
+
+    def __repr__(self):
+        """
+        Create a unique string representation of the object.
+        """
+        return '<TaxonomyTranslation id="{}" content_type="{}" external_id="{}" language="{}">'.format(
+            self.id,
+            self.content_type,
+            self.external_id,
+            self.language_code,
+        )
+
+    @staticmethod
+    def calculate_source_hash(title, description=''):
+        """
+        Calculate MD5 hash of English source text.
+
+        This hash is used to detect when the source content has changed,
+        which triggers retranslation. The hash combines title and description
+        with a delimiter to avoid hash collisions.
+
+        Args:
+            title (str): The title/name of the entity
+            description (str): The description of the entity (optional)
+
+        Returns:
+            str: MD5 hash (32 hex characters)
+
+        Example:
+            >>> TaxonomyTranslation.calculate_source_hash('Software Engineer', 'Develops apps')
+            'a1b2c3d4e5f6...'
+        """
+        # Combine title and description with delimiter
+        # Use || to separate fields (unlikely to appear in actual content)
+        source_text = '{title}||{description}'.format(
+            title=title or '',
+            description=description or ''
+        )
+
+        # Calculate MD5 hash
+        return hashlib.md5(source_text.encode('utf-8')).hexdigest()
 
 
 class B2CJobAllowList(models.Model):

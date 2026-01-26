@@ -29,6 +29,7 @@ from taxonomy.models import (
     SkillsQuiz,
     SkillSubCategory,
     SkillValidationConfiguration,
+    TaxonomyTranslation,
     Translation,
     XBlockSkillData,
     XBlockSkills,
@@ -418,3 +419,21 @@ class SkillValidationConfigurationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = SkillValidationConfiguration
+
+
+class TaxonomyTranslationFactory(factory.django.DjangoModelFactory):
+    """
+    Factory class for TaxonomyTranslation model.
+    """
+
+    class Meta:
+        model = TaxonomyTranslation
+
+    external_id = factory.Sequence(lambda n: f'ET{n:010d}')
+    content_type = 'job'
+    language_code = 'es'
+    title = factory.Faker('job')
+    description = factory.Faker('text')
+    source_hash = factory.LazyAttribute(
+        lambda obj: TaxonomyTranslation.calculate_source_hash(obj.title, obj.description)
+    )

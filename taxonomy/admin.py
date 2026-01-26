@@ -11,6 +11,7 @@ from django_object_actions import DjangoObjectActions
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import re_path, reverse
+from django.utils.html import format_html
 
 from taxonomy.constants import JOB_SKILLS_URL_NAME
 from taxonomy.models import (
@@ -30,6 +31,7 @@ from taxonomy.models import (
     SkillsQuiz,
     SkillSubCategory,
     SkillValidationConfiguration,
+    TaxonomyTranslation,
     Translation,
     XBlockSkillData,
     XBlockSkills,
@@ -301,3 +303,122 @@ class SkillValidationConfiguratonAdmin(admin.ModelAdmin):
     """
     Admin view for SkillValidationConfiguration model.
     """
+
+
+@admin.register(TaxonomyTranslation)
+class TaxonomyTranslationAdmin(admin.ModelAdmin):
+    """
+    Admin view for TaxonomyTranslation model.
+
+    Displays translations for jobs, skills, and industries across different languages.
+    """
+
+    list_display = (
+        'id',
+        'content_type',
+        'external_id',
+        'language_code',
+        'title_preview',
+        'view_source_object',
+    )
+
+    list_filter = (
+        'content_type',
+        'language_code',
+    )
+
+    search_fields = (
+        'external_id',
+        'title',
+        'description',
+    )
+
+    readonly_fields = (
+        'created',
+        'modified',
+        'source_hash',
+        'source_object_link',
+    )
+
+    fieldsets = (
+        ('Entity Information', {
+            'fields': ('content_type', 'external_id', 'language_code', 'source_object_link'),
+        }),
+        ('Translation', {
+            'fields': ('title', 'description'),
+        }),
+        ('Metadata', {
+            'fields': ('source_hash', 'created', 'modified'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    ordering = ('-modified',)
+
+    @admin.display(description='Title')
+    def title_preview(self, obj):
+        """
+        Display truncated title for readability.
+        """
+        return obj.title[:75] + '...' if len(obj.title) > 75 else obj.title
+
+    @admin.display(description='Source Object')
+    def view_source_object(self, obj):
+        """
+        Display a link to view the source object (Job, Skill, or Industry).
+        """
+        try:
+            if obj.content_type == 'job':
+                job = Job.objects.get(external_id=obj.external_id)
+                url = reverse('admin:taxonomy_job_change', args=[job.pk])
+                return format_html('<a href="{}" target="_blank">View Job</a>', url)
+            elif obj.content_type == 'skill':
+                skill = Skill.objects.get(external_id=obj.external_id)
+                url = reverse('admin:taxonomy_skill_change', args=[skill.pk])
+                return format_html('<a href="{}" target="_blank">View Skill</a>', url)
+            elif obj.content_type == 'industry':
+                industry = Industry.objects.get(code=obj.external_id)
+                url = reverse('admin:taxonomy_industry_change', args=[industry.pk])
+                return format_html('<a href="{}" target="_blank">View Industry</a>', url)
+        except (Job.DoesNotExist, Skill.DoesNotExist, Industry.DoesNotExist):
+            return '-'
+
+        return '-'
+
+    @admin.display(description='Source Object Details')
+    def source_object_link(self, obj):
+        """
+        Display detailed link to source object in the detail view.
+        """
+        try:
+            if obj.content_type == 'job':
+                job = Job.objects.get(external_id=obj.external_id)
+                url = reverse('admin:taxonomy_job_change', args=[job.pk])
+                return format_html(
+                    '<a href="{}" target="_blank" style="font-size: 14px; font-weight: bold;">'
+                    'Open Job: {} (ID: {})</a>',
+                    url, job.name, job.external_id
+                )
+            elif obj.content_type == 'skill':
+                skill = Skill.objects.get(external_id=obj.external_id)
+                url = reverse('admin:taxonomy_skill_change', args=[skill.pk])
+                return format_html(
+                    '<a href="{}" target="_blank" style="font-size: 14px; font-weight: bold;">'
+                    'Open Skill: {} (ID: {})</a>',
+                    url, skill.name, skill.external_id
+                )
+            elif obj.content_type == 'industry':
+                industry = Industry.objects.get(code=obj.external_id)
+                url = reverse('admin:taxonomy_industry_change', args=[industry.pk])
+                return format_html(
+                    '<a href="{}" target="_blank" style="font-size: 14px; font-weight: bold;">'
+                    'Open Industry: {} (Code: {})</a>',
+                    url, industry.name, industry.code
+                )
+        except (Job.DoesNotExist, Skill.DoesNotExist, Industry.DoesNotExist):
+            return format_html(
+                '<span style="color: #999;">Source object not found (external_id: {})</span>',
+                obj.external_id
+            )
+
+        return '-'

@@ -822,3 +822,30 @@ class SkillValidationConfigurationTests(TestCase):
         organization = self.courses[0].key.split('+')[0]
         disabled_config = factories.SkillValidationConfigurationFactory(organization=organization)
         assert str(disabled_config) == 'Skill validation disabled for organization: RichX'
+
+
+@mark.django_db
+class TestTaxonomyTranslation(TestCase):
+    """
+    Tests for the ``TaxonomyTranslation`` model.
+    """
+
+    def test_string_representation(self):
+        """
+        Test the string representation of the TaxonomyTranslation model.
+        """
+        translation = factories.TaxonomyTranslationFactory(
+            external_id='ET',
+            content_type='job',
+            language_code='es',
+            title='In',
+            description='De'
+        )
+
+        expected_str = 'job:ET:es:In'
+        expected_repr = '<TaxonomyTranslation id="{}" content_type="job" external_id="ET" language="es">'.format(
+            translation.id
+        )
+
+        assert expected_str == translation.__str__()
+        assert expected_repr == translation.__repr__()

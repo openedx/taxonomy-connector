@@ -13,10 +13,13 @@ Change Log
 
 Unreleased
 
+[2.3.20] - 2026-01-29
+---------------------
+* feat: translate skills, jobs and industries
+
 [2.3.19] - 2025-11-26
 ---------------------
 * chore: upgrade python requirements
-
 
 [2.3.18] - 2025-10-30
 ---------------------
