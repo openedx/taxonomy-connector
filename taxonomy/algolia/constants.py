@@ -17,6 +17,10 @@ ALGOLIA_JOBS_INDEX_SETTINGS = {
         'searchable(industry_names)',
         'searchable(b2c_opt_in)',
         'searchable(job_sources)',
+        'metadata_language',
+    ],
+    'customRanking': [
+        'asc(metadata_language)',
     ],
 }
 
@@ -29,3 +33,5 @@ EMBEDDED_OBJECT_LENGTH_CAP = 20
 JOBS_TO_IGNORE = [
     'ET0000000000000000',  # 'Unclassified' job
 ]
+
+TAXONOMY_TRANSLATION_LOCALES = ['es']
