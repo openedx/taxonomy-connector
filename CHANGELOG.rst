@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[3.0.0] - 2026-05-25
+---------------------
+* feat: construct and index Spanish Algolia objects for skills, jobs and industries
+
 [2.4.0] - 2026-03-26
 ---------------------
 * fix: bump lightcast version from 8.9 to 9.41
