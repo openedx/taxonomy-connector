@@ -15,9 +15,10 @@ from taxonomy.algolia.constants import (
     EMBEDDED_OBJECT_LENGTH_CAP,
     JOBS_PAGE_SIZE,
     JOBS_TO_IGNORE,
+    TAXONOMY_TRANSLATION_LOCALES,
 )
 from taxonomy.algolia.serializers import JobSerializer
-from taxonomy.models import Industry, IndustryJobSkill, Job, JobSkills
+from taxonomy.models import Industry, IndustryJobSkill, Job, JobSkills, Skill, TaxonomyTranslation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -52,13 +53,14 @@ class LogTime:
 
 def index_jobs_data_in_algolia():
     """
-    Re-Index all jobs data to algolia.
+    Re-Index all jobs data to algolia with translations.
 
-    This function is responsible for
-        1. Constructing a list of dicts containing all jobs present in the database.
-        2. Re-Indexing all data in a single atomic operations with zero downtime.
+    This function is responsible for:
+        1. Constructing a list of dicts containing all jobs present in the database (English).
+        2. Creating localized variants for enabled languages (e.g., Spanish).
+        3. Re-Indexing all data in a single atomic operation with zero downtime.
 
-    Note: We need to construct a list of all jobs in the form of a list and the send it all in a single attempt to
+    Note: We need to construct a list of all jobs in the form of a list and send it all in a single attempt to
         make the operation atomic and make sure there is no downtime. Paginating DB data and incrementally adding
         objects to the index will cause downtime equal to the amount of time it will take to run the command.
     """
@@ -67,12 +69,23 @@ def index_jobs_data_in_algolia():
         api_key=settings.ALGOLIA.get('API_KEY'),
         index_name=settings.ALGOLIA.get('TAXONOMY_INDEX_NAME'),
     )
+
     LOGGER.info('[TAXONOMY] Resetting algolia index settings from code.')
     client.set_index_settings(ALGOLIA_JOBS_INDEX_SETTINGS)
 
     LOGGER.info('[TAXONOMY] Fetching Jobs data from the database.')
     jobs_data = fetch_jobs_data()
     LOGGER.info('[TAXONOMY] Jobs data successfully fetched from the database.')
+    LOGGER.info(f'[TAXONOMY] Total English job records: {len(jobs_data)}')
+
+    for language in TAXONOMY_TRANSLATION_LOCALES:
+        LOGGER.info(f'[TAXONOMY] Creating {language} job records.')
+        localized_jobs = create_localized_job_records(jobs_data, language)
+        jobs_data.extend(localized_jobs)
+        LOGGER.info(f'[TAXONOMY] Added {len(localized_jobs)} {language} records.')
+
+    LOGGER.info(f'[TAXONOMY] Total records (all languages): {len(jobs_data)}')
+
     LOGGER.info('[TAXONOMY] Indexing Jobs data on algolia.')
     client.replace_all_objects(jobs_data)
     LOGGER.info('[TAXONOMY] Jobs data successfully indexed on algolia.')
@@ -236,6 +249,266 @@ def get_job_ids(qs):
     return jobs
 
 
+def build_name_translation_maps(language_code):
+    """
+    Build direct name→translation dictionaries using database queries.
+
+    Uses database queries to map English entity names directly to translations,
+    avoiding the need for two-step lookups (name→id→translation).
+
+    Args:
+        language_code: Target language (e.g., 'es')
+
+    Returns:
+        dict: {
+            'job': {english_name: translated_name},
+            'skill': {english_name: translated_name},
+            'industry': {english_name: translated_name},
+        }
+    """
+
+    LOGGER.info(f'[TAXONOMY] Building {language_code} translation maps from database.')
+
+    # Fetch all translations for the language
+    job_trans_qs = TaxonomyTranslation.objects.filter(
+        content_type='job',
+        language_code=language_code
+    )
+    skill_trans_qs = TaxonomyTranslation.objects.filter(
+        content_type='skill',
+        language_code=language_code
+    )
+    industry_trans_qs = TaxonomyTranslation.objects.filter(
+        content_type='industry',
+        language_code=language_code
+    )
+
+    # Build mappings: external_id to translation
+    job_trans_by_id = {t.external_id: t for t in job_trans_qs}
+    skill_trans_by_id = {t.external_id: t for t in skill_trans_qs}
+    industry_trans_by_id = {t.external_id: t for t in industry_trans_qs}
+
+    # Job: English name to Translated name
+    job_translations = {}
+    for job in Job.objects.exclude(Q(name__isnull=True) | Q(external_id__in=JOBS_TO_IGNORE)):
+        trans = job_trans_by_id.get(job.external_id)
+        if trans and trans.title:
+            job_translations[job.name] = trans.title
+
+    # Skill: English name to Translated name
+    skill_translations = {}
+    for skill in Skill.objects.exclude(external_id__isnull=True):
+        trans = skill_trans_by_id.get(skill.external_id)
+        if trans and trans.title:
+            skill_translations[skill.name] = trans.title
+
+    # Industry: English name to Translated name
+    industry_translations = {}
+    for industry in Industry.objects.exclude(code__isnull=True):
+        trans = industry_trans_by_id.get(str(industry.code))
+        if trans and trans.title:
+            industry_translations[industry.name] = trans.title
+
+    LOGGER.info(
+        f'[TAXONOMY] Built translation maps: {len(job_translations)} jobs, '
+        f'{len(skill_translations)} skills, {len(industry_translations)} industries'
+    )
+
+    return {
+        'job': job_translations,
+        'skill': skill_translations,
+        'industry': industry_translations,
+    }
+
+
+def translate_skill_dict(skill, name_translation_maps):
+    """
+    Translate a single skill dict using direct name lookup (keeps same schema).
+
+    Args:
+        skill: Dict with skill data from JobSerializer
+        name_translation_maps: Direct name→translation dictionaries
+
+    Returns:
+        Dict with translated skill data (same schema as input)
+    """
+    skill_name = skill.get('name', '')
+
+    # Direct lookup: English name to Translated name
+    translated_name = name_translation_maps['skill'].get(skill_name, skill_name)
+
+    return {
+        **skill,  # Copy all fields (significance, type_id, description, etc.)
+        'name': translated_name,
+    }
+
+
+def translate_industries_array(industries, name_translation_maps):
+    """
+    Translate industries array with nested skills using direct name lookup (keeps same schema).
+
+    Args:
+        industries: List of industry dicts from JobSerializer
+        name_translation_maps: Direct name→translation dictionaries
+
+    Returns:
+        List of translated industry dicts (same schema as input)
+    """
+    translated_industries = []
+
+    for industry in industries:
+        industry_name = industry.get('name', '')
+
+        # Direct lookup: English industry name to Translated industry name
+        translated_industry_name = name_translation_maps['industry'].get(industry_name, industry_name)
+
+        # Translate nested skills (they are plain strings in current schema)
+        translated_skills = [
+            name_translation_maps['skill'].get(skill_name, skill_name)
+            for skill_name in industry.get('skills', [])
+        ]
+
+        translated_industries.append({
+            'name': translated_industry_name,
+            'skills': translated_skills  # Keep as list of strings
+        })
+
+    return translated_industries
+
+
+def translate_job_record(english_job, name_translation_maps, description_translation_maps, language_code):
+    """
+    Translate a single job record using direct name lookups - creates duplicate with same schema.
+
+    Args:
+        english_job: Dict with English job data (from JobSerializer)
+        name_translation_maps: Direct name to translated_name dictionaries
+        description_translation_maps: {content_type: {external_id: TaxonomyTranslation}} for descriptions
+        language_code: Target language code (e.g., 'es')
+
+    Returns:
+        Dict with translated job data (SAME SCHEMA as English)
+    """
+    external_id = english_job.get('external_id')
+    job_name = english_job.get('name', '')
+
+    # Direct name translation
+    translated_job_name = name_translation_maps['job'].get(job_name, job_name)
+
+    # Description requires external_id lookup (not included in name maps)
+    job_trans = description_translation_maps.get('job', {}).get(external_id)
+    translated_description = (
+        job_trans.description if (job_trans and job_trans.description)
+        else english_job.get('description', '')
+    )
+
+    # Create localized copy with IDENTICAL schema
+    localized_job = {
+        # Metadata - change objectID for localized variant
+        'objectID': f"job-{external_id}-{language_code}",
+        'id': english_job.get('id'),
+        'external_id': external_id,
+        'metadata_language': language_code,
+
+        # Translated top-level fields
+        'name': translated_job_name,
+        'description': translated_description,
+
+        # Translate skills array (keep same schema - dicts with name, description, etc.)
+        'skills': [
+            translate_skill_dict(skill, name_translation_maps)
+            for skill in english_job.get('skills', [])
+        ],
+
+        # Job postings (no translation - copy as-is)
+        'job_postings': english_job.get('job_postings', []),
+
+        # Translate industry_names (direct name lookup - list of strings)
+        'industry_names': [
+            name_translation_maps['industry'].get(ind_name, ind_name)
+            for ind_name in english_job.get('industry_names', [])
+        ],
+
+        # Translate industries with nested skills (keep same schema)
+        'industries': translate_industries_array(
+            english_job.get('industries', []),
+            name_translation_maps
+        ),
+
+        # Translate similar_jobs (direct name lookup - list of strings)
+        'similar_jobs': [
+            name_translation_maps['job'].get(job_name, job_name)
+            for job_name in english_job.get('similar_jobs', [])
+        ],
+
+        # Non-translatable fields (copy as-is)
+        'b2c_opt_in': english_job.get('b2c_opt_in', False),
+        'job_sources': english_job.get('job_sources', []),
+    }
+
+    return localized_job
+
+
+def create_localized_job_records(english_jobs, language_code):
+    """
+    Create localized variants of English job records using direct name translation.
+
+    This function:
+    1. Builds direct name→translation dictionaries (English→Spanish)
+    2. Fetches description translations separately (requires external_id)
+    3. Creates duplicate job records with translated content using O(1) lookups
+
+    Args:
+        english_jobs: List of serialized English job dicts
+        language_code: Target language code (e.g., 'es', 'fr', 'ar')
+
+    Returns:
+        List of localized job dicts (SAME SCHEMA as English, different content)
+    """
+
+    LOGGER.info(f'[TAXONOMY] Building {language_code} translation maps.')
+
+    # Build direct name→translation maps (job/skill/industry names)
+    name_translation_maps = build_name_translation_maps(language_code)
+
+    # Build description translation maps (requires external_id lookup)
+    all_translations = TaxonomyTranslation.objects.filter(
+        language_code=language_code
+    )
+
+    description_translation_maps = {
+        'job': {},
+        'skill': {},
+        'industry': {},
+    }
+
+    for trans in all_translations:
+        description_translation_maps[trans.content_type][trans.external_id] = trans
+
+    LOGGER.info(
+        f'[TAXONOMY] Loaded {len(name_translation_maps["job"])} job name, '
+        f'{len(name_translation_maps["skill"])} skill name, '
+        f'{len(name_translation_maps["industry"])} industry name translations.'
+    )
+
+    # Create localized variants (duplicate records with translated content)
+    localized_jobs = []
+    for idx, english_job in enumerate(english_jobs, 1):
+        if idx % 1000 == 0:
+            LOGGER.info(f'[TAXONOMY] Translated {idx}/{len(english_jobs)} jobs to {language_code}')
+
+        localized_job = translate_job_record(
+            english_job,
+            name_translation_maps,
+            description_translation_maps,
+            language_code
+        )
+        localized_jobs.append(localized_job)
+
+    LOGGER.info(f'[TAXONOMY] Completed translating {len(localized_jobs)} jobs to {language_code}')
+    return localized_jobs
+
+
 def fetch_jobs_data():
     """
     Construct a list of all the jobs from the database.
@@ -266,6 +539,9 @@ def fetch_jobs_data():
                 'jobs_having_industry_skills': get_job_ids(IndustryJobSkill.get_whitelisted_job_skill_qs()),
             },
         )
+        # Add metadata_language to English records
+        for job_data in job_serializer.data:
+            job_data['metadata_language'] = 'en'
         jobs.extend(job_serializer.data)
         start += page_size
 

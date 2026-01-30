@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[3.0.0] - 2026-01-30
+---------------------
+* feat: index skills, jobs and industries
+
 [2.3.20] - 2026-01-29
 ---------------------
 * feat: translate skills, jobs and industries
