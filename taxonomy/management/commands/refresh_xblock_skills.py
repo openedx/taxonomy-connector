@@ -205,7 +205,7 @@ class Command(BaseCommand):
                 self.process_course_run(course_run, xblock_provider, options)
                 processed_course_run_count += 1
                 if processed_course_run_count >= options["limit"] > 0:
-                    LOGGER.info('[TAXONOMY] Completed processing for %s course runs.')
+                    LOGGER.info('[TAXONOMY] Completed processing for %s course runs.', processed_course_run_count)
                     break
 
         if xblocks_from_args:

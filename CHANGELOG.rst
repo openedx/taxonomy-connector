@@ -12,6 +12,12 @@ Change Log
 .. There should always be an "Unreleased" section for changes pending release.
 
 Unreleased
+----------
+Nothing
+
+[2.3.21]
+---------------------
+* build: upgrade requirements
 
 [2.3.20] - 2026-01-29
 ---------------------
