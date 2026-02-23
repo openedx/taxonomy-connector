@@ -28,7 +28,7 @@ class Command(BaseCommand):
             $ ./manage.py refresh_program_skills --all --commit
         """
     help = 'Refreshes the skills associated with programs.'
-    product_type = ProductTypes.Program
+    product_type = ProductTypes.PROGRAM
 
     def add_arguments(self, parser):
         """

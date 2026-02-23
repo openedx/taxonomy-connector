@@ -39,7 +39,7 @@ CACHE_TIMEOUT_COURSE_SKILLS_SECONDS = 60 * 60
 COURSE_METADATA_FIELDS_COMBINED = 'title:short_description:full_description'
 
 
-def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Course):
+def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.COURSE):
     """
     Get a list of serialized course skills.
 
@@ -53,7 +53,7 @@ def get_whitelisted_serialized_skills(key_or_uuid, product_type=ProductTypes.Cou
             2. description: "Skill Description"
     """
     subdomain, identifier = \
-        ('course_skills', 'course_key') if product_type == ProductTypes.Course else ('program_skills', 'program_uuid')
+        ('course_skills', 'course_key') if product_type == ProductTypes.COURSE else ('program_skills', 'program_uuid')
     kwargs = {
         'domain': 'taxonomy',
         'subdomain': subdomain,
@@ -81,9 +81,9 @@ def get_product_identifier(product_type):
     Return the identifier of a Product Model from Discovery.
     """
     identifier = None
-    if product_type == ProductTypes.Program:
+    if product_type == ProductTypes.PROGRAM:
         identifier = 'uuid'
-    elif product_type in (ProductTypes.Course, ProductTypes.XBlock):
+    elif product_type in (ProductTypes.COURSE, ProductTypes.XBLOCK):
         identifier = 'key'
 
     return identifier
@@ -94,11 +94,11 @@ def get_product_skill_model_and_identifier(product_type):
     Return the Skill Model along with its identifier based on product type.
     """
     product_skill = (CourseSkills, 'course_key')
-    if product_type == ProductTypes.Program:
+    if product_type == ProductTypes.PROGRAM:
         product_skill = (ProgramSkill, 'program_uuid')
-    elif product_type == ProductTypes.XBlock:
+    elif product_type == ProductTypes.XBLOCK:
         product_skill = (XBlockSkills, 'usage_key')
-    elif product_type == ProductTypes.XBlockData:
+    elif product_type == ProductTypes.XBLOCK_DATA:
         product_skill = (XBlockSkillData, 'xblock_id')
     return product_skill
 
@@ -114,7 +114,7 @@ def _create_xblockskill_with_hash(key_or_uuid, hash_content):
     Returns:
         XBlockSkills object
     """
-    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBLOCK)
     product, _ = model.objects.update_or_create(
         **{identifier: key_or_uuid},
         defaults={'hash_content': hash_content, 'auto_processed': True},
@@ -138,10 +138,10 @@ def update_skills_data(key_or_uuid, skill_external_id, confidence, skill_data, p
 
     """
     skill, _ = Skill.objects.update_or_create(external_id=skill_external_id, defaults=skill_data)
-    if product_type == ProductTypes.XBlock:
+    if product_type == ProductTypes.XBLOCK:
         xblock = _create_xblockskill_with_hash(key_or_uuid, kwargs.get('hash_content'))
         key_or_uuid = xblock.id
-        product_type = ProductTypes.XBlockData
+        product_type = ProductTypes.XBLOCK_DATA
     if is_skill_blacklisted(key_or_uuid, skill.id, product_type):
         return
     skill_model, identifier = get_product_skill_model_and_identifier(product_type)
@@ -197,9 +197,9 @@ def get_translation_attr(product_type):
     Return properties based on product type.
     """
     translation_attr = COURSE_METADATA_FIELDS_COMBINED
-    if product_type == ProductTypes.Program:
+    if product_type == ProductTypes.PROGRAM:
         translation_attr = 'overview'
-    elif product_type == ProductTypes.XBlock:
+    elif product_type == ProductTypes.XBLOCK:
         translation_attr = 'content'
     return translation_attr
 
@@ -229,7 +229,7 @@ def extract_metadata_from_attr_text(text_data: str, product_type: ProductTypes) 
     Return metadata for text_data.
     """
     extra_data = {}
-    if product_type == ProductTypes.XBlock:
+    if product_type == ProductTypes.XBLOCK:
         hash_content = get_hash(text_data)
         if hash_content:
             extra_data['hash_content'] = hash_content
@@ -247,7 +247,7 @@ def xblock_with_same_content(extra_data: dict, usage_key: str):
     Returns:
         xblock usage_key.
     """
-    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBLOCK)
     similar_product = model.objects.filter(
         **{'auto_processed': True, **extra_data}
     ).exclude(
@@ -260,7 +260,7 @@ def verify_xblock_existence_and_content_changes(extra_data: dict, usage_key: str
     """
     Raise SkipProductProcessingError if product has been already tagged and content has not changed.
     """
-    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBLOCK)
     skill_filter = {
         identifier: usage_key,
         'auto_processed': True,
@@ -287,7 +287,7 @@ def get_skill_attr_value(product, product_type, skill_extraction_attr):
     """
     Fetch text repr of the product.
     """
-    if product_type == ProductTypes.Course:
+    if product_type == ProductTypes.COURSE:
         skill_attr_val = get_course_metadata_fields_text(skill_extraction_attr, product)
     else:
         skill_attr_val = product[skill_extraction_attr]
@@ -322,7 +322,7 @@ def refresh_product_skills(products, should_commit_to_db: bool, product_type) ->
             skill_attr_val = get_skill_attr_value(product, product_type, skill_extraction_attr)
             # get metadata of skill_attr_val
             extra_data = extract_metadata_from_attr_text(skill_attr_val, product_type)
-            if product_type == ProductTypes.XBlock and extra_data:
+            if product_type == ProductTypes.XBLOCK and extra_data:
                 verify_xblock_existence_and_content_changes(extra_data, product[key_or_uuid])
                 similar_xblock_key = xblock_with_same_content(extra_data, product[key_or_uuid])
                 if similar_xblock_key:
@@ -340,7 +340,7 @@ def refresh_product_skills(products, should_commit_to_db: bool, product_type) ->
         # Translate and fetch skills from external API.
         # TODO: Skip translation for xblock text till we find better way to
         # handle huge amounts of text
-        if product_type == ProductTypes.XBlock:
+        if product_type == ProductTypes.XBLOCK:
             # TODO: make sure that skill_attr_val is in english
             translated_skill_attr = skill_attr_val
         else:
@@ -441,7 +441,7 @@ def is_skill_blacklisted(key_or_uuid, skill_id, product_type):
     return skill_model.objects.filter(**kwargs).exists()
 
 
-def get_whitelisted_product_skills(key_or_uuid, product_type=ProductTypes.Course, prefetch_skills=True):
+def get_whitelisted_product_skills(key_or_uuid, product_type=ProductTypes.COURSE, prefetch_skills=True):
     """
     Get all the product skills that are not blacklisted.
 
@@ -481,7 +481,7 @@ def get_blacklisted_course_skills(course_key, prefetch_skills=True):
     return qs.all()
 
 
-def get_course_jobs(course_key, product_type=ProductTypes.Course):
+def get_course_jobs(course_key, product_type=ProductTypes.COURSE):
     """
     Get data for all course jobs.
 
@@ -700,7 +700,7 @@ def duplicate_xblock_skills(source_xblock_uuid, xblock_uuid, replace=False):
         LOGGER.error(f'[TAXONOMY] XBlock with usage_key: {xblock_uuid} already exists!')
         if not replace:
             return
-        delete_product(xblock_uuid, ProductTypes.XBlock)
+        delete_product(xblock_uuid, ProductTypes.XBLOCK)
 
     # fetch source xblock skills.
     source_xblock_skills = XBlockSkillData.objects.filter(xblock=source_xblock).all()
@@ -723,13 +723,13 @@ def update_xblock_skills_verification_counts(usage_key: str, verified_skills: Li
         verified_skills (List[int]): list of verified skill ids.
         ignored_skills (List[int]): list of ignored skill ids.
     """
-    xblock_model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBlock)
+    xblock_model, identifier = get_product_skill_model_and_identifier(ProductTypes.XBLOCK)
     try:
         xblock = xblock_model.objects.get(**{identifier: usage_key})
     except ObjectDoesNotExist:
         LOGGER.error(f'[TAXONOMY] XBlock with usage_key: {usage_key} not found!')
         return
-    xblock_data_model, _ = get_product_skill_model_and_identifier(ProductTypes.XBlockData)
+    xblock_data_model, _ = get_product_skill_model_and_identifier(ProductTypes.XBLOCK_DATA)
     # update verified_count
     xblock_data_model.objects.filter(
         xblock=xblock,

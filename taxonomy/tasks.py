@@ -29,7 +29,7 @@ def update_course_skills(course_uuids):
     LOGGER.info('[TAXONOMY] refresh_course_skills task triggered')
     courses = get_course_metadata_provider().get_courses(course_ids=course_uuids)
     if courses:
-        utils.refresh_product_skills(courses, True, ProductTypes.Course)
+        utils.refresh_product_skills(courses, True, ProductTypes.COURSE)
     else:
         LOGGER.warning('[TAXONOMY] No course found with uuids [%d] to update skills.', course_uuids)
 
@@ -45,7 +45,7 @@ def update_program_skills(program_uuids):
     LOGGER.info('[TAXONOMY] refresh_program_skills task triggered')
     programs = get_program_metadata_provider().get_programs(program_ids=program_uuids)
     if programs:
-        utils.refresh_product_skills(programs, True, ProductTypes.Program)
+        utils.refresh_product_skills(programs, True, ProductTypes.PROGRAM)
     else:
         LOGGER.warning('[TAXONOMY] No program found with uuids [%d] to update skills.', program_uuids)
 
@@ -61,7 +61,7 @@ def update_xblock_skills(xblock_uuids):
     LOGGER.info('[TAXONOMY] refresh_xblock_skills task triggered')
     xblocks = get_xblock_metadata_provider().get_xblocks(xblock_ids=xblock_uuids)
     if xblocks:
-        utils.refresh_product_skills(xblocks, True, ProductTypes.XBlock)
+        utils.refresh_product_skills(xblocks, True, ProductTypes.XBLOCK)
     else:
         LOGGER.warning('[TAXONOMY] No xblock found with uuids [%d] to update skills.', xblock_uuids)
 
@@ -76,7 +76,7 @@ def delete_xblock_skills(xblock_uuids):
     """
     LOGGER.info('[TAXONOMY] delete_xblock_skills task triggered')
     for xblock_uuid in xblock_uuids:
-        utils.delete_product(key_or_uuid=xblock_uuid, product_type=ProductTypes.XBlock)
+        utils.delete_product(key_or_uuid=xblock_uuid, product_type=ProductTypes.XBLOCK)
 
 
 @shared_task()

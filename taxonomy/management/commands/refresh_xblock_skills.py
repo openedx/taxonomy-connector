@@ -41,7 +41,7 @@ class Command(BaseCommand):
         $ ./manage.py refresh_xblock_skills --all --commit --success_threshold 0.9
     """
     help = 'Refreshes the skills associated with XBlocks.'
-    product_type = ProductTypes.XBlock
+    product_type = ProductTypes.XBLOCK
 
     def add_arguments(self, parser):
         """
