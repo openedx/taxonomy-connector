@@ -15,6 +15,10 @@ Unreleased
 ----------
 Nothing
 
+[2.3.22]
+---------------------
+* build: remove pinned pip now that pip-tools supports pip 26.0
+
 [2.3.21]
 ---------------------
 * build: upgrade requirements
