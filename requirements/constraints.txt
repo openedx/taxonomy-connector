@@ -14,3 +14,4 @@
 # 2026-02-02: newer versions of algoliasearch not backwards compatible
 algoliasearch-django<4.0.0
 algoliasearch<2.0.0
+setuptools<82.0.0
