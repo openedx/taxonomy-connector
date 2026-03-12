@@ -14,11 +14,12 @@ class UserGoal(models.TextChoices):
     IMPROVE_CURRENT_ROLE = 'improve_current_role', 'I want to improve at my current role'
     OTHER = 'other', 'Other'
 
-    # Backward compatibility aliases for existing code
-    ChangeCareers = CHANGE_CAREERS
-    GetPromoted = GET_PROMOTED
-    ImproveCurrentRole = IMPROVE_CURRENT_ROLE
-    Other = OTHER
+
+# Backward compatibility aliases for existing code
+UserGoal.ChangeCareers = UserGoal.CHANGE_CAREERS
+UserGoal.GetPromoted = UserGoal.GET_PROMOTED
+UserGoal.ImproveCurrentRole = UserGoal.IMPROVE_CURRENT_ROLE
+UserGoal.Other = UserGoal.OTHER
 
 
 class ProductTypes(models.TextChoices):
@@ -31,8 +32,9 @@ class ProductTypes(models.TextChoices):
     XBLOCK = 'xblock', 'XBlock'
     XBLOCK_DATA = 'xblock_data', 'XBlockData'
 
-    # Backward compatibility aliases for existing code
-    Course = COURSE
-    Program = PROGRAM
-    XBlock = XBLOCK
-    XBlockData = XBLOCK_DATA
+
+# Backward compatibility aliases for existing code
+ProductTypes.Course = ProductTypes.COURSE
+ProductTypes.Program = ProductTypes.PROGRAM
+ProductTypes.XBlock = ProductTypes.XBLOCK
+ProductTypes.XBlockData = ProductTypes.XBLOCK_DATA
