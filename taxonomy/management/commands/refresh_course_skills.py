@@ -29,7 +29,7 @@ class Command(BaseCommand):
         $ ./manage.py refresh_course_skills --all --commit
     """
     help = 'Refreshes the skills associated with courses.'
-    product_type = ProductTypes.Course
+    product_type = ProductTypes.COURSE
 
     def add_arguments(self, parser):
         """
