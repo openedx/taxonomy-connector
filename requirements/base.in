@@ -14,3 +14,4 @@ django-choices
 django-filter
 openedx-events
 django-object-actions
+setuptools>=65.0  # Ensure setuptools with pkg_resources is available
