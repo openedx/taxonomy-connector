@@ -12,56 +12,58 @@ Change Log
 .. There should always be an "Unreleased" section for changes pending release.
 
 Unreleased
-----------
-Nothing
+
+[2.3.22] - 2026-03-25
+----------------------
+* fix: Modernize choice field naming in ``taxonomy.choices`` to follow Django conventions (UPPER_SNAKE_CASE)
 
 [2.3.21]
 ---------------------
 * build: upgrade requirements
 
 [2.3.20] - 2026-01-29
----------------------
+----------------------
 * feat: translate skills, jobs and industries
 
 [2.3.19] - 2025-11-26
----------------------
+----------------------
 * chore: upgrade python requirements
 
 [2.3.18] - 2025-10-30
----------------------
+----------------------
 * fix: pin `pip<25.3` to resolve make upgrade build failure
 * See issue https://github.com/openedx/public-engineering/issues/440 for details.
 
 [2.3.17] - 2025-10-22
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.16] - 2025-10-19
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.15] - 2025-10-07
----------------------
+----------------------
 * chore: Remove unused openai package
 
 [2.3.14] - 2025-10-03
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.13] - 2025-09-26
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.12] - 2025-09-17
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.11] - 2025-09-09
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.10] - 2025-09-01
----------------------
+----------------------
 * chore: Upgrade python requirements
 
 [2.3.9] - 2025-08-13
