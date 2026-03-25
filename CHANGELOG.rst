@@ -15,6 +15,10 @@ Unreleased
 ----------
 Nothing
 
+[2.3.22]
+---------------------
+* fix: bump lightcast version from 8.9 to 9.41
+
 [2.3.21]
 ---------------------
 * build: upgrade requirements
