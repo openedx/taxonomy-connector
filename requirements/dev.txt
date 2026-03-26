@@ -116,7 +116,6 @@ django==5.2.12
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
-    #   django-choices
     #   django-crum
     #   django-filter
     #   django-model-utils
@@ -127,8 +126,6 @@ django==5.2.12
     #   edx-django-utils
     #   edx-i18n-tools
     #   openedx-events
-django-choices==2.0.0
-    # via -r requirements/test.txt
 django-crum==0.7.9
     # via
     #   -r requirements/test.txt
