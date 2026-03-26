@@ -13,13 +13,13 @@ Change Log
 
 Unreleased
 
+[2.3.23] - 2026-03-26
+---------------------
+* fix: bump lightcast version from 8.9 to 9.41
+
 [2.3.22] - 2026-03-25
 ----------------------
 * fix: Modernize choice field naming in ``taxonomy.choices`` to follow Django conventions (UPPER_SNAKE_CASE)
-
-[2.3.22]
----------------------
-* fix: bump lightcast version from 8.9 to 9.41
 
 [2.3.21]
 ---------------------
