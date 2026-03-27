@@ -17,6 +17,10 @@ Unreleased
 ----------------------
 * fix: Modernize choice field naming in ``taxonomy.choices`` to follow Django conventions (UPPER_SNAKE_CASE)
 
+[2.3.22]
+---------------------
+* build: remove pinned pip now that pip-tools supports pip 26.0
+
 [2.3.21]
 ---------------------
 * build: upgrade requirements
