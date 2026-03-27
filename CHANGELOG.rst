@@ -13,7 +13,7 @@ Change Log
 
 Unreleased
 
-[2.3.23] - 2026-03-26
+[2.4.0] - 2026-03-26
 ---------------------
 * fix: bump lightcast version from 8.9 to 9.41
 
