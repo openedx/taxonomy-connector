@@ -18,13 +18,13 @@ beautifulsoup4==4.14.3
     # via -r requirements/base.in
 billiard==4.2.4
     # via celery
-boto3==1.42.76
+boto3==1.42.78
     # via django-ses
-botocore==1.42.76
+botocore==1.42.78
     # via
     #   boto3
     #   s3transfer
-celery==5.6.2
+celery==5.6.3
     # via -r requirements/base.in
 certifi==2026.2.25
     # via requests
@@ -98,7 +98,7 @@ edx-rest-api-client==6.2.0
     # via -r requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==40.11.1
+faker==40.12.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -136,7 +136,7 @@ psutil==7.2.2
     # via edx-django-utils
 pycparser==3.0
     # via cffi
-pygments==2.19.2
+pygments==2.20.0
     # via pytest
 pyjwt==2.12.1
     # via edx-rest-api-client
@@ -164,7 +164,7 @@ pyyaml==6.0.3
     # via
     #   code-annotations
     #   responses
-requests==2.33.0
+requests==2.33.1
     # via
     #   algoliasearch
     #   edx-rest-api-client
