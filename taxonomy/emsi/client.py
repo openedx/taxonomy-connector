@@ -182,7 +182,7 @@ class EMSISkillsApiClient(JwtEMSIApiClient):
     Object builds an API client to make calls to get the skills from course text data.
     """
 
-    API_BASE_URL = urljoin(JwtEMSIApiClient.API_BASE_URL, '/skills/versions/8.9')
+    API_BASE_URL = urljoin(JwtEMSIApiClient.API_BASE_URL, '/skills/versions/9.41')
     MAX_LIGHTCAST_DATA_SIZE = 50000  # Maximum 50,000-byte data is supported by LightCast
 
     def __init__(self):
