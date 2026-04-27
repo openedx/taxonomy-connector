@@ -18,21 +18,21 @@ beautifulsoup4==4.14.3
     # via -r requirements/base.in
 billiard==4.2.4
     # via celery
-boto3==1.42.91
+boto3==1.42.96
     # via django-ses
-botocore==1.42.91
+botocore==1.42.96
     # via
     #   boto3
     #   s3transfer
 celery==5.6.3
     # via -r requirements/base.in
-certifi==2026.2.25
+certifi==2026.4.22
     # via requests
 cffi==2.0.0
     # via pynacl
 charset-normalizer==3.4.7
     # via requests
-click==8.3.2
+click==8.3.3
     # via
     #   celery
     #   click-didyoumean
@@ -102,9 +102,9 @@ faker==40.15.0
     # via
     #   -r requirements/test.in
     #   factory-boy
-fastavro==1.12.1
+fastavro==1.12.2
     # via openedx-events
-idna==3.11
+idna==3.13
     # via requests
 iniconfig==2.3.0
     # via pytest
@@ -120,9 +120,9 @@ markupsafe==3.0.3
     # via jinja2
 mock==5.2.0
     # via -r requirements/test.in
-openedx-events==11.1.1
+openedx-events==11.2.0
     # via -r requirements/base.in
-packaging==26.1
+packaging==26.2
     # via
     #   kombu
     #   pytest
@@ -140,7 +140,7 @@ pygments==2.20.0
     # via pytest
 pyjwt==2.12.1
     # via edx-rest-api-client
-pymongo==4.16.0
+pymongo==4.17.0
     # via edx-opaque-keys
 pynacl==1.6.2
     # via edx-django-utils
@@ -171,7 +171,7 @@ requests==2.33.1
     #   responses
 responses==0.26.0
     # via -r requirements/test.in
-s3transfer==0.16.0
+s3transfer==0.16.1
     # via boto3
 six==1.17.0
     # via
@@ -194,7 +194,7 @@ typing-extensions==4.15.0
     # via
     #   beautifulsoup4
     #   edx-opaque-keys
-tzdata==2026.1
+tzdata==2026.2
     # via kombu
 tzlocal==5.3.1
     # via celery
