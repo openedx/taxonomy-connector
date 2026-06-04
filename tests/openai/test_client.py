@@ -26,7 +26,7 @@ class TestChatCompletionClient(TaxonomyTestCase):
         }]
         responses.add(
             method=responses.POST,
-            url=settings.XPERT_AI_API_V2,
+            url=settings.XPERT_AI_API_V1,
             json=expected_chat_response,
             status=200,
         )
@@ -45,7 +45,7 @@ class TestChatCompletionClient(TaxonomyTestCase):
         }]
         responses.add(
             method=responses.POST,
-            url=settings.XPERT_AI_API_V2,
+            url=settings.XPERT_AI_API_V1,
             json=expected_chat_response,
             status=500,
         )
@@ -64,7 +64,7 @@ class TestChatCompletionClient(TaxonomyTestCase):
         }]
         responses.add(
             method=responses.POST,
-            url=settings.XPERT_AI_API_V2,
+            url=settings.XPERT_AI_API_V1,
             json=expected_chat_response,
             status=200,
         )
@@ -79,7 +79,7 @@ class TestChatCompletionClient(TaxonomyTestCase):
         chat_prompt = 'how many courses are offered by edx in the data science area'
         responses.add(
             method=responses.POST,
-            url=settings.XPERT_AI_API_V2,
+            url=settings.XPERT_AI_API_V1,
             body="not a valid json response",
             status=200,
             content_type='application/json'
@@ -96,7 +96,7 @@ class TestChatCompletionClient(TaxonomyTestCase):
         expected_chat_response = "not a subsciptable response"
         responses.add(
             method=responses.POST,
-            url=settings.XPERT_AI_API_V2,
+            url=settings.XPERT_AI_API_V1,
             json=expected_chat_response,
             status=200,
         )
@@ -112,7 +112,7 @@ class TestChatCompletionClient(TaxonomyTestCase):
         expected_chat_response = []
         responses.add(
             method=responses.POST,
-            url=settings.XPERT_AI_API_V2,
+            url=settings.XPERT_AI_API_V1,
             json=expected_chat_response,
             status=200,
         )
