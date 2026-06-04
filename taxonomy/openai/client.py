@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 def chat_completion(prompt, system_message):
     """
-    Pass message list to chat endpoint, as defined by the XPERT_AI_API_V2 setting.
+    Pass message list to chat endpoint, as defined by the XPERT_AI_API_V1 setting.
     Arguments:
         prompt (str): chatGPT prompt
         system_message (str): system message to be used in the chat
@@ -27,7 +27,7 @@ def chat_completion(prompt, system_message):
     }
     try:
         response = requests.post(
-            settings.XPERT_AI_API_V2,
+            settings.XPERT_AI_API_V1,
             headers={'Content-Type': 'application/json'},
             data=json.dumps(body),
             timeout=(connect_timeout, read_timeout)
