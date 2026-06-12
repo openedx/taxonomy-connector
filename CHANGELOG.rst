@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[3.0.1] - 2026-06-12
+---------------------
+* chore: change the cron schedule to run on friday instead of monday
+
 [3.0.0] - 2026-05-25
 ---------------------
 * feat: construct and index Spanish Algolia objects for skills, jobs and industries
