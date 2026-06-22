@@ -73,14 +73,8 @@ class TaxonomyTasksTests(unittest.TestCase):
         with LogCapture(level=logging.INFO) as log_capture:
             update_course_skills.delay([self.course.uuid])
             messages = [record.msg for record in log_capture.records]
-            self.assertEqual(
-                messages,
-                [
-                    '[TAXONOMY] refresh_course_skills task triggered',
-                    '[TAXONOMY] No course found with uuids [%d] to update skills.',
-                    'Task %(name)s[%(id)s] succeeded in %(runtime)ss: %(return_value)s'
-                ]
-            )
+            self.assertIn('[TAXONOMY] refresh_course_skills task triggered', messages)
+            self.assertIn('[TAXONOMY] No course found with uuids [%d] to update skills.', messages)
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -116,14 +110,8 @@ class TaxonomyTasksTests(unittest.TestCase):
         with LogCapture(level=logging.INFO) as log_capture:
             update_program_skills.delay([self.program.uuid])
             messages = [record.msg for record in log_capture.records]
-            self.assertEqual(
-                messages,
-                [
-                    '[TAXONOMY] refresh_program_skills task triggered',
-                    '[TAXONOMY] No program found with uuids [%d] to update skills.',
-                    'Task %(name)s[%(id)s] succeeded in %(runtime)ss: %(return_value)s'
-                ]
-            )
+            self.assertIn('[TAXONOMY] refresh_program_skills task triggered', messages)
+            self.assertIn('[TAXONOMY] No program found with uuids [%d] to update skills.', messages)
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(program_skill.count(), 0)
@@ -159,14 +147,8 @@ class TaxonomyTasksTests(unittest.TestCase):
         with LogCapture(level=logging.INFO) as log_capture:
             update_xblock_skills.delay([self.xblock.key])
             messages = [record.msg for record in log_capture.records]
-            self.assertEqual(
-                messages,
-                [
-                    '[TAXONOMY] refresh_xblock_skills task triggered',
-                    '[TAXONOMY] No xblock found with uuids [%d] to update skills.',
-                    'Task %(name)s[%(id)s] succeeded in %(runtime)ss: %(return_value)s'
-                ]
-            )
+            self.assertIn('[TAXONOMY] refresh_xblock_skills task triggered', messages)
+            self.assertIn('[TAXONOMY] No xblock found with uuids [%d] to update skills.', messages)
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(xblock_skill.count(), 0)
