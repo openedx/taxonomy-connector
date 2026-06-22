@@ -74,7 +74,7 @@ class TaxonomyTasksTests(unittest.TestCase):
             update_course_skills.delay([self.course.uuid])
             messages = [record.msg for record in log_capture.records]
             self.assertIn('[TAXONOMY] refresh_course_skills task triggered', messages)
-            self.assertIn('[TAXONOMY] No course found with uuids [%d] to update skills.', messages)
+            self.assertIn('[TAXONOMY] No course found with uuids [%s] to update skills.', messages)
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(course_skill.count(), 0)
@@ -111,7 +111,7 @@ class TaxonomyTasksTests(unittest.TestCase):
             update_program_skills.delay([self.program.uuid])
             messages = [record.msg for record in log_capture.records]
             self.assertIn('[TAXONOMY] refresh_program_skills task triggered', messages)
-            self.assertIn('[TAXONOMY] No program found with uuids [%d] to update skills.', messages)
+            self.assertIn('[TAXONOMY] No program found with uuids [%s] to update skills.', messages)
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(program_skill.count(), 0)
@@ -148,7 +148,7 @@ class TaxonomyTasksTests(unittest.TestCase):
             update_xblock_skills.delay([self.xblock.key])
             messages = [record.msg for record in log_capture.records]
             self.assertIn('[TAXONOMY] refresh_xblock_skills task triggered', messages)
-            self.assertIn('[TAXONOMY] No xblock found with uuids [%d] to update skills.', messages)
+            self.assertIn('[TAXONOMY] No xblock found with uuids [%s] to update skills.', messages)
 
         self.assertEqual(skill.count(), 0)
         self.assertEqual(xblock_skill.count(), 0)

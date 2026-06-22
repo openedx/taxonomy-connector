@@ -31,7 +31,7 @@ def update_course_skills(course_uuids):
     if courses:
         utils.refresh_product_skills(courses, True, ProductTypes.Course)
     else:
-        LOGGER.warning('[TAXONOMY] No course found with uuids [%d] to update skills.', course_uuids)
+        LOGGER.warning('[TAXONOMY] No course found with uuids [%s] to update skills.', course_uuids)
 
 
 @shared_task()
@@ -47,7 +47,7 @@ def update_program_skills(program_uuids):
     if programs:
         utils.refresh_product_skills(programs, True, ProductTypes.Program)
     else:
-        LOGGER.warning('[TAXONOMY] No program found with uuids [%d] to update skills.', program_uuids)
+        LOGGER.warning('[TAXONOMY] No program found with uuids [%s] to update skills.', program_uuids)
 
 
 @shared_task()
@@ -63,7 +63,7 @@ def update_xblock_skills(xblock_uuids):
     if xblocks:
         utils.refresh_product_skills(xblocks, True, ProductTypes.XBlock)
     else:
-        LOGGER.warning('[TAXONOMY] No xblock found with uuids [%d] to update skills.', xblock_uuids)
+        LOGGER.warning('[TAXONOMY] No xblock found with uuids [%s] to update skills.', xblock_uuids)
 
 
 @shared_task()
