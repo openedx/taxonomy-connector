@@ -1,0 +1,144 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm>8.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taxonomy-connector"
+description = "Taxonomy connector"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+    {name = "edX", email = "oscm@edx.org"},
+]
+classifiers = [
+    'Framework :: Django',
+    'Framework :: Django :: 4.2',
+    'Framework :: Django :: 5.2',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.12',
+]
+keywords = [
+    "Python",
+    "edx",
+]
+
+dynamic = ["readme", "version"]
+
+dependencies = [
+    "Django",
+    "djangorestframework",
+    "django-model-utils",
+    "django-solo",
+    "pytz",
+    "edx-rest-api-client",
+    "edx-django-utils",
+    "edx-opaque-keys",
+    "celery",
+    "algoliasearch",
+    "django-ses",
+    "beautifulsoup4",
+    "django-filter",
+    "openedx-events",
+    "django-object-actions",
+    "setuptools>=65.0",  # Ensure setuptools with pkg_resources is available
+]
+
+[project.urls]
+Homepage = "https://github.com/openedx/taxonomy-connector"
+Repository = "https://github.com/openedx/taxonomy-connector"
+
+[dependency-groups]
+test = [
+    "setuptools",              # Required for pkg_resources (needed by djchoices)
+    "pytest-cov",              # pytest extension for code coverage statistics
+    "pytest-django",           # pytest extension for better Django support
+    "code-annotations",        # provides commands used by the pii_check make target.
+    "responses",               # utility library for mocking out the requests library
+    "testfixtures",            # Mock objects for unit tests and doc tests
+    "factory-boy",
+    "mock",
+    "Faker",
+    "ddt",
+]
+quality = [
+    {include-group = "test"},
+    "edx-lint",
+    "isort",
+    "pycodestyle",
+    "pydocstyle",
+]
+doc = [
+    {include-group = "test"},
+    "doc8",
+    "sphinx-book-theme",
+    "twine",
+    "build",
+    "Sphinx",
+]
+ci = [
+    "tox",
+    "tox-uv",
+]
+dev = [
+    {include-group = "quality"},
+    {include-group = "ci"},
+    "diff-cover",
+    "edx-i18n-tools",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CHANGELOG.rst"], content-type = "text/x-rst"}
+
+[tool.setuptools.packages.find]
+include = ["taxonomy*"]
+exclude = ["*tests*"]
+namespaces = true
+
+[tool.setuptools_scm]
+version_scheme = "only-version"
+local_scheme = "no-local-version"
+fallback_version = "0.0.0.dev0"
+
+[tool.semantic_release]
+build_command = "pip install build && SETUPTOOLS_SCM_PRETEND_VERSION=$NEW_VERSION python -m build"
+
+[tool.uv]
+#  DO NOT EDIT constraint-dependencies DIRECTLY.
+#  This list is managed by `edx_lint write_uv_constraints`
+#  and will be overwritten the next time `make upgrade` is run.
+#  - GLOBAL constraints: edit edx_lint/files/common_constraints.txt
+#  - REPO-SPECIFIC constraints: edit [tool.edx_lint].uv_constraints in this file
+constraint-dependencies = [
+    "Django<6.0",
+    "elasticsearch<7.14.0",
+    "algoliasearch-django<4.0.0",
+    "algoliasearch<2.0.0",
+]
+
+[tool.edx_lint]
+uv_constraints = [
+    # 2026-02-02: newer versions of algoliasearch not backwards compatible
+    "algoliasearch-django<4.0.0",
+    "algoliasearch<2.0.0",
+]
+
+[tool.isort]
+line_length = 120
+known_edx = []
+known_django = ["django"]
+known_djangoapp = ["model_utils"]
+known_first_party = ["taxonomy"]
+include_trailing_comma = true
+multi_line_output = 3
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "DJANGO", "DJANGOAPP", "EDX", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "test_settings"
+addopts = "--cov taxonomy --cov-report term-missing --cov-report xml"
+norecursedirs = [".*", "docs", "requirements", "site-packages"]
+markers = [
+    "use_signals: mark a test to use django signals.",
+]
