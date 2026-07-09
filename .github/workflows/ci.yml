@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
     - '**'
+  # So the release workflow can run CI before cutting a release.
+  workflow_call:
 
 jobs:
   run_tests:
