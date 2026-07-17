@@ -63,10 +63,10 @@ selfcheck: ## check that the Makefile is well-formed
 	@echo "The Makefile is well-formed."
 
 compile_translations: ## compile translation files, outputting .po files for each supported language
-	cd taxonomy && ../manage.py compilemessages
+	cd src/taxonomy && ../../manage.py compilemessages
 
 detect_changed_source_translations:
-	cd taxonomy && i18n_tool changed
+	cd src/taxonomy && i18n_tool changed
 
 pull_translations: ## pull translations from Transifex
 	tx pull -t -a -f --mode reviewed
@@ -75,7 +75,7 @@ push_translations: ## push source translation files (.po) from Transifex
 	tx push -s
 
 dummy_translations: ## generate dummy translation (.po) files
-	cd taxonomy && i18n_tool dummy
+	cd src/taxonomy && i18n_tool dummy
 
 build_dummy_translations: extract_translations dummy_translations compile_translations ## generate and compile dummy translation files
 

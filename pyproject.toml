@@ -93,6 +93,7 @@ include-package-data = true
 readme = {file = ["README.rst", "CHANGELOG.rst"], content-type = "text/x-rst"}
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["taxonomy*"]
 exclude = ["*tests*"]
 namespaces = true
