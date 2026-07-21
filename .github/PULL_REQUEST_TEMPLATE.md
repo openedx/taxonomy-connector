@@ -5,8 +5,6 @@
     - Checkout the [Database Migration](https://openedx.atlassian.net/wiki/spaces/AC/pages/23003228/Everything+About+Database+Migrations) Confluence page for helpful tips on creating migrations.
     - *Note*: This **must** be run if you modified any models.
       - It may or may not make a migration depending on exactly what you modified, but it should still be run.
-- [ ] [Version](https://github.com/openedx/taxonomy-connector/blob/master/taxonomy/__init__.py) bumped
-- [ ] [Changelog](https://github.com/openedx/taxonomy-connector/blob/master/CHANGELOG.rst) record added
 
 **Post merge:**
 - [ ] Tag pushed and a new [version](https://github.com/openedx/taxonomy-connector/releases) released
