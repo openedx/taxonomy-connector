@@ -1,3 +1,2 @@
-include CHANGELOG.rst
 include README.rst
 recursive-include src/taxonomy *.html *.png *.gif *js *.css *jpg *jpeg *svg *py *.txt

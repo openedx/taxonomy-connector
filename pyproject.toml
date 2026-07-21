@@ -90,7 +90,7 @@ dev = [
 include-package-data = true
 
 [tool.setuptools.dynamic]
-readme = {file = ["README.rst", "CHANGELOG.rst"], content-type = "text/x-rst"}
+readme = {file = ["README.rst"], content-type = "text/x-rst"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -116,6 +116,7 @@ major_on_zero = false
 allow_zero_version = true
 
 [tool.uv]
+package = true
 # Every `uv sync`/`uv run` invocation in this repo names an explicit --group.
 # Without this, uv's implicit default group (named "dev") would be synced *in
 # addition* to whatever --group is passed, silently pulling the entire
@@ -158,3 +159,8 @@ norecursedirs = [".*", "docs", "requirements", "site-packages"]
 markers = [
     "use_signals: mark a test to use django signals.",
 ]
+
+[tool.coverage.run]
+branch = true
+source_pkgs = ["taxonomy"]
+omit = ["test_settings", "*migrations*", "*admin.py", "*static*", "*templates*", "*urls.py"]
