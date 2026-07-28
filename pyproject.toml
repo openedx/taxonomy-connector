@@ -21,8 +21,9 @@ keywords = [
     "Python",
     "edx",
 ]
+readme = "README.rst"
 
-dynamic = ["readme", "version"]
+dynamic = ["version"]
 
 dependencies = [
     "Django",
@@ -60,6 +61,14 @@ test = [
     "Faker",
     "ddt",
 ]
+test-django42 = [
+    {include-group = "test"},
+    "Django>=4.2,<5.0",
+]
+test-django52 = [
+    {include-group = "test"},
+    "Django>=5.2,<5.3",
+]
 quality = [
     {include-group = "test"},
     "edx-lint",
@@ -88,9 +97,6 @@ dev = [
 
 [tool.setuptools]
 include-package-data = true
-
-[tool.setuptools.dynamic]
-readme = {file = ["README.rst"], content-type = "text/x-rst"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -133,6 +139,12 @@ constraint-dependencies = [
     "elasticsearch<7.14.0",
     "algoliasearch-django<4.0.0",
     "algoliasearch<2.0.0",
+]
+conflicts = [
+    [
+        {group = "test-django42"},
+        {group = "test-django52"},
+    ],
 ]
 
 [tool.edx_lint]
