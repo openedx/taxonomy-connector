@@ -29,7 +29,13 @@ coverage: clean ## generate and view HTML coverage report
 	$(BROWSER)htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	uv run tox -e docs
+	uv sync --group doc
+	rm -f docs/taxonomy.rst
+	rm -f docs/modules.rst
+	PYTHONPATH=$(CURDIR) uv run make -e -C docs clean
+	PYTHONPATH=$(CURDIR) uv run make -e -C docs html
+	uv run python -m build --wheel
+	uv run twine check dist/*
 	$(BROWSER)docs/_build/html/index.html
 
 compile-requirements: ## generate the uv.lock file without upgrading packages
@@ -40,10 +46,16 @@ upgrade: ## upgrade all packages in uv.lock and sync constraints from edx-lint
 	uv lock --upgrade
 
 quality: ## check coding style with pycodestyle and pylint
-	uv run tox -e quality
+	touch tests/__init__.py
+	DJANGO_SETTINGS_MODULE=test_settings uv run pylint -j 0 src/taxonomy tests test_utils manage.py
+	rm tests/__init__.py
+	DJANGO_SETTINGS_MODULE=test_settings uv run pycodestyle src/taxonomy tests manage.py
+	DJANGO_SETTINGS_MODULE=test_settings uv run pydocstyle src/taxonomy tests manage.py
+	DJANGO_SETTINGS_MODULE=test_settings uv run isort --check-only --diff tests test_utils src/taxonomy manage.py test_settings.py
+	$(MAKE) selfcheck
 
 pii_check: ## check for PII annotations on all Django models
-	uv run tox -e pii-annotations
+	DJANGO_SETTINGS_MODULE=test_settings uv run code_annotations django_find_annotations --config_file .pii_annotations.yml --lint --report --coverage
 
 requirements: ## install development environment requirements
 	uv sync --group dev
@@ -53,8 +65,7 @@ test: clean ## run tests in the current virtualenv
 
 diff_cover: test ## find diff lines that need test coverage
 	uv run diff-cover coverage.xml
-test-all: quality pii_check ## run tests on every supported Python/Django combination
-	uv run tox
+test-all: quality pii_check test ## run tests on every supported Python/Django combination
 
 validate: quality pii_check test ## run tests and quality checks
 
