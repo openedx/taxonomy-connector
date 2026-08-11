@@ -88,6 +88,15 @@ ci = [
     "tox",
     "tox-uv",
 ]
+# Only needed by the mysql8-migrations.yml CI job, which rebuilds both from
+# source (--no-binary) to test against a specific libmysqlclient/libxmlsec1
+# combination. Neither is a real project dependency otherwise -- master's
+# pip-based equivalent pulled them in only via this same workflow's own
+# uninstall+reinstall step, not via requirements/dev.txt or test.txt.
+mysql8 = [
+    "mysqlclient",
+    "xmlsec==1.3.13",
+]
 dev = [
     {include-group = "quality"},
     {include-group = "ci"},

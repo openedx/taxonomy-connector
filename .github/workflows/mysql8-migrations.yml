@@ -36,11 +36,7 @@ jobs:
         mysql -V
     - name: Install Python dependencies
       run: |
-        uv sync --group dev
-        uv pip uninstall mysqlclient
-        uv pip install --no-binary mysqlclient mysqlclient
-        uv pip uninstall xmlsec
-        uv pip install --no-binary xmlsec xmlsec==1.3.13
+        uv sync --group dev --group mysql8 --no-binary-package mysqlclient --no-binary-package xmlsec
 
     - name: Initiate Services
       run: |
