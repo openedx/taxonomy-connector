@@ -30,11 +30,11 @@ billiard==4.2.4
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.43.66
+boto3==1.43.77
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.43.66
+botocore==1.43.77
     # via
     #   -r requirements/test.txt
     #   boto3
@@ -57,9 +57,9 @@ cffi==2.1.1
     # via
     #   -r requirements/test.txt
     #   pynacl
-chardet==7.5.1
+chardet==7.6.0
     # via diff-cover
-charset-normalizer==3.4.9
+charset-normalizer==3.5.1
     # via
     #   -r requirements/test.txt
     #   requests
@@ -104,7 +104,7 @@ coverage[toml]==7.15.4
     #   pytest-cov
 ddt==1.7.2
     # via -r requirements/test.txt
-diff-cover==10.4.1
+diff-cover==10.5.1
     # via -r requirements/dev.in
 dill==0.4.1
     # via pylint
@@ -144,7 +144,7 @@ django-waffle==5.0.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-djangorestframework==3.17.2
+djangorestframework==3.18.0
     # via -r requirements/test.txt
 dnspython==2.8.0
     # via
@@ -161,7 +161,7 @@ edx-django-utils==8.0.1
     #   openedx-events
 edx-i18n-tools==2.0.0
     # via -r requirements/dev.in
-edx-lint==6.1.0
+edx-lint==6.2.0
     # via -r requirements/dev.in
 edx-opaque-keys[django]==4.0.0
     # via
@@ -180,13 +180,13 @@ fastavro==1.12.2
     # via
     #   -r requirements/test.txt
     #   openedx-events
-filelock==3.32.2
+filelock==3.32.3
     # via
     #   -r requirements/ci.txt
     #   python-discovery
     #   tox
     #   virtualenv
-idna==3.18
+idna==3.19
     # via
     #   -r requirements/test.txt
     #   requests
@@ -212,7 +212,7 @@ kombu==5.6.2
     # via
     #   -r requirements/test.txt
     #   celery
-lxml[html-clean]==6.1.1
+lxml[html-clean]==6.1.2
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
@@ -241,11 +241,9 @@ packaging==26.3
     #   wheel
 path==16.16.0
     # via edx-i18n-tools
-pip-tools==7.6.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/pip-tools.txt
-platformdirs==4.11.0
+pip-tools==7.6.1
+    # via -r requirements/pip-tools.txt
+platformdirs==4.11.3
     # via
     #   -r requirements/ci.txt
     #   pylint
@@ -277,7 +275,7 @@ pycparser==3.0
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/dev.in
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   -r requirements/test.txt
     #   diff-cover
@@ -286,7 +284,7 @@ pyjwt==2.13.0
     # via
     #   -r requirements/test.txt
     #   edx-rest-api-client
-pylint==4.0.6
+pylint==4.0.7
     # via
     #   edx-lint
     #   pylint-celery
@@ -324,14 +322,14 @@ pytest==9.1.1
     #   pytest-django
 pytest-cov==7.1.0
     # via -r requirements/test.txt
-pytest-django==4.13.0
+pytest-django==4.14.0
     # via -r requirements/test.txt
 python-dateutil==2.9.0.post0
     # via
     #   -r requirements/test.txt
     #   botocore
     #   celery
-python-discovery==1.5.1
+python-discovery==1.5.2
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -372,11 +370,11 @@ soupsieve==2.9.2
     # via
     #   -r requirements/test.txt
     #   beautifulsoup4
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via
     #   -r requirements/test.txt
     #   django
-stevedore==5.9.0
+stevedore==5.9.1
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -396,14 +394,16 @@ tomlkit==0.15.1
     # via
     #   edx-lint
     #   pylint
-tox==4.58.0
+tox==4.60.0
     # via -r requirements/ci.txt
 typing-extensions==4.16.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/test.txt
     #   beautifulsoup4
     #   edx-opaque-keys
     #   testfixtures
+    #   tox
 tzdata==2026.3
     # via
     #   -r requirements/test.txt
@@ -424,7 +424,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==21.7.1
+virtualenv==21.7.4
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -432,7 +432,7 @@ wcwidth==0.8.2
     # via
     #   -r requirements/test.txt
     #   prompt-toolkit
-wheel==0.47.0
+wheel==0.48.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
