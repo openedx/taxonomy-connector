@@ -1,0 +1,29 @@
+requirements/dev.txt
+  s_b1207896f65692::t_8b0b5cd3f7d642 33,37,60,62,107,147,164,183,189,215,244-246,278,287,325,332,373,377,397,401,406,427,435
+requirements/pip-tools.txt
+  s_b1207896f65692::t_8b0b5cd3f7d642 15-16,21
+requirements/pip.txt
+  s_b1207896f65692::t_8b0b5cd3f7d642 9,13,15,17
+requirements/test.txt
+  s_b1207896f65692::t_8b0b5cd3f7d642 21,23,33,81,107,139,153,182,184
+requirements/ci.txt
+  s_b1207896f65692::t_8b0b5cd3f7d642 13,22,30,36,38-40
+requirements/doc.txt
+  s_b1207896f65692::t_8b0b5cd3f7d642 39,43,60,124,167,245,276,352,356
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "96c506863bb6d9f94ba4c255cf4c219970c44542",
+  "prompts": {},
+  "sessions": {
+    "s_b1207896f65692": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc7f8c4d-9fd3-46ab-9fbb-c535484c8063",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Hamzah Ullah <hamzahullah@yahoo.com>"
+    }
+  }
+}
