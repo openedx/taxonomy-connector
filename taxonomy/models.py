@@ -1051,7 +1051,9 @@ class SkillsQuiz(TimeStampedModel):
     """
     Model for storing skills quiz information filled out by a user.
 
-    .. no_pii:
+    .. pii: Stores the username of the learner who took the skills quiz.
+    .. pii_types: username
+    .. pii_retirement: consumer_api
     """
 
     username = models.CharField(_("username"), max_length=150)
