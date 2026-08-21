@@ -1,0 +1,21 @@
+taxonomy/models.py
+  s_b1207896f65692::t_2473e8a8bfac2c 1054-1056
+pylintrc
+  s_b1207896f65692::t_1ed92c4b5203f9 67,260-261,399-404
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "6187e27fd5261f22b47284f677fe2c53dc3f9303",
+  "prompts": {},
+  "sessions": {
+    "s_b1207896f65692": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc7f8c4d-9fd3-46ab-9fbb-c535484c8063",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Hamzah Ullah <hamzahullah@yahoo.com>"
+    }
+  }
+}
