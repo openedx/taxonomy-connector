@@ -36,16 +36,16 @@ billiard==4.2.4
     # via
     #   -r requirements/test.txt
     #   celery
-boto3==1.43.77
+boto3==1.43.82
     # via
     #   -r requirements/test.txt
     #   django-ses
-botocore==1.43.77
+botocore==1.43.82
     # via
     #   -r requirements/test.txt
     #   boto3
     #   s3transfer
-build==1.5.0
+build==1.6.0
     # via -r requirements/doc.in
 celery==5.6.3
     # via -r requirements/test.txt
@@ -56,12 +56,13 @@ certifi==2026.7.22
 cffi==2.1.1
     # via
     #   -r requirements/test.txt
+    #   cryptography
     #   pynacl
 charset-normalizer==3.5.1
     # via
     #   -r requirements/test.txt
     #   requests
-click==8.4.2
+click==8.5.0
     # via
     #   -r requirements/test.txt
     #   celery
@@ -88,6 +89,8 @@ coverage[toml]==7.15.4
     # via
     #   -r requirements/test.txt
     #   pytest-cov
+cryptography==50.0.1
+    # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
 django==5.2.17
@@ -154,7 +157,7 @@ edx-rest-api-client==7.0.0
     # via -r requirements/test.txt
 factory-boy==3.3.3
     # via -r requirements/test.txt
-faker==40.36.0
+faker==40.37.0
     # via
     #   -r requirements/test.txt
     #   factory-boy
@@ -168,7 +171,7 @@ idna==3.19
     # via
     #   -r requirements/test.txt
     #   requests
-imagesize==2.0.0
+imagesize==2.0.1
     # via sphinx
 iniconfig==2.3.0
     # via
@@ -180,6 +183,10 @@ jaraco-context==6.1.2
     # via keyring
 jaraco-functools==4.6.0
     # via keyring
+jeepney==0.9.0
+    # via
+    #   keyring
+    #   secretstorage
 jinja2==3.1.6
     # via
     #   -r requirements/test.txt
@@ -211,7 +218,7 @@ more-itertools==11.1.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-nh3==0.3.6
+nh3==0.3.7
     # via readme-renderer
 openedx-events==11.2.0
     # via -r requirements/test.txt
@@ -305,7 +312,7 @@ requests==2.34.2
     #   twine
 requests-toolbelt==1.0.0
     # via twine
-responses==0.26.2
+responses==0.26.3
     # via -r requirements/test.txt
 restructuredtext-lint==2.0.2
     # via doc8
@@ -319,6 +326,8 @@ s3transfer==0.19.2
     # via
     #   -r requirements/test.txt
     #   boto3
+secretstorage==3.5.0
+    # via keyring
 six==1.17.0
     # via
     #   -r requirements/test.txt
