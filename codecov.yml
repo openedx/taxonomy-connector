@@ -4,20 +4,7 @@ coverage:
       default:
         enabled: yes
         target: auto
-        # This tooling migration (openedx/public-engineering#506) changed the
-        # coverage measurement scope: src/taxonomy/tests/*.py (3 files, 527
-        # lines, effectively 100% self-covered) is now correctly excluded from
-        # [tool.coverage.run] measurement instead of counting the test files'
-        # own statements toward the package's coverage percentage. On this
-        # PR, that drops the reported total from 98.91% (90 files) to 98.70%
-        # (86 files) -- a one-time discontinuity in this PR's own base-vs-head
-        # comparison, not a regression in production-code coverage (every
-        # production file's hit/miss counts are byte-for-byte identical
-        # before and after). No threshold added: `target: auto` compares
-        # against each PR's own base commit, so once this PR merges, 98.70%
-        # becomes the new baseline and every subsequent PR compares against
-        # that -- there's no lingering gap to accommodate, and this status
-        # check isn't required for merging anyway.
+        # One-time coverage-measurement shift from this migration; see PR description.
     patch:
       default:
         enabled: yes
