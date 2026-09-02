@@ -13,6 +13,10 @@ Change Log
 
 Unreleased
 
+[4.0.0]
+---------------------
+* chore: upgrade requirements
+
 [3.0.0] - 2026-05-25
 ---------------------
 * feat: construct and index Spanish Algolia objects for skills, jobs and industries
