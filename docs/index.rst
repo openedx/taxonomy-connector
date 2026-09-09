@@ -11,7 +11,6 @@ Contents:
    readme
    internationalization
    modules
-   changelog
    decisions
 
 

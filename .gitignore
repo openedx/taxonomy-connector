@@ -60,3 +60,4 @@ tests/__init__.py
 
 # Virtual environments
 venv/
+.venv/
