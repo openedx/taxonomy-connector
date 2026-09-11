@@ -18,9 +18,9 @@ beautifulsoup4==4.15.0
     # via -r requirements/base.in
 billiard==4.2.4
     # via celery
-boto3==1.43.77
+boto3==1.43.92
     # via django-ses
-botocore==1.43.77
+botocore==1.43.92
     # via
     #   boto3
     #   s3transfer
@@ -32,7 +32,7 @@ cffi==2.1.1
     # via pynacl
 charset-normalizer==3.5.1
     # via requests
-click==8.4.2
+click==8.5.0
     # via
     #   celery
     #   click-didyoumean
@@ -48,7 +48,7 @@ click-repl==0.3.0
     # via celery
 code-annotations==3.0.0
     # via -r requirements/test.in
-coverage[toml]==7.15.4
+coverage[toml]==7.16.0
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -72,19 +72,19 @@ django-model-utils==5.0.0
     # via -r requirements/base.in
 django-object-actions==5.1.2
     # via -r requirements/base.in
-django-ses==4.7.2
+django-ses==4.8.0
     # via -r requirements/base.in
 django-solo==2.5.1
     # via -r requirements/base.in
 django-waffle==5.0.0
     # via edx-django-utils
-djangorestframework==3.18.0
+djangorestframework==3.18.1
     # via -r requirements/base.in
 dnspython==2.8.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
-edx-django-utils==8.0.1
+edx-django-utils==8.0.2
     # via
     #   -r requirements/base.in
     #   edx-rest-api-client
@@ -98,7 +98,7 @@ edx-rest-api-client==7.0.0
     # via -r requirements/base.in
 factory-boy==3.3.3
     # via -r requirements/test.in
-faker==40.36.0
+faker==40.38.0
     # via
     #   -r requirements/test.in
     #   factory-boy
@@ -140,7 +140,7 @@ pygments==2.21.0
     # via pytest
 pyjwt==2.13.0
     # via edx-rest-api-client
-pymongo==4.17.0
+pymongo==4.18.1
     # via edx-opaque-keys
 pynacl==1.6.2
     # via edx-django-utils
@@ -156,7 +156,7 @@ python-dateutil==2.9.0.post0
     # via
     #   botocore
     #   celery
-python-slugify==8.0.4
+python-slugify==9.0.0
     # via code-annotations
 pytz==2026.3.post1
     # via -r requirements/base.in
@@ -169,7 +169,7 @@ requests==2.34.2
     #   algoliasearch
     #   edx-rest-api-client
     #   responses
-responses==0.26.2
+responses==0.26.3
     # via -r requirements/test.in
 s3transfer==0.19.2
     # via boto3
@@ -209,7 +209,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.8.2
+wcwidth==0.8.3
     # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
