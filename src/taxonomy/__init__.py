@@ -8,3 +8,6 @@ The purpose of this service is to aggregate skills taxonomy data for edx platfor
 data like course title, description etc. and then, for skills, calling the EMSI API that returns skills taxonomy for
 each course based on its description, title etc.
 """
+from importlib.metadata import version
+
+__version__ = version("taxonomy-connector")
