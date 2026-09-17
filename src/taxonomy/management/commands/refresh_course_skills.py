@@ -4,8 +4,10 @@ Management command for refreshing the skills associated with courses.
 """
 
 import logging
+from datetime import timedelta
 
 from django.core.management.base import BaseCommand
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from taxonomy import utils
@@ -27,6 +29,8 @@ class Command(BaseCommand):
         $ ./manage.py refresh_course_skills --args-from-database
         $ # To update all the courses
         $ ./manage.py refresh_course_skills --all --commit
+        $ # To update only courses created in the last 7 days
+        $ ./manage.py refresh_course_skills --created-within-days 7 --commit
     """
     help = 'Refreshes the skills associated with courses.'
     product_type = ProductTypes.Course
@@ -53,6 +57,13 @@ class Command(BaseCommand):
             help=_('Create course skill mapping for all the courses.'),
         )
         parser.add_argument(
+            '--created-within-days',
+            metavar=_('DAYS'),
+            type=int,
+            default=None,
+            help=_('Only refresh courses created within the last DAYS days, for incremental/scheduled runs.'),
+        )
+        parser.add_argument(
             '--commit',
             action='store_true',
             default=False,
@@ -72,8 +83,12 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        if not (options['args_from_database'] or options['all'] or options['course']):
-            raise InvalidCommandOptionsError('Either course, args_from_database or all argument must be provided.')
+        if not (
+            options['args_from_database'] or options['all'] or options['course'] or options['created_within_days']
+        ):
+            raise InvalidCommandOptionsError(
+                'Either course, args_from_database, all or created_within_days argument must be provided.'
+            )
 
         if options['args_from_database']:
             options = self.get_args_from_database()
@@ -88,8 +103,13 @@ class Command(BaseCommand):
                 raise CourseMetadataNotFoundError(
                     'No course metadata was found for following courses. {}'.format(options['course'])
                 )
+        elif options['created_within_days']:
+            created_after = now() - timedelta(days=options['created_within_days'])
+            courses = get_course_metadata_provider().get_recently_created_courses(created_after=created_after)
         else:
-            raise InvalidCommandOptionsError('Either course or all argument must be provided.')
+            raise InvalidCommandOptionsError(
+                'Either course, all or created_within_days argument must be provided.'
+            )
 
         LOGGER.info('[TAXONOMY] Refresh course skills process started.')
         utils.refresh_product_skills(courses, options['commit'], self.product_type)

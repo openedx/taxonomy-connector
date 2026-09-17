@@ -48,6 +48,24 @@ class CourseMetadataProvider:
         """
 
     @abstractmethod
+    def get_recently_created_courses(self, created_after):
+        """
+        Get iterator for courses created after the given timestamp.
+
+        Arguments:
+          created_after(datetime): Only courses created after this timestamp are included.
+
+        Returns:
+          iterator<dict>: An iterator of courses in the form of dictionary.
+            Dictionary object must have the following keys
+            1. uuid: Course UUID
+            2. key: Course key
+            3. title: Course Title
+            4. short_description: Course's short description
+            5. full_description: Course's full description
+        """
+
+    @abstractmethod
     def get_course_key(self, course_run_key):
         """
         Get the course key for the given course run key.
