@@ -13,6 +13,12 @@ Change Log
 
 Unreleased
 
+[4.1.0]
+---------------------
+* feat: add ``--created-within-days`` option to ``refresh_course_skills`` and a matching
+  ``CourseMetadataProvider.get_recently_created_courses`` provider method, so hosts can run an
+  incremental, recently-created-courses-only skills refresh instead of only ``--all``/``--course``.
+
 [4.0.0]
 ---------------------
 * chore: upgrade requirements
