@@ -119,9 +119,9 @@ local_scheme = "no-local-version"
 fallback_version = "0.0.0"
 
 [tool.semantic_release]
-# Existing release tags are bare version numbers (e.g. "3.0.0"), not the
-# "v{version}" python-semantic-release defaults to. Without this, semantic-release
-# wouldn't recognize any prior release and would restart versioning from scratch.
+# Explicit for clarity, even though it matches python-semantic-release's own
+# default -- a completed bridging release (v4.0.0, same commit as the old
+# bare 4.0.0 tag) already exists, so PSR will pick up from there.
 tag_format = "v{version}"
 build_command = "pip install build && SETUPTOOLS_SCM_PRETEND_VERSION=$NEW_VERSION python -m build"
 # Already past 1.0 (3.x), so major_on_zero is a no-op today -- it only governs
