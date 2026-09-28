@@ -29,7 +29,7 @@ coverage: clean ## generate and view HTML coverage report
 	$(BROWSER)htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	uv run tox -e docs
+	tox -e docs
 	$(BROWSER)docs/_build/html/index.html
 
 compile-requirements: ## generate the uv.lock file without upgrading packages
@@ -40,19 +40,19 @@ upgrade: ## upgrade all packages in uv.lock and sync constraints from edx-lint
 	uv lock --upgrade
 
 quality: ## check coding style with pycodestyle and pylint
-	uv run tox -e quality
+	tox -e quality
 
 pii_check: ## check for PII annotations on all Django models
-	uv run tox -e pii-annotations
+	tox -e pii-annotations
 
 requirements: ## install development environment requirements
 	uv sync --group dev
 
 test: clean ## run tests in the current virtualenv
-	DJANGO_SETTINGS_MODULE=test_settings uv run pytest
+	DJANGO_SETTINGS_MODULE=test_settings pytest
 
 diff_cover: test ## find diff lines that need test coverage
-	uv run diff-cover coverage.xml
+	diff-cover coverage.xml
 test-all: quality pii_check test ## run tests on every supported Python/Django combination
 
 validate: quality pii_check test ## run tests and quality checks
@@ -61,10 +61,10 @@ selfcheck: ## check that the Makefile is well-formed
 	@echo "The Makefile is well-formed."
 
 compile_translations: ## compile translation files, outputting .po files for each supported language
-	cd src/taxonomy && uv run ../../manage.py compilemessages
+	cd src/taxonomy && ../../manage.py compilemessages
 
 detect_changed_source_translations:
-	cd src/taxonomy && uv run i18n_tool changed
+	cd src/taxonomy && i18n_tool changed
 pull_translations: ## pull translations from Transifex
 	tx pull -t -a -f --mode reviewed
 
@@ -72,7 +72,7 @@ push_translations: ## push source translation files (.po) from Transifex
 	tx push -s
 
 dummy_translations: ## generate dummy translation (.po) files
-	cd src/taxonomy && uv run i18n_tool dummy
+	cd src/taxonomy && i18n_tool dummy
 build_dummy_translations: extract_translations dummy_translations compile_translations ## generate and compile dummy translation files
 
 validate_translations: build_dummy_translations detect_changed_source_translations ## validate translations
