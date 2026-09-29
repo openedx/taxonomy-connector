@@ -40,7 +40,7 @@ INSTALLED_APPS = (
 )
 
 LOCALE_PATHS = [
-    root('taxonomy', 'conf', 'locale'),
+    root('src', 'taxonomy', 'conf', 'locale'),
 ]
 
 ROOT_URLCONF = 'taxonomy.urls'
