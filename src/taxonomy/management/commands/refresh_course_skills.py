@@ -17,6 +17,7 @@ from taxonomy.models import RefreshCourseSkillsConfig
 from taxonomy.providers.utils import get_course_metadata_provider
 
 LOGGER = logging.getLogger(__name__)
+REQUIRED_OPTIONS = ('args_from_database', 'all', 'course', 'created_within_days')
 
 
 class Command(BaseCommand):
@@ -83,9 +84,7 @@ class Command(BaseCommand):
         """
         Entry point for management command execution.
         """
-        if not (
-            options['args_from_database'] or options['all'] or options['course'] or options['created_within_days']
-        ):
+        if not any(options[key] for key in REQUIRED_OPTIONS):
             raise InvalidCommandOptionsError(
                 'Either course, args_from_database, all or created_within_days argument must be provided.'
             )
