@@ -30,8 +30,8 @@ class Command(BaseCommand):
         $ ./manage.py refresh_course_skills --args-from-database
         $ # To update all the courses
         $ ./manage.py refresh_course_skills --all --commit
-        $ # To update only courses created in the last 7 days
-        $ ./manage.py refresh_course_skills --created-within-days 7 --commit
+        $ # To update only courses created in the last N days
+        $ ./manage.py refresh_course_skills --created-within-days N --commit
     """
     help = 'Refreshes the skills associated with courses.'
     product_type = ProductTypes.Course
