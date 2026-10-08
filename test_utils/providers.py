@@ -98,6 +98,26 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                 'full_description': course.full_description,
             }
 
+    def get_recently_created_courses(self, created_after):
+        """
+        Get iterator of courses created after the given timestamp.
+
+        The mocked provider doesn't actually filter by `created_after` -- tests control which
+        courses are "recent" via `mock_courses`, same as `get_all_courses`.
+        """
+        if self.mock_courses is not None:
+            courses = self.mock_courses
+        else:
+            courses = [MockCourse() for _ in range(5)]
+        for course in courses:
+            yield {
+                'uuid': course.uuid,
+                'key': course.key,
+                'title': course.title,
+                'short_description': course.short_description,
+                'full_description': course.full_description,
+            }
+
     def get_course_key(self, course_run_key):
         """
         Get the course key for the given course run key.

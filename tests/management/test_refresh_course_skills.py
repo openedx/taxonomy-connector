@@ -44,7 +44,7 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         """
         with self.assertRaisesRegex(
                 InvalidCommandOptionsError,
-                'Either course, args_from_database or all argument must be provided.'
+                'Either course, args_from_database, all or created_within_days argument must be provided.'
         ):
             call_command(self.command)
 
@@ -55,7 +55,10 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
         config = RefreshCourseSkillsConfig.get_solo()
         config.arguments = ''
         config.save()
-        with self.assertRaisesRegex(InvalidCommandOptionsError, 'Either course or all argument must be provided.'):
+        with self.assertRaisesRegex(
+                InvalidCommandOptionsError,
+                'Either course, all or created_within_days argument must be provided.'
+        ):
             call_command(self.command, '--args-from-database')
 
     @responses.activate
@@ -163,6 +166,33 @@ class RefreshCourseSkillsCommandTests(TaxonomyTestCase):
 
         self.assertEqual(skill.count(), 4)
         self.assertEqual(course_skill.count(), 12)
+
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')
+    @mock.patch('taxonomy.management.commands.refresh_course_skills.utils.EMSISkillsApiClient.get_product_skills')
+    def test_course_skill_saved_with_created_within_days_param(
+            self, get_product_skills_mock, get_course_provider_mock
+    ):
+        """
+        Test that the command creates a Skill and many CourseSkills records using
+        --created-within-days, and that it calls `get_recently_created_courses` rather than
+        `get_all_courses`/`get_courses`.
+        """
+        get_product_skills_mock.return_value = self.skills_emsi_client_response
+        provider = DiscoveryCourseMetadataProvider([self.course_1, self.course_2])
+        get_course_provider_mock.return_value = provider
+        skill = Skill.objects.all()
+        course_skill = CourseSkills.objects.all()
+        self.assertEqual(skill.count(), 0)
+        self.assertEqual(course_skill.count(), 0)
+
+        with mock.patch.object(
+                provider, 'get_recently_created_courses', wraps=provider.get_recently_created_courses
+        ) as get_recent_mock:
+            call_command(self.command, '--created-within-days', '7', '--commit')
+            get_recent_mock.assert_called_once()
+
+        self.assertEqual(skill.count(), 4)
+        self.assertEqual(course_skill.count(), 8)
 
     @responses.activate
     @mock.patch('taxonomy.management.commands.refresh_course_skills.get_course_metadata_provider')

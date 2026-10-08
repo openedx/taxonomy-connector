@@ -5,6 +5,9 @@ Validator for course metadata provider.
 All host platform must run this validator to make sure providers are working as expected.
 """
 import inspect
+from datetime import timedelta
+
+from django.utils.timezone import now
 
 from taxonomy.providers.utils import get_course_metadata_provider
 
@@ -39,6 +42,7 @@ class CourseMetadataProviderValidator:
         """
         self.validate_get_courses()
         self.validate_get_all_courses()
+        self.validate_get_recently_created_courses()
         self.validate_get_course_key()
         self.validate_is_valid_course()
         self.validate_is_valid_organization()
@@ -63,6 +67,23 @@ class CourseMetadataProviderValidator:
         Validate `get_all_courses` methods has the correct interface implemented.
         """
         courses = self.course_metadata_provider.get_all_courses()
+
+        for course in courses:
+            assert 'uuid' in course
+            assert 'key' in course
+            assert 'title' in course
+            assert 'short_description' in course
+            assert 'full_description' in course
+
+    def validate_get_recently_created_courses(self):
+        """
+        Validate `get_recently_created_courses` methods has the correct interface implemented.
+        """
+        # A far-past cutoff, so this validates the interface/shape without asserting on which of
+        # the host's fixture courses happen to be "recent" -- same approach as get_all_courses.
+        courses = self.course_metadata_provider.get_recently_created_courses(created_after=now() - timedelta(
+            days=365 * 100
+        ))
 
         for course in courses:
             assert 'uuid' in course
